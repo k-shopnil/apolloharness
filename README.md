@@ -1,34 +1,24 @@
 <div align="center">
 
-  <img src="./harness_mark_white.png" alt="HarnessApollo Header" width="760" />
+  <img src="./harness_mark_white.png" alt="HarnessApollo Header" width="700" />
 
   <br /><br />
 
-  <!-- Mission & Challenge Badges -->
   <a href="https://www.spaceappschallenge.org/">
-    <img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=for-the-badge&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" />
+    <img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" />
   </a>
   <a href="https://www.spaceappschallenge.org/">
-    <img src="https://img.shields.io/badge/Challenge-04%20//%20CLPS%20Mission%20Browser-FF4D00?style=for-the-badge" alt="Challenge 04" />
+    <img src="https://img.shields.io/badge/Challenge-04%20//%20CLPS%20Browser-FF4D00?style=flat-square" alt="Challenge 04" />
   </a>
-  <a href="https://www.nasa.gov/commercial-lunar-payload-services/">
-    <img src="https://img.shields.io/badge/Program-NASA%20CLPS-09090B?style=for-the-badge&logo=target&logoColor=white" alt="NASA CLPS" />
+  <a href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/">
+    <img src="https://img.shields.io/badge/Team-Chhayanautical-18181B?style=flat-square&logo=target&logoColor=white" alt="Team Chhayanautical" />
+  </a>
+  <a href="mailto:shopnilmax@gmail.com">
+    <img src="https://img.shields.io/badge/Contact-Email-EA4335?style=flat-square&logo=gmail&logoColor=white" alt="Email" />
   </a>
   <a href="LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-22C55E?style=for-the-badge" alt="MIT License" />
+    <img src="https://img.shields.io/badge/License-MIT-22C55E?style=flat-square" alt="MIT License" />
   </a>
-
-  <br /><br />
-
-  <!-- Projected Tech & Data Provenance Badges -->
-  <img src="https://img.shields.io/badge/NASA%20PDS-Data%20Archive-164E63?style=flat-square&logo=satellite&logoColor=white" alt="NASA PDS" />
-  <img src="https://img.shields.io/badge/LROC%20/%20LOLA-20m%20DEM%20Polar-1E293B?style=flat-square" alt="LOLA DEM" />
-  <img src="https://img.shields.io/badge/NAIF%20SPICE-DE421%20Ephemeris-374151?style=flat-square" alt="NAIF SPICE" />
-  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React 19" />
-  <img src="https://img.shields.io/badge/TypeScript-5.7-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
-  <img src="https://img.shields.io/badge/Vite-6.0-646CFF?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
-  <img src="https://img.shields.io/badge/Tailwind%20CSS-v4-06B6D4?style=flat-square&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Design%20System-Figma-F24E1E?style=flat-square&logo=figma&logoColor=white" alt="Figma" />
 
   <br /><br />
 
@@ -59,13 +49,24 @@ As commercial landers and rovers venture into the challenging terrains of the lu
 
 ## 🛠️ Projected Architecture & Tech Stack
 
-| Domain | Technologies & Standards | Purpose |
+| Domain | Badges | Purpose |
 |---|---|---|
-| **Mission Telemetry & UI** | React 19 · TypeScript 5.7 · Vite 6 | High-density aerospace dashboard & mission browser |
-| **Styling & Design System** | Tailwind CSS v4 · Figma Master Tokens | Lunar Industrial Minimalist design system (*Dieter Rams inspired*) |
-| **Lunar Altimetry & Imagery** | LOLA DEM 20m · LROC WAC/NAC · NASA PDS | High-resolution lunar south pole topographic & shadow maps |
-| **Orbital Mechanics** | NAIF SPICE (DE421) · Planetary Ephemerides | Real-time direct-to-Earth line-of-sight & solar vectors |
-| **Environmental Scoring** | Volatiles, Thermal & Slope Algorithms | Multi-parameter landing site viability ranking |
+| **Mission Telemetry & UI** | ![React](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB) ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white) | High-density aerospace dashboard & mission browser |
+| **Styling & Design System** | ![Tailwind](https://img.shields.io/badge/Tailwind_CSS_v4-38B2AC?style=flat-square&logo=tailwindcss&logoColor=white) ![Figma](https://img.shields.io/badge/Figma-F24E1E?style=flat-square&logo=figma&logoColor=white) | Lunar Industrial Minimalist design system (*Swiss typographic grid*) |
+| **Lunar Altimetry & Data** | ![PDS](https://img.shields.io/badge/NASA_PDS-Archive-164E63?style=flat-square) ![LOLA](https://img.shields.io/badge/LOLA_DEM-20m_Polar-1E293B?style=flat-square) ![LROC](https://img.shields.io/badge/LROC-WAC%2FNAC-334155?style=flat-square) | High-resolution lunar south pole topographic & shadow maps |
+| **Orbital Mechanics** | ![SPICE](https://img.shields.io/badge/NAIF_SPICE-DE421-374151?style=flat-square) | Real-time direct-to-Earth line-of-sight & solar ephemeris vectors |
+
+---
+
+## 👥 Team & Contacts
+
+**HarnessApollo** is engineered and maintained by **Team Chhayanautical** participating in the **NASA Space Apps Challenge 2026** (Challenge #4: *CLPS Lunar Mission Browser*).
+
+| Channel | Link / Address | Description |
+|---|---|---|
+| 🌐 **NASA Space Apps Team Finder** | [chhayanautical @ NSAC Finder](https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/) | Official team registration & participant roster |
+| ✉️ **Direct Email** | [shopnilmax@gmail.com](mailto:shopnilmax@gmail.com) | Team Lead contact & general correspondence |
+| 🚀 **Project Repository** | [k-shopnil/apolloharness](https://github.com/k-shopnil/apolloharness) | Primary open-source codebase & issue tracker |
 
 ---
 
