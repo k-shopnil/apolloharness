@@ -13,7 +13,10 @@
   <a href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/">
     <img src="https://img.shields.io/badge/Team-Chhayanautical-18181B?style=flat-square&logo=target&logoColor=white" alt="Team Chhayanautical" />
   </a>
-  <a href="mailto:shopnilmax@gmail.com">
+  <a href="https://chhayanautical.web.app">
+    <img src="https://img.shields.io/badge/Website-chhayanautical.web.app-2563EB?style=flat-square&logo=googlechrome&logoColor=white" alt="Website" />
+  </a>
+  <a href="mailto:chhayanautical@gmail.com">
     <img src="https://img.shields.io/badge/Contact-Email-EA4335?style=flat-square&logo=gmail&logoColor=white" alt="Email" />
   </a>
   <a href="LICENSE">
@@ -55,9 +58,10 @@ HarnessApollo bridges planetary data archives with next-generation mission plann
 
 | Channel | Link / Address | Description |
 |---|---|---|
-| 🌐 **NASA Space Apps Team Finder** | [chhayanautical @ NSAC Finder](https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/) | Official team registration & participant roster |
-| ✉️ **Direct Email** | [shopnilmax@gmail.com](mailto:shopnilmax@gmail.com) | Team Lead contact & general correspondence |
-| 🚀 **Project Repository** | [k-shopnil/apolloharness](https://github.com/k-shopnil/apolloharness) | Primary codebase & release tracking |
+| 🌐 **Official Website** | [chhayanautical.web.app](https://chhayanautical.web.app) | Mission portal & live web deployment |
+| 🚀 **NASA Space Apps Team Finder** | [chhayanautical @ NSAC Finder](https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/) | Official team registration & participant roster |
+| ✉️ **Direct Email** | [chhayanautical@gmail.com](mailto:chhayanautical@gmail.com) | Official team contact & inquiries |
+| 🐙 **Project Repository** | [k-shopnil/apolloharness](https://github.com/k-shopnil/apolloharness) | Primary codebase & release tracking |
 
 ---
 
