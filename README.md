@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="./harness_mark_white.png" alt="HarnessApollo Header" width="700" />
+  <img src="./harness_mark_white_affiliation.png" alt="HarnessApollo Header" width="700" />
 
   <br /><br />
 
