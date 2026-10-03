@@ -7,7 +7,7 @@
   <a href="https://www.spaceappschallenge.org/">
     <img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" />
   </a>
-  <a href="https://www.spaceappschallenge.org/">
+  <a href="https://www.spaceappschallenge.org/2026/challenges/clps-lunar-mission-browser/">
     <img src="https://img.shields.io/badge/Challenge-04%20//%20CLPS%20Browser-FF4D00?style=flat-square" alt="Challenge 04" />
   </a>
   <a href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/">
