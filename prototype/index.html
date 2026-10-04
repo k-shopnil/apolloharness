@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-black text-white">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChhayaNautical — CLPS Lunar Mission Browser</title>
+  <link rel="icon" type="image/png" href="harness_badge_color.png">
+  <link rel="apple-touch-icon" href="harness_badge_color.png">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- CesiumJS Official Engine -->
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <script>
+    window.CESIUM_BASE_URL = 'https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/';
+  </script>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.121/Build/Cesium/Cesium.js"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              black: '#000000',
+              panel: '#09090B',
+              card: '#121214',
+              border: '#27272A',
+              orange: '#FF4D00',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Precision custom styles */
+    .glass-header {
+      background: rgba(9, 9, 11, 0.80);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .dashed-ellipse {
+      stroke-dasharray: 6, 4;
+    }
+    /* Hide scrollbar for clean aerospace UI */
+    ::-webkit-scrollbar {
+      width: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #000000;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #27272A;
+      border-radius: 2px;
+    }
+
+    /* Hide Cesium bottom attribution/credits */
+    .cesium-viewer-bottom {
+      display: none !important;
+    }
+  </style>
+</head>
+<body class="h-full overflow-hidden flex flex-col font-sans bg-black select-none">
+
+  <!-- ================================================================= -->
+  <!-- 1. GLASSMORPHIC TOP NAVIGATION                                     -->
+  <!-- ================================================================= -->
+  <header class="glass-header h-12 w-full flex items-center justify-between px-6 z-50 shrink-0">
+    <!-- Brand -->
+    <div class="flex items-center space-x-3 cursor-pointer" onclick="resetToGlobal()" title="Apollo Harness · Return to Fleet Overview">
+      <div class="w-2 h-2 rounded-full bg-brand-orange animate-pulse"></div>
+      <img src="appheader.png" alt="Apollo Harness" class="h-7 w-auto object-contain block" />
+    </div>
+
+    <!-- Center Category Tabs -->
+    <div class="flex items-center space-x-1 bg-black/40 p-1 border border-brand-border rounded-sm">
+      <button id="tab-all" onclick="resetToGlobal()" class="px-3 py-1 text-xs font-medium rounded-sm bg-white text-black transition-colors">
+        All Missions (7)
+      </button>
+      <button id="tab-volatiles" onclick="selectMission('im-2')" class="px-3 py-1 text-xs font-medium rounded-sm text-zinc-400 hover:text-white transition-colors flex items-center space-x-1">
+        <span class="text-brand-orange">★</span>
+        <span>Volatiles & Drills (3)</span>
+      </button>
+      <button id="tab-rovers" onclick="selectMission('griffin-1')" class="px-3 py-1 text-xs font-medium rounded-sm text-zinc-400 hover:text-white transition-colors">
+        Rovers & Mobility (2)
+      </button>
+    </div>
+
+    <!-- Right Status -->
+    <div class="flex items-center space-x-3">
+      <div class="font-mono text-[10px] px-2 py-0.5 border border-brand-border text-zinc-300 bg-zinc-950 flex items-center space-x-1.5">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        <span>NASA PDS · OFFLINE CACHED</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- 2. MAIN APPLICATION WORKSPACE (Split 70% Map / 30% Sidebar)       -->
+  <!-- ================================================================= -->
+  <main class="flex-1 flex overflow-hidden relative">
+
+    <!-- =============================================================== -->
+    <!-- LEFT: MAP VIEWPORT                                              -->
+    <!-- =============================================================== -->
+    <section class="flex-1 relative bg-black flex items-center justify-center overflow-hidden border-r border-brand-border">
+
+      <!-- 3D Cesium Lunar Canvas (Ion Asset 2684829) -->
+      <div id="cesiumContainer" class="absolute inset-0 w-full h-full"></div>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- VIEW A: GLOBAL MOON FLEET VIEW (Visible by default)           -->
+      <!-- ------------------------------------------------------------- -->
+      <div id="view-global" class="absolute inset-0 pointer-events-none flex items-center justify-center transition-opacity duration-300">
+        
+        <!-- Top HUD Info -->
+        <div class="absolute top-4 left-6 font-mono text-[10px] text-zinc-400 uppercase tracking-wider bg-black/75 px-2.5 py-1 border border-zinc-800 pointer-events-auto">
+          VIEW: 3D LUNAR TILES // CESIUM ION ASSET 2684829
+        </div>
+
+        <!-- 3D Status Badge -->
+        <div class="absolute top-4 right-6 flex items-center space-x-2 pointer-events-auto">
+          <div class="font-mono text-[10px] px-2.5 py-1 border border-brand-orange bg-black/85 text-brand-orange font-bold flex items-center space-x-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-brand-orange animate-pulse"></span>
+            <span>3D MOON ENGINE ACTIVE</span>
+          </div>
+        </div>
+
+        <!-- Bottom Left Telemetry HUD -->
+        <div class="absolute bottom-4 left-6 font-mono text-[10px] text-zinc-400 bg-black/80 px-3 py-1.5 border border-zinc-800 space-y-0.5 pointer-events-auto">
+          <div>ELLIPSOID: MOON (IAU 1,737.4 km)  |  LOLA 20m DEM</div>
+          <div class="text-zinc-500">DRAG TO ORBIT · SCROLL TO ZOOM · CLICK 3D PIN OR FLEET MANIFEST TO INSPECT</div>
+        </div>
+
+        <!-- Scale hint -->
+        <div class="absolute bottom-4 right-6 font-mono text-[10px] text-zinc-400 bg-zinc-950 px-2 py-1 border border-brand-border pointer-events-auto">
+          SCALE: [──── 500 KM ────]
+        </div>
+      </div>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- VIEW B: ZOOMED SITE INSPECTOR (Mons Mouton)                   -->
+      <!-- ------------------------------------------------------------- -->
+      <div id="view-zoomed" class="absolute inset-0 flex flex-col hidden opacity-0 transition-opacity duration-300">
+        
+        <!-- Breadcrumb / Back Button HUD -->
+        <div class="absolute top-4 left-6 z-20 flex items-center space-x-3">
+          <button onclick="resetToGlobal()" class="font-mono text-xs bg-brand-card hover:bg-white hover:text-black text-white px-3 py-1.5 border border-brand-border flex items-center space-x-2 transition-colors">
+            <span>◀</span>
+            <span class="font-semibold">BACK TO GLOBAL FLEET</span>
+          </button>
+          <span class="text-zinc-600 font-mono text-xs">/</span>
+          <span class="font-mono text-xs text-zinc-400">TARGET: MONS MOUTON (84.79°S, 29.20°E)</span>
+        </div>
+
+        <!-- Top Right Map Tools -->
+        <div class="absolute top-4 right-6 z-20 flex items-center space-x-2">
+          <button class="font-mono text-[10px] bg-black/80 text-zinc-300 border border-brand-border px-2 py-1 hover:text-white">
+            ☑ TOPOGRAPHY (LOLA)
+          </button>
+          <button class="font-mono text-[10px] bg-black/80 text-zinc-400 border border-brand-border px-2 py-1 hover:text-white">
+            ☐ PSR MASK
+          </button>
+        </div>
+
+        <!-- Zoomed High-Contrast Relief Canvas -->
+        <div class="flex-1 relative flex items-center justify-center overflow-hidden">
+          
+          <!-- Shaded Relief Texture of Crater Rim -->
+          <div class="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-700 via-zinc-900 to-black"></div>
+          
+          <!-- Subtle Elevation Contour Rings (LOLA DEM Simulation) -->
+          <svg class="absolute inset-0 w-full h-full" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice">
+            <!-- Background Grid -->
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#FFFFFF" stroke-opacity="0.04" stroke-width="1"/>
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+
+            <!-- Shackleton Crater Rim Outline -->
+            <path d="M 120 180 Q 400 80 680 180 Q 750 350 620 480 Q 400 580 180 480 Q 80 340 120 180 Z" 
+                  fill="#050507" stroke="#27272A" stroke-width="1.5"/>
+
+            <!-- Pitch-Black Permanently Shadowed Region (Crater Floor) -->
+            <path d="M 220 240 Q 400 160 580 240 Q 620 360 520 440 Q 400 500 280 440 Q 180 350 220 240 Z" 
+                  fill="#000000" stroke="#3F3F46" stroke-width="1" stroke-dasharray="2,2"/>
+            <text x="400" y="340" text-anchor="middle" fill="#52525B" font-family="JetBrains Mono" font-size="10" letter-spacing="0.1em">
+              PERMANENTLY SHADOWED REGION (PSR) · TEMP: 40 K
+            </text>
+
+            <!-- 5km x 3km Landing Ellipse on the Ridge -->
+            <ellipse cx="400" cy="210" rx="140" ry="55" fill="none" stroke="#FFFFFF" stroke-width="1.5" class="dashed-ellipse"/>
+            <text x="400" y="145" text-anchor="middle" fill="#A1A1AA" font-family="JetBrains Mono" font-size="10">
+              5 km × 3 km DESCENT DISPERSION ELLIPSE
+            </text>
+
+            <!-- Vector Line to Ice Deposit (1.2 km) -->
+            <line x1="400" y1="210" x2="400" y2="290" stroke="#00E5FF" stroke-width="1.5" stroke-dasharray="4,3"/>
+            <circle cx="400" cy="290" r="3" fill="#00E5FF" />
+            <text x="415" y="255" fill="#00E5FF" font-family="JetBrains Mono" font-size="10">
+              1.2 km to Water-Ice Cold Trap
+            </text>
+
+            <!-- Sun Azimuth Vector (Incoming Solar Illumination) -->
+            <line x1="220" y1="110" x2="330" y2="180" stroke="#FFB300" stroke-width="1.5"/>
+            <polygon points="330,180 320,172 322,183" fill="#FFB300"/>
+            <text x="210" y="100" fill="#FFB300" font-family="JetBrains Mono" font-size="10">
+              ☀️ Sun Vector (Az 042° · Elev 1.4°)
+            </text>
+
+            <!-- Active Target Crosshair ⌖ -->
+            <g transform="translate(400, 210)">
+              <circle cx="0" cy="0" r="6" fill="none" stroke="#FF4D00" stroke-width="1.5"/>
+              <line x1="-12" y1="0" x2="12" y2="0" stroke="#FF4D00" stroke-width="1.5"/>
+              <line x1="0" y1="-12" x2="0" y2="12" stroke="#FF4D00" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="1.5" fill="#FF4D00"/>
+            </g>
+          </svg>
+
+        </div>
+
+        <!-- Zoomed Bottom Telemetry Bar -->
+        <div class="h-10 bg-brand-panel border-t border-brand-border px-6 flex items-center justify-between font-mono text-[10px] text-zinc-400 shrink-0">
+          <div class="flex items-center space-x-4">
+            <div>COORDS: <span class="text-white">84.79° S, 29.20° E</span></div>
+            <div>PEAK ELEVATION: <span class="text-white">+1,240 m</span></div>
+            <div>MEAN SLOPE: <span class="text-white">5.6° (CRATER FLANK)</span></div>
+          </div>
+          <div>SCALE: [──── 2 KM ────]</div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =============================================================== -->
+    <!-- RIGHT: PRECISION MISSION TELEMETRY SIDEBAR                      -->
+    <!-- =============================================================== -->
+    <aside class="w-[420px] bg-brand-panel flex flex-col h-full overflow-y-auto shrink-0 divide-y divide-brand-border">
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- STATE 1: FLEET MANIFEST (Shown in Global View)                -->
+      <!-- ------------------------------------------------------------- -->
+      <div id="sidebar-fleet" class="p-6 space-y-4">
+        <div class="flex items-center justify-between">
+          <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+            01 // CLPS ACTIVE FLEET MANIFEST
+          </div>
+          <div class="font-mono text-[10px] text-zinc-500">8 MISSIONS</div>
+        </div>
+
+        <!-- Fleet Table Rows -->
+        <div class="space-y-2">
+          <!-- Row 1: IM-2 (Featured) -->
+          <div onclick="selectMission('im-2')" class="p-3 bg-brand-card border border-brand-orange cursor-pointer hover:border-white transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-sm text-white">Nova-C Athena (IM-2)</span>
+              <span class="font-mono text-[9px] bg-brand-orange text-black px-1 font-bold">VOLATILES</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 font-mono text-[11px] text-zinc-400">
+              <div>PROVIDER: <span class="text-zinc-200">Intuitive Machines</span></div>
+              <div>TARGET: <span class="text-zinc-200">Mons Mouton</span></div>
+              <div>PAYLOAD: <span class="text-zinc-200">PRIME-1 (TRIDENT)</span></div>
+              <div>STATUS: <span class="text-zinc-200">Landed (Partial)</span></div>
+            </div>
+          </div>
+
+          <!-- Row 2: Griffin-1 -->
+          <div onclick="selectMission('griffin-1')" class="p-3 bg-brand-card border border-brand-border cursor-pointer hover:border-zinc-500 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-sm text-white">Griffin Mission 1</span>
+              <span class="font-mono text-[9px] border border-zinc-700 text-zinc-400 px-1">ROVER</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 font-mono text-[11px] text-zinc-400">
+              <div>PROVIDER: <span class="text-zinc-200">Astrobotic</span></div>
+              <div>TARGET: <span class="text-zinc-200">Mons Mouton</span></div>
+              <div>PAYLOAD: <span class="text-zinc-200">VIPER Rover</span></div>
+              <div>WINDOW: <span class="text-zinc-200">2026</span></div>
+            </div>
+          </div>
+
+          <!-- Row 3: Blue Ghost 1 -->
+          <div onclick="selectMission('blue-ghost-1')" class="p-3 bg-brand-card border border-brand-border cursor-pointer hover:border-zinc-500 transition-colors">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-sm text-white">Blue Ghost 1</span>
+              <span class="font-mono text-[9px] border border-zinc-700 text-zinc-400 px-1">RADIATION</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 font-mono text-[11px] text-zinc-400">
+              <div>PROVIDER: <span class="text-zinc-200">Firefly</span></div>
+              <div>TARGET: <span class="text-zinc-200">Mare Crisium</span></div>
+              <div>PAYLOAD: <span class="text-zinc-200">LuSEE-Night</span></div>
+              <div>WINDOW: <span class="text-zinc-200">2025</span></div>
+            </div>
+          </div>
+
+          <!-- Row 4: IM-1 -->
+          <div onclick="selectMission('im-1')" class="p-3 bg-brand-card border border-brand-border cursor-pointer hover:border-zinc-500 transition-colors opacity-70">
+            <div class="flex items-center justify-between mb-1">
+              <span class="font-bold text-sm text-white">Nova-C Odysseus (IM-1)</span>
+              <span class="font-mono text-[9px] bg-zinc-800 text-zinc-400 px-1">COMPLETED</span>
+            </div>
+            <div class="grid grid-cols-2 gap-2 font-mono text-[11px] text-zinc-400">
+              <div>PROVIDER: <span class="text-zinc-200">Intuitive Machines</span></div>
+              <div>TARGET: <span class="text-zinc-200">Malapert A</span></div>
+              <div>STATUS: <span class="text-zinc-200">Landed (2024)</span></div>
+              <div>TYPE: <span class="text-zinc-200">Tech Demo</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ------------------------------------------------------------- -->
+      <!-- STATE 2: SITE TELEMETRY (Shown in Zoomed View)                -->
+      <!-- ------------------------------------------------------------- -->
+      <div id="sidebar-site" class="hidden flex-col divide-y divide-brand-border">
+        
+        <!-- Section 1: Header -->
+        <div class="p-6 space-y-1">
+          <div class="font-mono text-[10px] text-zinc-500 uppercase tracking-wider">SELECTED LANDING SITE</div>
+          <h1 class="text-xl font-bold text-white tracking-tight">Nova-C Athena (IM-2)</h1>
+          <p class="text-xs text-zinc-400">Intuitive Machines · Mons Mouton (84.79°S, 29.20°E)</p>
+        </div>
+
+        <!-- Section 2: Hero Environmental Viability Score -->
+        <div class="p-6 space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+              02 // ENVIRONMENTAL VIABILITY INDEX
+            </div>
+            <span class="font-mono text-[9px] px-1.5 py-0.5 border border-brand-orange text-brand-orange font-semibold">
+              OPTIMAL_SITE
+            </span>
+          </div>
+
+          <!-- Master Score -->
+          <div class="flex items-baseline space-x-2">
+            <span class="font-mono text-4xl font-bold text-white">79</span>
+            <span class="font-mono text-base text-zinc-500">/ 100</span>
+          </div>
+
+          <!-- 3 Mechanical Progress Bars -->
+          <div class="space-y-3 pt-1">
+            <!-- 01. Sunlight -->
+            <div>
+              <div class="flex justify-between font-mono text-[11px] mb-1">
+                <span class="text-zinc-400">01. SOLAR ILLUMINATION</span>
+                <span class="text-white font-medium">82.0% (11.8 Days Sun)</span>
+              </div>
+              <div class="h-1 w-full bg-zinc-900 overflow-hidden">
+                <div class="h-full bg-white w-[82%]"></div>
+              </div>
+            </div>
+
+            <!-- 02. Cryo Ice -->
+            <div>
+              <div class="flex justify-between font-mono text-[11px] mb-1">
+                <span class="text-zinc-400">02. ICE PROXIMITY</span>
+                <span class="text-white font-medium">1.2 km to Cold Trap</span>
+              </div>
+              <div class="h-1 w-full bg-zinc-900 overflow-hidden">
+                <div class="h-full bg-white w-[75%]"></div>
+              </div>
+            </div>
+
+            <!-- 03. Comms -->
+            <div>
+              <div class="flex justify-between font-mono text-[11px] mb-1">
+                <span class="text-zinc-400">03. EARTH COMMS WINDOW</span>
+                <span class="text-white font-medium">71.0% Direct LOS</span>
+              </div>
+              <div class="h-1 w-full bg-zinc-900 overflow-hidden">
+                <div class="h-full bg-white w-[71%]"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Site Geometry 2x2 Grid -->
+        <div class="p-6 space-y-3">
+          <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+            03 // SITE GEOMETRY
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-[9px] text-zinc-500 uppercase">LANDING ELLIPSE</div>
+              <div class="font-mono text-xs font-semibold text-white mt-0.5">5.0 km × 3.0 km</div>
+            </div>
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-[9px] text-zinc-500 uppercase">TERRAIN SLOPE</div>
+              <div class="font-mono text-xs font-semibold text-white mt-0.5">4.8° (Nominal)</div>
+            </div>
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-[9px] text-zinc-500 uppercase">PEAK ELEVATION</div>
+              <div class="font-mono text-xs font-semibold text-white mt-0.5">+1,920 m</div>
+            </div>
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-[9px] text-zinc-500 uppercase">LAT / LON</div>
+              <div class="font-mono text-xs font-semibold text-white mt-0.5">89.54°S, 222.80°E</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 4: Payload Manifest -->
+        <div class="p-6 space-y-3">
+          <div class="font-mono text-[10px] uppercase tracking-wider text-zinc-400 font-semibold">
+            04 // PAYLOAD MANIFEST (CLPS)
+          </div>
+          <div class="space-y-2">
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-xs font-semibold text-white">TRIDENT 1M SUBSURFACE DRILL</div>
+              <div class="text-[11px] text-zinc-400 mt-0.5">NASA KSC · Target: 1-meter regolith ice core extraction</div>
+            </div>
+            <div class="p-2.5 bg-brand-card border border-brand-border">
+              <div class="font-mono text-xs font-semibold text-white">MSolo MASS SPECTROMETER</div>
+              <div class="text-[11px] text-zinc-400 mt-0.5">NASA Ames · Real-time volatile desorption measurement</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 5: NASA Data Provenance Drawer -->
+        <div class="p-6 space-y-2 bg-black/60">
+          <div class="font-mono text-[10px] text-zinc-500 uppercase">05 // SCIENTIFIC PROVENANCE (NASA PDS)</div>
+          <div class="font-mono text-[10px] text-zinc-400 space-y-1">
+            <div>• ELEVATION: NASA LRO LOLA (20m Polar DEM)</div>
+            <div>• LIGHTING: NASA LROC WAC (Mazarico et al. 2011)</div>
+            <div>• EPHEMERIS: JPL NAIF SPICE de421.bsp</div>
+          </div>
+          <div class="pt-2">
+            <button onclick="alert('Viewing verified NASA PDS Dataset holdings:\n- LOLA GDR 20m/px\n- LROC Polar Illumination Map\n- NAIF SPICE Kernel de421\nAll calculations executed deterministically in Python.')" 
+                    class="font-mono text-[10px] text-brand-orange hover:underline">
+              [ View Raw PDS Data & Curves ↗ ]
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- ================================================================= -->
+  <!-- 3. INTERACTION CONTROLLER (Vanilla JS)                            -->
+  <!-- ================================================================= -->
+  <script>
+    // Grant CesiumJS access to your ion assets
+    Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6Ik8xMDFieHptajFWcFpnQjQiLCJqdGkiOiIyMGRhZTQ2ZS1kOWNmLTRhMmItOGZjNS1iMDZkNzIyNmFkY2IiLCJpZCI6NTE1MjA4LCJpc3MiOiJodHRwczovL2FwaS5jZXNpdW0uY29tIiwiYXVkIjoidW5kZWZpbmVkX2RlZmF1bHQiLCJpYXQiOjE3OTExNDk4NjR9.8SDNVmGIMR51tMJzIT6WGm89HpLvkqyuEzI9Mww7TZc";
+
+    // Set the default ellipsoid to the Moon instead of WGS84
+    Cesium.Ellipsoid.default = Cesium.Ellipsoid.MOON;
+
+    const viewer = new Cesium.Viewer("cesiumContainer", {
+      // This is a global 3D Tiles tileset so disable the
+      // globe to prevent it from interfering with the data
+      globe: false,
+      // 2D and Columbus View are not currently supported
+      // for global 3D Tiles tilesets
+      sceneModePicker: false,
+      // Imagery layers are not currently supported for
+      // global 3D Tiles tilesets
+      baseLayerPicker: false,
+      // Geocoder is not currently supported for lunar locations
+      geocoder: false,
+      animation: false,
+      timeline: false,
+      fullscreenButton: false,
+      homeButton: false,
+      infoBox: false,
+      navigationHelpButton: false,
+      selectionIndicator: false,
+    });
+
+    if (viewer.scene) {
+      viewer.scene.backgroundColor = Cesium.Color.BLACK;
+    }
+
+    // Load official Cesium Moon 3D Tileset (Ion Asset 2684829)
+    async function loadLunarTileset() {
+      try {
+        const tileset = await Cesium.Cesium3DTileset.fromIonAssetId(2684829);
+        viewer.scene.primitives.add(tileset);
+
+        // High-altitude perspective over south polar missions
+        viewer.camera.setView({
+          destination: Cesium.Cartesian3.fromDegrees(29.20, -84.79, 4500000, Cesium.Ellipsoid.MOON),
+          orientation: {
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-88),
+            roll: 0.0,
+          },
+        });
+      } catch (error) {
+        console.error("Cesium 3D Tileset load error:", error);
+      }
+    }
+    loadLunarTileset();
+
+    // Mission pins with verified lunar coordinates
+    const MISSIONS = [
+      { id: 'im-2', label: 'IM-2 · Mons Mouton', lat: -84.79, lon: 29.20, target: true },
+      { id: 'im-1', label: 'IM-1 · Malapert A', lat: -80.13, lon: 1.44, target: false },
+      { id: 'griffin-1', label: 'Griffin-1 · Mons Mouton / Nobile', lat: -85.20, lon: 31.00, target: false },
+      { id: 'blue-ghost-1', label: 'Blue Ghost-1 · Mare Crisium', lat: 18.60, lon: 61.80, target: false },
+      { id: 'peregrine', label: 'Peregrine · Lacus Mortis', lat: 45.00, lon: 27.20, target: false },
+      { id: 'blue-ghost-2', label: 'Blue Ghost-2 · Schrödinger', lat: -75.00, lon: 132.40, target: false },
+    ];
+
+    MISSIONS.forEach((pin) => {
+      viewer.entities.add({
+        id: pin.id,
+        position: Cesium.Cartesian3.fromDegrees(pin.lon, pin.lat, 2000, Cesium.Ellipsoid.MOON),
+        point: {
+          pixelSize: pin.target ? 14 : 9,
+          color: pin.target ? Cesium.Color.fromCssColorString('#FF4D00') : Cesium.Color.WHITE,
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 2,
+        },
+        label: {
+          text: pin.label,
+          font: '11px "JetBrains Mono", monospace',
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE,
+          fillColor: pin.target ? Cesium.Color.fromCssColorString('#FF4D00') : Cesium.Color.fromCssColorString('#E4E4E7'),
+          outlineColor: Cesium.Color.BLACK,
+          outlineWidth: 3,
+          verticalOrigin: Cesium.VerticalOrigin.BOTTOM,
+          pixelOffset: new Cesium.Cartesian2(0, -14),
+          distanceDisplayCondition: new Cesium.DistanceDisplayCondition(0, 15000000),
+        },
+      });
+    });
+
+    // Click handler for 3D entity selection
+    const handler = new Cesium.ScreenSpaceEventHandler(viewer.scene.canvas);
+    handler.setInputAction((movement) => {
+      const picked = viewer.scene.pick(movement.position);
+      if (Cesium.defined(picked) && picked.id && picked.id.id) {
+        selectMission(picked.id.id);
+      }
+    }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+    function selectMission(missionId) {
+      const viewGlobal = document.getElementById('view-global');
+      const viewZoomed = document.getElementById('view-zoomed');
+      const sidebarFleet = document.getElementById('sidebar-fleet');
+      const sidebarSite = document.getElementById('sidebar-site');
+
+      // Hide Global HUD, Show Zoomed HUD
+      viewGlobal.classList.add('hidden', 'opacity-0');
+      viewZoomed.classList.remove('hidden');
+      setTimeout(() => viewZoomed.classList.remove('opacity-0'), 20);
+
+      // Switch Sidebar
+      sidebarFleet.classList.add('hidden');
+      sidebarSite.classList.remove('hidden');
+      sidebarSite.classList.add('flex');
+
+      // Update Nav Tabs
+      document.getElementById('tab-all').classList.remove('bg-white', 'text-black');
+      document.getElementById('tab-all').classList.add('text-zinc-400');
+      document.getElementById('tab-volatiles').classList.add('bg-white', 'text-black');
+      document.getElementById('tab-volatiles').classList.remove('text-zinc-400');
+
+      // Smooth 3D flyTo target site (Mons Mouton)
+      if (viewer) {
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(29.20, -84.79, 85000, Cesium.Ellipsoid.MOON),
+          orientation: {
+            heading: Cesium.Math.toRadians(35),
+            pitch: Cesium.Math.toRadians(-55),
+            roll: 0.0,
+          },
+          duration: 2.0,
+        });
+      }
+    }
+
+    function resetToGlobal() {
+      const viewGlobal = document.getElementById('view-global');
+      const viewZoomed = document.getElementById('view-zoomed');
+      const sidebarFleet = document.getElementById('sidebar-fleet');
+      const sidebarSite = document.getElementById('sidebar-site');
+
+      // Show Global HUD, Hide Zoomed HUD
+      viewZoomed.classList.add('hidden', 'opacity-0');
+      viewGlobal.classList.remove('hidden', 'opacity-0');
+
+      // Switch Sidebar
+      sidebarSite.classList.add('hidden');
+      sidebarSite.classList.remove('flex');
+      sidebarFleet.classList.remove('hidden');
+
+      // Update Nav Tabs
+      document.getElementById('tab-all').classList.add('bg-white', 'text-black');
+      document.getElementById('tab-all').classList.remove('text-zinc-400');
+      document.getElementById('tab-volatiles').classList.remove('bg-white', 'text-black');
+      document.getElementById('tab-volatiles').classList.add('text-zinc-400');
+
+      // Fly camera back to orbital global south polar view
+      if (viewer) {
+        viewer.camera.flyTo({
+          destination: Cesium.Cartesian3.fromDegrees(29.20, -84.79, 4500000, Cesium.Ellipsoid.MOON),
+          orientation: {
+            heading: Cesium.Math.toRadians(0),
+            pitch: Cesium.Math.toRadians(-88),
+            roll: 0.0,
+          },
+          duration: 1.8,
+        });
+      }
+    }
+  </script>
+</body>
+</html>
