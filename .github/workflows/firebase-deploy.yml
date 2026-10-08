@@ -12,19 +12,36 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Check for project build files
+        id: project_check
+        run: |
+          if [ -f "package.json" ]; then
+            echo "has_node=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_node=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Set up Node.js
+        if: steps:project_check.outputs.has_node == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        if: steps:project_check.outputs.has_node == 'true'
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Build project
-        run: npm run build
+        if: steps:project_check.outputs.has_node == 'true'
+        run: npm run build --if-present
 
       - name: Deploy to Firebase Hosting
+        if: steps:project_check.outputs.has_node == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
