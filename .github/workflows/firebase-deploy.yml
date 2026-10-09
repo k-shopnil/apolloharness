@@ -1,0 +1,50 @@
+name: Deploy to Firebase Hosting
+
+on:
+  push:
+    branches:
+      - team-website
+
+jobs:
+  build_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check for package.json
+        id: check_package
+        run: |
+          if [ -f "package.json" ]; then
+            echo "has_package=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_package=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Set up Node.js
+        if: steps.check_package.outputs.has_package == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        if: steps.check_package.outputs.has_package == 'true'
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm ci
+          else
+            npm install
+          fi
+
+      - name: Build project
+        if: steps.check_package.outputs.has_package == 'true'
+        run: npm run build --if-present
+
+      - name: Deploy to Firebase Hosting
+        if: steps.check_package.outputs.has_package == 'true'
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CHHAYANAUTICAL_37871 }}'
+          channelId: live
+          projectId: chhayanautical-37871
