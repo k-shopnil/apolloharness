@@ -12,39 +12,52 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Check for package.json
-        id: check_package
+      - name: Check package manager
+        id: pkg_mgr
         run: |
-          if [ -f "package.json" ]; then
-            echo "has_package=true" >> $GITHUB_OUTPUT
+          if [ -f "pnpm-lock.yaml" ]; then
+            echo "manager=pnpm" >> $GITHUB_OUTPUT
+          elif [ -f "yarn.lock" ]; then
+            echo "manager=yarn" >> $GITHUB_OUTPUT
           else
-            echo "has_package=false" >> $GITHUB_OUTPUT
+            echo "manager=npm" >> $GITHUB_OUTPUT
           fi
 
+      - name: Install pnpm
+        if: steps.pkg_mgr.outputs.manager == 'pnpm'
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
       - name: Set up Node.js
-        if: steps.check_package.outputs.has_package == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 20
+          cache: ${{ steps.pkg_mgr.outputs.manager }}
 
       - name: Install dependencies
-        if: steps.check_package.outputs.has_package == 'true'
         run: |
-          if [ -f "package-lock.json" ]; then
+          if [ "${{ steps.pkg_mgr.outputs.manager }}" = "pnpm" ]; then
+            pnpm install --frozen-lockfile
+          elif [ -f "package-lock.json" ]; then
             npm ci
           else
             npm install
           fi
 
       - name: Build project
-        if: steps.check_package.outputs.has_package == 'true'
-        run: npm run build --if-present
+        run: |
+          if [ "${{ steps.pkg_mgr.outputs.manager }}" = "pnpm" ]; then
+            pnpm run build
+          else
+            npm run build
+          fi
 
       - name: Deploy to Firebase Hosting
-        if: steps.check_package.outputs.has_package == 'true'
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_CHHAYANAUTICAL_37871 }}'
           channelId: live
           projectId: chhayanautical-37871
+

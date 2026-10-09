@@ -1,7 +1,31 @@
+# dependencies
 node_modules
-dist
-build
-out
-.env
-.env.local
+/.pnp
+.pnp.*
+
+# testing
+/coverage
+
+# next.js & build outputs
+/.next/
+/out/
+/dist/
+/build/
+
+# misc
+.DS_Store
+*.pem
+*.tsbuildinfo
+next-env.d.ts
+
+# debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 *.log
+
+# env files
+.env*
+!.env.example
+
