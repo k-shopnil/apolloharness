@@ -41,7 +41,7 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 bg-black/20 backdrop-blur-xl backdrop-saturate-150">
       {/* Desktop / tablet — Figma 1440 layout */}
-      <div className="hidden h-[13.75rem] items-center justify-center gap-[17.6875rem] lg:flex">
+      <div className="mx-auto hidden h-[10rem] max-w-[90rem] items-center justify-between px-6 lg:flex lg:h-[13.75rem] lg:px-[5.875rem]">
         <Logo className="relative block h-[6.732rem] w-[23.07rem] shrink-0" />
         <nav
           aria-label="Primary"

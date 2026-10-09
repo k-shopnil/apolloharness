@@ -41,12 +41,12 @@ function IconLink({
 /* eslint-disable @next/next/no-img-element */
 function ProjectLinks({ links, name }: { links: NonNullable<Project["links"]>; name: string }) {
   return (
-    <>
+    <div className="flex items-center gap-2 sm:gap-3">
       {links.github !== undefined && (
         <IconLink
           href={links.github}
           label={`${name} on GitHub`}
-          className="size-9 overflow-clip lg:size-[2.75rem]"
+          className="size-8 sm:size-9 overflow-clip lg:size-[2.75rem]"
         >
           <span
             className="absolute inset-[0_0_2.47%_0]"
@@ -71,7 +71,7 @@ function ProjectLinks({ links, name }: { links: NonNullable<Project["links"]>; n
         <IconLink
           href={links.site}
           label={`${name} website`}
-          className="size-9 overflow-clip lg:size-[2.75rem]"
+          className="size-8 sm:size-9 overflow-clip lg:size-[2.75rem]"
         >
           <span className="absolute inset-[10.94%_10.94%_17.19%_17.19%]">
             <span className="absolute inset-[-5.53%]">
@@ -88,112 +88,76 @@ function ProjectLinks({ links, name }: { links: NonNullable<Project["links"]>; n
         <IconLink
           href={links.youtube}
           label={`${name} on YouTube`}
-          className="h-9 w-[7.85rem] lg:h-[2.75rem] lg:w-[12.138rem]"
+          className="h-8 w-24 sm:h-9 sm:w-[7.85rem] lg:h-[2.75rem] lg:w-[12.138rem]"
         >
           <img
             src={`${ICONS}/logo-youtube.svg`}
             alt=""
-            className="block size-full max-w-none"
+            className="block size-full max-w-none object-contain"
           />
         </IconLink>
       )}
-    </>
+    </div>
   );
 }
 
-/** Space Apps / BASIS / NASA / mission badge — positions are the Figma offsets. */
+/** Space Apps / BASIS / NASA / mission badge / project branding */
 function PartnerLogos({ project }: { project?: Project }) {
   return (
-    <>
-      {/* md+: exact Figma placement */}
-      <div className="relative hidden h-[4.875rem] shrink-0 items-center lg:flex">
-        <div className="relative h-[4.875rem] w-[33rem] shrink-0">
-          <Image
-            src={`${ICONS}/logo-space-apps.webp`}
-            alt="NASA Space Apps Challenge"
-            width={440}
-            height={172}
-            className="absolute left-[0.1875rem] top-[0.5rem] h-[4.125rem] w-[10.5rem]"
-          />
-          <Image
-            src={`${ICONS}/logo-basis.webp`}
-            alt="BASIS"
-            width={750}
-            height={451}
-            className="absolute left-[12.375rem] top-[1.125rem] h-[3.1875rem] w-[5.25rem] object-cover"
-          />
-          <Image
-            src={`${ICONS}/logo-nasa.webp`}
-            alt="NASA"
-            width={720}
-            height={312}
-            className="absolute left-[17.9375rem] top-0 h-[4.875rem] w-[11.25rem] object-cover"
-          />
-          <img
-            src={`${ICONS}/ring.svg`}
-            alt=""
-            className="absolute left-[29.5rem] top-[1.5rem] size-[2.9375rem] max-w-none"
-          />
-          <Image
-            src={`${ICONS}/logo-badge.webp`}
-            alt="Mission badge"
-            width={160}
-            height={160}
-            className="absolute left-[30rem] top-[1.99rem] size-[1.96rem] object-cover"
-          />
-        </div>
-        {project?.branding && (
-          <div className="ml-5 flex h-[4.875rem] items-center">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={project.branding}
-              alt={`${project.name} branding`}
-              className="h-10 max-h-[2.9375rem] w-auto max-w-[12rem] object-contain"
-            />
-          </div>
-        )}
-      </div>
-
-      {/* mobile: simple wrapping row */}
-      <div className="flex flex-wrap items-center gap-4 lg:hidden">
+    <div className="flex max-w-full flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-6 sm:gap-y-4 lg:gap-x-8">
+      {/* NASA Space Apps Challenge */}
+      <div className="relative h-8 w-24 sm:h-10 sm:w-32 lg:h-[3.75rem] lg:w-[9.6rem] shrink-0">
         <Image
           src={`${ICONS}/logo-space-apps.webp`}
           alt="NASA Space Apps Challenge"
-          width={440}
-          height={172}
-          className="h-10 w-auto"
+          fill
+          className="object-contain object-left"
         />
+      </div>
+      {/* BASIS */}
+      <div className="relative h-7 w-12 sm:h-8 sm:w-14 lg:h-[2.85rem] lg:w-[4.7rem] shrink-0">
         <Image
           src={`${ICONS}/logo-basis.webp`}
           alt="BASIS"
-          width={750}
-          height={451}
-          className="h-9 w-auto"
+          fill
+          className="object-contain"
         />
+      </div>
+      {/* NASA */}
+      <div className="relative h-8 w-20 sm:h-10 sm:w-24 lg:h-[3.75rem] lg:w-[8.65rem] shrink-0">
         <Image
           src={`${ICONS}/logo-nasa.webp`}
           alt="NASA"
-          width={720}
-          height={312}
-          className="h-10 w-auto"
+          fill
+          className="object-contain"
+        />
+      </div>
+      {/* Mission badge / self logo with ring */}
+      <div className="relative flex size-9 shrink-0 items-center justify-center sm:size-10 lg:size-[3rem]">
+        <img
+          src={`${ICONS}/ring.svg`}
+          alt=""
+          className="size-full max-w-none"
         />
         <Image
           src={`${ICONS}/logo-badge.webp`}
           alt="Mission badge"
           width={160}
           height={160}
-          className="size-9"
+          className="absolute size-[68%] object-cover"
         />
-        {project?.branding && (
-          /* eslint-disable-next-line @next/next/no-img-element */
+      </div>
+      {/* Project branding logo */}
+      {project?.branding && (
+        <div className="flex shrink-0 items-center pl-1 sm:pl-2">
           <img
             src={project.branding}
             alt={`${project.name} branding`}
-            className="h-9 w-auto max-w-[8rem] object-contain"
+            className="h-8 max-h-[2.25rem] w-auto max-w-[7.5rem] sm:h-9 sm:max-h-[2.75rem] sm:max-w-[9.5rem] lg:h-10 lg:max-h-[3rem] lg:max-w-[12rem] object-contain"
           />
-        )}
-      </div>
-    </>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -212,10 +176,10 @@ function Banner({
       onClick={onOpen}
       aria-expanded={false}
       aria-controls={`project-${project.id}`}
-      className="group relative block h-36 w-full text-left lg:h-[17.125rem]"
+      className="group relative block h-32 w-full overflow-hidden text-left sm:h-36 lg:h-[17.125rem]"
     >
-      {/* blurred artwork, exported from Figma with 37.5px of blur bleed */}
-      <div className="pointer-events-none absolute -inset-3 lg:inset-auto lg:left-[-2.344rem] lg:top-[-2.344rem] lg:h-[21.81rem] lg:w-[82.94rem]">
+      {/* blurred artwork background, properly contained within the button */}
+      <div className="pointer-events-none absolute inset-0 size-full overflow-hidden">
         <Image
           src={project.banner}
           alt=""
@@ -225,11 +189,11 @@ function Banner({
         />
       </div>
 
-      <div className="relative flex h-full flex-col justify-center pl-5 lg:pl-[3.8125rem]">
-        <h2 className="text-3xl font-semibold leading-tight lg:text-[4rem] lg:leading-[5.125rem]">
+      <div className="relative flex h-full flex-col justify-center pl-4 sm:pl-6 lg:pl-[3.8125rem]">
+        <h2 className="text-2xl font-semibold leading-tight sm:text-3xl lg:text-[4rem] lg:leading-[5.125rem]">
           {project.name}
         </h2>
-        <p className="text-base font-semibold lg:text-[2.25rem] lg:leading-[2.875rem]">
+        <p className="text-base font-semibold sm:text-lg lg:text-[2.25rem] lg:leading-[2.875rem]">
           {project.year}
         </p>
       </div>
@@ -238,7 +202,7 @@ function Banner({
         src={`${ICONS}/chevron-down.svg`}
         alt=""
         aria-hidden
-        className="absolute right-4 top-1/2 size-12 max-w-none -translate-y-1/2 transition-transform group-hover:scale-105 lg:right-[3.25rem] lg:size-[7.25rem]"
+        className="absolute right-4 top-1/2 size-8 sm:size-10 lg:right-[3.25rem] lg:size-[6rem] max-w-none -translate-y-1/2 transition-transform group-hover:scale-105"
       />
       <span className="sr-only">Expand {project.name} details</span>
     </button>
@@ -258,29 +222,28 @@ function Panel({
     <section
       id={`project-${project.id}`}
       aria-labelledby={`project-${project.id}-title`}
-      className="relative border-y-2 border-white bg-black px-5 py-8 lg:px-0 lg:py-0 lg:pb-[3.6875rem] lg:pl-[3.8125rem] lg:pr-[4.375rem] lg:pt-[4.4375rem]"
+      className="relative w-full max-w-full overflow-hidden border-y-2 border-white bg-black px-4 py-6 sm:px-6 sm:py-8 lg:px-[3.8125rem] lg:pb-[3.6875rem] lg:pt-[4.4375rem]"
     >
-      <div className="flex items-center justify-between gap-4">
-        <div className="flex min-w-0 flex-wrap items-center gap-x-[1.375rem] gap-y-2">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6 lg:gap-x-[1.375rem]">
           <h2
             id={`project-${project.id}-title`}
-            className="text-3xl font-semibold leading-tight lg:text-[4rem] lg:leading-[5.125rem]"
+            className="text-2xl font-semibold leading-tight sm:text-3xl lg:text-[4rem] lg:leading-[5.125rem]"
           >
             {project.name}
           </h2>
           {project.links && <ProjectLinks links={project.links} name={project.name} />}
         </div>
-        <p className="shrink-0 text-lg font-semibold lg:text-[2.25rem] lg:leading-[2.875rem]">
+        <p className="shrink-0 text-lg font-semibold sm:text-xl lg:text-[2.25rem] lg:leading-[2.875rem]">
           {project.year}
         </p>
       </div>
 
-      <p className="mt-5 font-body text-base leading-snug text-justify lg:ml-[0.3125rem] lg:mt-[1.0625rem] lg:w-[69.6875rem] lg:text-[1.5rem] lg:leading-none">
-        {/* TODO: copy for this project is not in the design yet */}
+      <p className="mt-5 w-full max-w-full font-body text-base leading-relaxed text-justify sm:text-lg lg:mt-[1.5rem] lg:max-w-[70rem] lg:text-[1.35rem] lg:leading-normal xl:text-[1.5rem]">
         {project.description ?? "More details coming soon."}
       </p>
 
-      <div className="mt-6 flex items-center justify-between gap-4 lg:mt-[1.3125rem]">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-6 lg:mt-[2rem]">
         {project.partners ? <PartnerLogos project={project} /> : <span />}
         <button
           type="button"
@@ -293,7 +256,7 @@ function Panel({
           <img
             src={`${ICONS}/chevron-up.svg`}
             alt=""
-            className="block size-12 max-w-none lg:size-[4.875rem]"
+            className="block size-8 sm:size-10 lg:size-[4.5rem] max-w-none"
           />
         </button>
       </div>
@@ -308,7 +271,7 @@ export default function ProjectList({ projects }: { projects: Project[] }) {
   const [openId, setOpenId] = useState<string | null>(null);
 
   return (
-    <div className="flex flex-col gap-6 lg:gap-[5rem]">
+    <div className="flex w-full max-w-full flex-col gap-6 lg:gap-[5rem]">
       {projects.map((project) =>
         openId === project.id ? (
           <Panel key={project.id} project={project} onClose={() => setOpenId(null)} />

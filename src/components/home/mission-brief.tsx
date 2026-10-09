@@ -113,7 +113,7 @@ export default function MissionBrief() {
       </div>
 
       <div className="relative mt-8 flex flex-col gap-8 lg:mx-[6.0625rem] lg:mt-[1.518rem] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:px-4">
-        <p className="font-body text-base leading-relaxed text-justify lg:h-[19.3125rem] lg:w-[49.3125rem] lg:shrink-0 lg:text-[1.5rem] lg:leading-none">
+        <p className="font-body text-base leading-relaxed text-justify lg:max-w-[49.3125rem] lg:shrink lg:text-[1.35rem] lg:leading-relaxed xl:text-[1.5rem]">
           {BRIEF}
         </p>
         <Carousel />

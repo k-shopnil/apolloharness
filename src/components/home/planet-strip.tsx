@@ -142,7 +142,7 @@ export default function PlanetStrip() {
   const reduceMotion = useReducedMotion();
 
   return (
-    <section aria-hidden className="@container w-full bg-black">
+    <section aria-hidden className="@container w-full max-w-full overflow-hidden bg-black">
       {/* --k comes from .planet-stage in globals.css (matches the rem scaling) */}
       <div
         className="planet-stage relative overflow-hidden"
