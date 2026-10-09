@@ -66,7 +66,7 @@ export default function MissionBrief() {
   return (
     <section
       aria-labelledby="mission-brief"
-      className="relative w-full overflow-hidden bg-black px-4 pb-14 pt-12 lg:min-h-[36.0625rem] lg:px-0 lg:py-0"
+      className="relative w-full overflow-hidden bg-black py-16 sm:py-20 lg:py-24 xl:py-28"
     >
       {/* background photograph — vertically flipped at 28% opacity, stretches full viewport width flexibly */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -77,9 +77,10 @@ export default function MissionBrief() {
         className="pointer-events-none absolute inset-0 size-full -scale-y-100 object-cover object-center opacity-[0.28]"
       />
 
-      <div className="relative mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-[5.875rem]">
+      {/* Inner container with generous padding inward from backdrop edges */}
+      <div className="relative mx-auto w-full max-w-[90rem] px-6 sm:px-12 md:px-16 lg:px-[8rem] xl:px-[10rem]">
         {/* Header row */}
-        <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 lg:h-[10.6875rem] lg:flex-nowrap lg:pb-[2.1875rem] lg:pt-[5.3125rem]">
+        <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-4 pb-8 lg:flex-nowrap lg:pb-10">
           <h2
             id="mission-brief"
             className="text-3xl font-normal leading-[0.8] lg:text-[4rem]"
@@ -115,13 +116,13 @@ export default function MissionBrief() {
         </div>
 
         {/* Content row */}
-        <div className="relative mt-8 flex flex-col gap-8 lg:mt-[1.518rem] lg:flex-row lg:items-start lg:justify-between lg:gap-12">
-          <p className="font-body text-base leading-relaxed text-justify lg:max-w-[49.3125rem] lg:shrink lg:text-[1.35rem] lg:leading-relaxed xl:text-[1.5rem]">
+        <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
+          <p className="font-body text-base leading-relaxed text-justify lg:max-w-[46rem] lg:shrink lg:text-[1.3rem] lg:leading-relaxed xl:max-w-[50rem] xl:text-[1.45rem]">
             {BRIEF}
           </p>
           <div className="flex shrink-0 flex-col items-center lg:items-end">
             <Carousel />
-            <p className="mt-3 w-full text-right text-xs text-white/70 lg:text-[0.875rem] lg:leading-[1.2]">
+            <p className="mt-3.5 w-full text-right text-xs text-white/70 lg:text-[0.875rem] lg:leading-[1.2]">
               <b className="font-bold">Photo credit:</b>{" "}
               <a
                 href="https://twitter.com/Int_Machines/status/1762919217089720716/photo/1"
