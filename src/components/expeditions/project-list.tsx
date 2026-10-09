@@ -132,28 +132,13 @@ function PartnerLogos({ project }: { project?: Project }) {
           className="object-contain"
         />
       </div>
-      {/* Mission badge / self logo with ring */}
-      <div className="relative flex size-9 shrink-0 items-center justify-center sm:size-10 lg:size-[3rem]">
-        <img
-          src={`${ICONS}/ring.svg`}
-          alt=""
-          className="size-full max-w-none"
-        />
-        <Image
-          src={`${ICONS}/logo-badge.webp`}
-          alt="Mission badge"
-          width={160}
-          height={160}
-          className="absolute size-[68%] object-cover"
-        />
-      </div>
-      {/* Project branding logo */}
+      {/* Project branding logo (replaces circular mission badge directly next to NASA) */}
       {project?.branding && (
-        <div className="flex shrink-0 items-center pl-1 sm:pl-2">
+        <div className="flex shrink-0 items-center">
           <img
             src={project.branding}
             alt={`${project.name} branding`}
-            className="h-8 max-h-[2.25rem] w-auto max-w-[7.5rem] sm:h-9 sm:max-h-[2.75rem] sm:max-w-[9.5rem] lg:h-10 lg:max-h-[3rem] lg:max-w-[12rem] object-contain"
+            className="h-8 max-h-[2.5rem] w-auto max-w-[8rem] sm:h-10 sm:max-h-[3rem] sm:max-w-[10rem] lg:h-[3.75rem] lg:max-h-[3.75rem] lg:max-w-[14rem] object-contain"
           />
         </div>
       )}
