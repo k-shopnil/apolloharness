@@ -175,14 +175,19 @@ export default function MissionBrief() {
       aria-labelledby="mission-brief"
       className="relative w-full overflow-hidden bg-black py-16 sm:py-20 lg:py-24 xl:py-28"
     >
-      {/* background photograph — vertically flipped at 28% opacity, stretches full viewport width flexibly */}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
-        src="/images/home/mission-bg.png"
-        alt=""
-        aria-hidden
-        className="pointer-events-none absolute inset-0 size-full -scale-y-100 object-cover object-center opacity-[0.28]"
-      />
+      {/* background photograph — synced with the current slide image with smooth cross-fade */}
+      {SLIDES.map((s, i) => (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          key={s.id}
+          src={s.image}
+          alt=""
+          aria-hidden
+          className={`pointer-events-none absolute inset-0 size-full object-cover object-center transition-opacity duration-700 ease-in-out ${
+            i === 0 ? "-scale-y-100" : ""
+          } ${currentSlide === i ? "opacity-[0.28]" : "opacity-0"}`}
+        />
+      ))}
 
       {/* Inner container with generous padding inward from backdrop edges */}
       <div className="relative mx-auto w-full max-w-[90rem] px-6 sm:px-12 md:px-16 lg:px-[8rem] xl:px-[10rem]">
@@ -225,9 +230,6 @@ export default function MissionBrief() {
         {/* Content row */}
         <div className="relative flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-12 xl:gap-16">
           <div className="flex flex-col gap-3 lg:max-w-[46rem] lg:shrink xl:max-w-[50rem]">
-            <p className="font-display text-sm uppercase tracking-wider text-white/60 sm:text-base">
-              Part {currentSlide + 1} of 3 — {slide.title} ({slide.provider})
-            </p>
             <p className="font-body text-base leading-relaxed text-justify transition-opacity duration-300 lg:text-[1.3rem] lg:leading-relaxed xl:text-[1.45rem]">
               {slide.story}
             </p>
