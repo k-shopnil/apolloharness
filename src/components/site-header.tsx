@@ -61,9 +61,20 @@ export default function SiteHeader() {
           ))}
           <Link
             href="#comms"
-            className="flex h-[3.0625rem] w-[9.0625rem] items-center justify-center border border-white transition-colors hover:bg-white hover:text-black"
+            className="group relative flex h-[3.0625rem] w-[9.0625rem] items-center justify-center border border-white transition-colors hover:border-white hover:bg-white hover:text-black"
           >
-            Comms
+            <span className="relative z-10 leading-[0.8]">Comms</span>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-center group-hover:flex"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/shared/comms-scribble.svg"
+                alt=""
+                className="h-[50.7px] w-[132.3px] max-w-none rotate-[-6.74deg] object-contain"
+              />
+            </span>
           </Link>
         </nav>
       </div>
@@ -117,9 +128,20 @@ export default function SiteHeader() {
             <Link
               href="#comms"
               onClick={() => setOpen(false)}
-              className="w-fit border border-white px-6 py-2"
+              className="group relative flex h-[3.0625rem] w-[9.0625rem] items-center justify-center border border-white transition-colors hover:border-white hover:bg-white hover:text-black"
             >
-              Comms
+              <span className="relative z-10 leading-[0.8]">Comms</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-20 hidden items-center justify-center group-hover:flex"
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/shared/comms-scribble.svg"
+                  alt=""
+                  className="h-[50.7px] w-[132.3px] max-w-none rotate-[-6.74deg] object-contain"
+                />
+              </span>
             </Link>
           </nav>
         )}
