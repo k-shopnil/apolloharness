@@ -284,8 +284,8 @@ function Panel({
 /* ── list ─────────────────────────────────────────────────────────────── */
 
 export default function ProjectList({ projects }: { projects: Project[] }) {
-  // The Figma frame shows Trashformer expanded.
-  const [openId, setOpenId] = useState<string | null>("trashformer");
+  // The Figma frame shows EdgeVenture expanded.
+  const [openId, setOpenId] = useState<string | null>("edgeventure");
 
   return (
     <div className="flex flex-col gap-6 lg:gap-[5rem]">

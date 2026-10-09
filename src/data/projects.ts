@@ -18,26 +18,37 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    id: "stellerquest",
-    name: "StellerQuest",
+    id: "stellarquest",
+    name: "StellarQuest",
     year: "2024",
-    banner: "/images/expeditions/banner-stellerquest.webp",
+    banner: "/images/expeditions/stellarquest-branding.svg",
+    links: { github: null, site: null },
+    partners: true,
+    description:
+      "StellarQuest is an interactive celestial navigation and star-mapping application designed for the NASA Space Apps Challenge (\"Exosky\" track). Produced by Chhayanautical, the app leverages NASA exoplanet datasets and astronomical APIs to reconstruct what the night sky looks like from distant worlds outside our solar system. Featuring a gamified, intuitive UI, StellarQuest allows users to search any known exoplanet to generate and explore real-time star charts and undiscovered constellations.",
   },
   {
-    id: "trashformer",
-    name: "Trashformer",
+    id: "edgeventure",
+    name: "EdgeVenture",
     year: "2025",
-    banner: "/images/expeditions/banner-trashformer.webp",
-    links: { github: null, site: null, youtube: null },
+    banner: "/images/expeditions/edgeventure-branding.svg",
+    links: { github: null, site: null },
     partners: true,
-    // TODO: placeholder copy taken from the Figma frame — replace with the real write-up.
     description:
-      "Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the more obscure Latin words, consectetur, from a Lorem Ipsum passage, and going through the cites of the word in classical literature, discovered the undoubtable source. Lorem Ipsum comes from sections 1.10.32 and 1.10.33 of \"de Finibus Bonorum et Malorum\" (The Extremes of Good and Evil) by Cicero, written in 45 BC. This book is a treatise on the theory of ethics, very popular during the Renaissance. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32. The first line of Lorem Ipsum, \"Lorem ipsum dolor sit amet..\", comes from a line in section 1.10.32.",
+      "EdgeVenture is an AI-IoT smart waste management system engineered to automate waste segregation and improve urban air quality directly at the source. Produced by Chhayanautical for the NASA Space Apps Challenge, the solar-powered unit uses on-device edge AI (TensorFlow Lite) to classify and sort waste (plastic, paper, metal, and organic) completely offline. It integrates an active HEPA and carbon air purification module, municipal fill-level telemetrics, and a QR-based companion app that gamifies recycling with eco-rewards.",
   },
   {
     id: "harnessapollo",
     name: "HarnessApollo",
     year: "2026",
-    banner: "/images/expeditions/banner-harnessapollo.webp",
+    banner: "/images/expeditions/apollo-branding.svg",
+    links: {
+      github: "https://github.com/k-shopnil/apolloharness",
+      site: "https://apolloharness.web.app",
+      youtube: "https://nsac26.shopnilmax-16c.workers.dev/",
+    },
+    partners: true,
+    description:
+      "HarnessApollo is a next-generation lunar mission intelligence and surface analysis platform engineered for the NASA Space Apps Challenge (Commercial Lunar Payload Services track). Produced by Chhayanautical, the platform synthesizes NASA Planetary Data System (PDS) archives, lunar surface topography, and extreme polar environmental conditions into high-fidelity mission intelligence. Featuring an aerospace telemetry-inspired interface with interactive 3D lunar cartography, HarnessApollo enables mission planners and researchers to evaluate landing site viability, volatile deposits, and operational surface hazards.",
   },
 ];
