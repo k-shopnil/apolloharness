@@ -185,7 +185,7 @@ function Banner({
         />
       </div>
 
-      <div className="relative flex h-full flex-col justify-center pl-4 sm:pl-6 lg:pl-[3.8125rem]">
+      <div className="relative flex h-full flex-col justify-center pl-8 sm:pl-12 md:pl-16 lg:pl-[6.5rem] xl:pl-[8rem]">
         <h2 className="text-2xl font-semibold leading-tight sm:text-3xl lg:text-[4rem] lg:leading-[5.125rem]">
           {project.name}
         </h2>
@@ -218,7 +218,7 @@ function Panel({
     <section
       id={`project-${project.id}`}
       aria-labelledby={`project-${project.id}-title`}
-      className="relative w-full max-w-full overflow-hidden border-y-2 border-white bg-black px-4 py-6 sm:px-6 sm:py-8 lg:px-[3.8125rem] lg:pb-[3.6875rem] lg:pt-[4.4375rem]"
+      className="relative w-full max-w-full overflow-hidden border-y-2 border-white bg-black px-8 py-6 sm:px-12 sm:py-8 md:px-16 lg:px-[6.5rem] lg:pb-[3.6875rem] lg:pt-[4.4375rem] xl:px-[8rem]"
     >
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-2 sm:gap-x-6 lg:gap-x-[1.375rem]">

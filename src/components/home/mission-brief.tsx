@@ -66,70 +66,75 @@ export default function MissionBrief() {
   return (
     <section
       aria-labelledby="mission-brief"
-      className="relative overflow-hidden bg-black px-4 pb-14 pt-12 lg:h-[36.0625rem] lg:p-0"
+      className="relative w-full overflow-hidden bg-black px-4 pb-14 pt-12 lg:min-h-[36.0625rem] lg:px-0 lg:py-0"
     >
-      {/* background photograph — vertically flipped at 28% opacity */}
+      {/* background photograph — vertically flipped at 28% opacity, stretches full viewport width flexibly */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src="/images/home/mission-bg.png"
         alt=""
         aria-hidden
-        className="pointer-events-none absolute inset-0 size-full -scale-y-100 object-cover opacity-[0.28] lg:inset-auto lg:left-[-3.4rem] lg:top-[-16.42rem] lg:h-[55.04rem] lg:w-[100.94rem] lg:max-w-none"
+        className="pointer-events-none absolute inset-0 size-full -scale-y-100 object-cover object-center opacity-[0.28]"
       />
 
-      <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 lg:h-[10.6875rem] lg:flex-nowrap lg:pb-[2.1875rem] lg:pl-[6.8125rem] lg:pr-[8rem] lg:pt-[5.3125rem]">
-        <h2
-          id="mission-brief"
-          className="text-3xl font-normal leading-[0.8] lg:text-[4rem]"
-        >
-          Mission Brief
-        </h2>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/home/mission-line.svg"
-          alt=""
-          aria-hidden
-          className="hidden h-[0.698rem] w-[35.54rem] shrink lg:block"
-        />
-        <div className="flex items-center gap-4 lg:w-[14.3125rem] lg:gap-6">
-          <p className="whitespace-nowrap text-sm lg:text-[1.2366rem] lg:leading-[0.8]">
-            5 min. read
-          </p>
-          {/* TODO: hook up narration audio */}
-          <button
-            type="button"
-            className="flex h-10 w-[6.5625rem] items-center justify-center gap-[1.274px] bg-white text-sm font-semibold leading-[0.8] text-black lg:h-[2.625rem] lg:text-[1.2366rem]"
+      <div className="relative mx-auto w-full max-w-[90rem] px-4 sm:px-6 lg:px-[5.875rem]">
+        {/* Header row */}
+        <div className="relative flex flex-wrap items-center justify-between gap-x-6 gap-y-3 lg:h-[10.6875rem] lg:flex-nowrap lg:pb-[2.1875rem] lg:pt-[5.3125rem]">
+          <h2
+            id="mission-brief"
+            className="text-3xl font-normal leading-[0.8] lg:text-[4rem]"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/images/home/play-fill.svg"
-              alt=""
-              aria-hidden
-              className="size-6 lg:size-[1.672rem]"
-            />
-            Listen
-          </button>
+            Mission Brief
+          </h2>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/home/mission-line.svg"
+            alt=""
+            aria-hidden
+            className="hidden h-[0.698rem] w-[35.54rem] shrink lg:block"
+          />
+          <div className="flex items-center gap-4 lg:w-[14.3125rem] lg:gap-6">
+            <p className="whitespace-nowrap text-sm lg:text-[1.2366rem] lg:leading-[0.8]">
+              5 min. read
+            </p>
+            {/* TODO: hook up narration audio */}
+            <button
+              type="button"
+              className="flex h-10 w-[6.5625rem] items-center justify-center gap-[1.274px] bg-white text-sm font-semibold leading-[0.8] text-black lg:h-[2.625rem] lg:text-[1.2366rem]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/home/play-fill.svg"
+                alt=""
+                aria-hidden
+                className="size-6 lg:size-[1.672rem]"
+              />
+              Listen
+            </button>
+          </div>
+        </div>
+
+        {/* Content row */}
+        <div className="relative mt-8 flex flex-col gap-8 lg:mt-[1.518rem] lg:flex-row lg:items-start lg:justify-between lg:gap-12">
+          <p className="font-body text-base leading-relaxed text-justify lg:max-w-[49.3125rem] lg:shrink lg:text-[1.35rem] lg:leading-relaxed xl:text-[1.5rem]">
+            {BRIEF}
+          </p>
+          <div className="flex shrink-0 flex-col items-center lg:items-end">
+            <Carousel />
+            <p className="mt-3 w-full text-right text-xs text-white/70 lg:text-[0.875rem] lg:leading-[1.2]">
+              <b className="font-bold">Photo credit:</b>{" "}
+              <a
+                href="https://twitter.com/Int_Machines/status/1762919217089720716/photo/1"
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                Intuitive Machines
+              </a>
+            </p>
+          </div>
         </div>
       </div>
-
-      <div className="relative mt-8 flex flex-col gap-8 lg:mx-[6.0625rem] lg:mt-[1.518rem] lg:flex-row lg:items-center lg:justify-between lg:gap-0 lg:px-4">
-        <p className="font-body text-base leading-relaxed text-justify lg:max-w-[49.3125rem] lg:shrink lg:text-[1.35rem] lg:leading-relaxed xl:text-[1.5rem]">
-          {BRIEF}
-        </p>
-        <Carousel />
-      </div>
-
-      <p className="relative mt-4 text-right text-xs text-white/70 lg:absolute lg:right-[6.0625rem] lg:top-[32.77rem] lg:mt-0 lg:w-[23.1875rem] lg:text-[0.875rem] lg:leading-[1.2]">
-        <b className="font-bold">Photo credit:</b>{" "}
-        <a
-          href="https://twitter.com/Int_Machines/status/1762919217089720716/photo/1"
-          target="_blank"
-          rel="noreferrer"
-          className="underline"
-        >
-          Intuitive Machines
-        </a>
-      </p>
     </section>
   );
 }
