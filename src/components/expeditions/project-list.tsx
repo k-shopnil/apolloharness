@@ -102,44 +102,56 @@ function ProjectLinks({ links, name }: { links: NonNullable<Project["links"]>; n
 }
 
 /** Space Apps / BASIS / NASA / mission badge — positions are the Figma offsets. */
-function PartnerLogos() {
+function PartnerLogos({ project }: { project?: Project }) {
   return (
     <>
       {/* md+: exact Figma placement */}
-      <div className="relative hidden h-[4.875rem] w-[33rem] shrink-0 lg:block">
-        <Image
-          src={`${ICONS}/logo-space-apps.webp`}
-          alt="NASA Space Apps Challenge"
-          width={440}
-          height={172}
-          className="absolute left-[0.1875rem] top-[0.5rem] h-[4.125rem] w-[10.5rem]"
-        />
-        <Image
-          src={`${ICONS}/logo-basis.webp`}
-          alt="BASIS"
-          width={750}
-          height={451}
-          className="absolute left-[12.375rem] top-[1.125rem] h-[3.1875rem] w-[5.25rem] object-cover"
-        />
-        <Image
-          src={`${ICONS}/logo-nasa.webp`}
-          alt="NASA"
-          width={720}
-          height={312}
-          className="absolute left-[17.9375rem] top-0 h-[4.875rem] w-[11.25rem] object-cover"
-        />
-        <img
-          src={`${ICONS}/ring.svg`}
-          alt=""
-          className="absolute left-[29.5rem] top-[1.5rem] size-[2.9375rem] max-w-none"
-        />
-        <Image
-          src={`${ICONS}/logo-badge.webp`}
-          alt="Mission badge"
-          width={160}
-          height={160}
-          className="absolute left-[30rem] top-[1.99rem] size-[1.96rem] object-cover"
-        />
+      <div className="relative hidden h-[4.875rem] shrink-0 items-center lg:flex">
+        <div className="relative h-[4.875rem] w-[33rem] shrink-0">
+          <Image
+            src={`${ICONS}/logo-space-apps.webp`}
+            alt="NASA Space Apps Challenge"
+            width={440}
+            height={172}
+            className="absolute left-[0.1875rem] top-[0.5rem] h-[4.125rem] w-[10.5rem]"
+          />
+          <Image
+            src={`${ICONS}/logo-basis.webp`}
+            alt="BASIS"
+            width={750}
+            height={451}
+            className="absolute left-[12.375rem] top-[1.125rem] h-[3.1875rem] w-[5.25rem] object-cover"
+          />
+          <Image
+            src={`${ICONS}/logo-nasa.webp`}
+            alt="NASA"
+            width={720}
+            height={312}
+            className="absolute left-[17.9375rem] top-0 h-[4.875rem] w-[11.25rem] object-cover"
+          />
+          <img
+            src={`${ICONS}/ring.svg`}
+            alt=""
+            className="absolute left-[29.5rem] top-[1.5rem] size-[2.9375rem] max-w-none"
+          />
+          <Image
+            src={`${ICONS}/logo-badge.webp`}
+            alt="Mission badge"
+            width={160}
+            height={160}
+            className="absolute left-[30rem] top-[1.99rem] size-[1.96rem] object-cover"
+          />
+        </div>
+        {project?.branding && (
+          <div className="ml-5 flex h-[4.875rem] items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={project.branding}
+              alt={`${project.name} branding`}
+              className="h-10 max-h-[2.9375rem] w-auto max-w-[12rem] object-contain"
+            />
+          </div>
+        )}
       </div>
 
       {/* mobile: simple wrapping row */}
@@ -172,6 +184,14 @@ function PartnerLogos() {
           height={160}
           className="size-9"
         />
+        {project?.branding && (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            src={project.branding}
+            alt={`${project.name} branding`}
+            className="h-9 w-auto max-w-[8rem] object-contain"
+          />
+        )}
       </div>
     </>
   );
@@ -261,7 +281,7 @@ function Panel({
       </p>
 
       <div className="mt-6 flex items-center justify-between gap-4 lg:mt-[1.3125rem]">
-        {project.partners ? <PartnerLogos /> : <span />}
+        {project.partners ? <PartnerLogos project={project} /> : <span />}
         <button
           type="button"
           onClick={onClose}

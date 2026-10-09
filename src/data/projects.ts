@@ -10,6 +10,7 @@ export type Project = {
   name: string;
   year: string;
   banner: string;
+  branding?: string;
   links?: ProjectLinks;
   description?: string;
   /** Show the Space Apps / BASIS / NASA badges row. */
@@ -21,7 +22,8 @@ export const projects: Project[] = [
     id: "stellarquest",
     name: "StellarQuest",
     year: "2024",
-    banner: "/images/expeditions/stellarquest-branding.svg",
+    banner: "/images/expeditions/banner-stellerquest.webp",
+    branding: "/images/expeditions/stellarquest-branding.svg",
     links: { github: null, site: null },
     partners: true,
     description:
@@ -31,7 +33,8 @@ export const projects: Project[] = [
     id: "edgeventure",
     name: "EdgeVenture",
     year: "2025",
-    banner: "/images/expeditions/edgeventure-branding.svg",
+    banner: "/images/expeditions/banner-trashformer.webp",
+    branding: "/images/expeditions/edgeventure-branding.svg",
     links: { github: null, site: null },
     partners: true,
     description:
@@ -41,7 +44,8 @@ export const projects: Project[] = [
     id: "harnessapollo",
     name: "HarnessApollo",
     year: "2026",
-    banner: "/images/expeditions/apollo-branding.svg",
+    banner: "/images/expeditions/banner-harnessapollo.webp",
+    branding: "/images/expeditions/apollo-branding.svg",
     links: {
       github: "https://github.com/k-shopnil/apolloharness",
       site: "https://apolloharness.web.app",
