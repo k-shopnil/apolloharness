@@ -1,6 +1,6 @@
-<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="78" height="78" viewBox="0 0 78 78" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g id="akar-icons:chevron-down">
+<svg xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none" overflow="visible" style="display: block;" width="78" height="78" viewBox="0 0 78 78" fill="none">
+
+<g data-fr-wrap="1" transform="translate(39 39) scale(1 -1) translate(-39 -39)"><g id="akar-icons:chevron-down">
 <rect width="78" height="78" rx="39" fill="white" fill-opacity="0.44"/>
 <path id="Vector" d="M20.1724 32.9483L39 51.7759L57.8276 32.9483" stroke-width="9.66667" stroke-linecap="round" stroke-linejoin="round" stroke="white"/>
-</g>
-</svg>
+</g></g></svg>
