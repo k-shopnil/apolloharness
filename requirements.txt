@@ -1,0 +1,8 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+pydantic-settings>=2.3
+jsonschema>=4.22
+cachetools>=5.3
+pytest>=8.0
+httpx>=0.27

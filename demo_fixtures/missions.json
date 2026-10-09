@@ -1,0 +1,97 @@
+{
+  "missions": [
+    {
+      "id": "mock-m1",
+      "name": "Shackleton Rim (Offline Demo)",
+      "lat": -89.5,
+      "lon": 0.0,
+      "start_date": "2026-11-01",
+      "end_date": "2027-02-15",
+      "target": "Moon",
+      "description": "Fallback simulation fixture for lunar south pole traverse.",
+      "landing_ellipse": {
+        "semi_major_km": 1.2,
+        "semi_minor_km": 0.6,
+        "azimuth_deg": 45.0
+      },
+      "payload_instruments": [
+        {
+          "name": "ShadowCam-Mock",
+          "type": "Optical Imager",
+          "description": "Offline demo optical sensor payload."
+        },
+        {
+          "name": "L-DART-Mock",
+          "type": "Neutron Spectrometer",
+          "description": "Offline demo neutron spectrometer."
+        }
+      ]
+    },
+    {
+      "id": "mock-m2",
+      "name": "Artemis Base Camp Mock",
+      "lat": -89.9,
+      "lon": 0.0,
+      "start_date": "2027-09-01",
+      "end_date": "2028-03-01",
+      "target": "Moon",
+      "description": "Permanent surface station mock location near the lunar south pole.",
+      "landing_ellipse": {
+        "semi_major_km": 2.0,
+        "semi_minor_km": 1.0,
+        "azimuth_deg": 0.0
+      },
+      "payload_instruments": [
+        {
+          "name": "Habitat Life Support Monitor",
+          "type": "Environmental Sensor",
+          "description": "Simulated base camp atmospheric monitor."
+        }
+      ]
+    },
+    {
+      "id": "mock-bg1",
+      "name": "Blue Ghost 1 Mock",
+      "lat": 18.56,
+      "lon": 61.81,
+      "start_date": "2024-11-15",
+      "end_date": "2024-12-05",
+      "target": "Moon",
+      "description": "Offline demo for Mare Crisium equatorial landing.",
+      "landing_ellipse": {
+        "semi_major_km": 0.1,
+        "semi_minor_km": 0.1,
+        "azimuth_deg": 0.0
+      },
+      "payload_instruments": [
+        {
+          "name": "LISTER-Mock",
+          "type": "Subsurface Heat Probe",
+          "description": "Offline demo thermal conductivity sensor."
+        }
+      ]
+    },
+    {
+      "id": "mock-m3",
+      "name": "Gale Crater Station Mock",
+      "lat": -4.59,
+      "lon": 137.44,
+      "start_date": "2025-01-01",
+      "end_date": "2025-12-31",
+      "target": "Mars",
+      "description": "Offline demo waypoint for Gale Crater rover operations.",
+      "landing_ellipse": {
+        "semi_major_km": 20.0,
+        "semi_minor_km": 7.0,
+        "azimuth_deg": 68.0
+      },
+      "payload_instruments": [
+        {
+          "name": "SAM-Mock",
+          "type": "Gas Chromatograph",
+          "description": "Offline demo analytical laboratory."
+        }
+      ]
+    }
+  ]
+}

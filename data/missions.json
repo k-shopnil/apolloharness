@@ -1,0 +1,181 @@
+{
+  "missions": [
+    {
+      "id": "m1",
+      "name": "Shackleton Rim",
+      "lat": -89.5,
+      "lon": 0.0,
+      "start_date": "2026-11-01",
+      "end_date": "2027-02-15",
+      "target": "Moon",
+      "description": "Exploration of the lunar south pole cold traps for volatile water ice deposits.",
+      "landing_ellipse": {
+        "semi_major_km": 1.2,
+        "semi_minor_km": 0.6,
+        "azimuth_deg": 45.0
+      },
+      "payload_instruments": [
+        {
+          "name": "ShadowCam-2",
+          "type": "Optical Imager",
+          "description": "High-sensitivity optical camera for imaging permanently shadowed regions."
+        },
+        {
+          "name": "L-DART",
+          "type": "Neutron Spectrometer",
+          "description": "Measures hydrogen abundance down to 1 meter depth for water ice detection."
+        },
+        {
+          "name": "CRYO-DRILL",
+          "type": "Subsurface Drill",
+          "description": "Subsurface sampling drill designed for cryogenic regolith volatiles."
+        }
+      ]
+    },
+    {
+      "id": "m2",
+      "name": "Apollo 11 Tranquility Base",
+      "lat": 0.674,
+      "lon": 23.473,
+      "start_date": "1969-07-16",
+      "end_date": "1969-07-24",
+      "target": "Moon",
+      "description": "Historic first crewed lunar landing site in Mare Tranquillitatis.",
+      "landing_ellipse": {
+        "semi_major_km": 18.5,
+        "semi_minor_km": 4.8,
+        "azimuth_deg": 90.0
+      },
+      "payload_instruments": [
+        {
+          "name": "EASEP-PSEP",
+          "type": "Seismometer",
+          "description": "Passive Seismic Experiment Package for detecting moonquakes."
+        },
+        {
+          "name": "LRRR",
+          "type": "Laser Retroreflector",
+          "description": "Laser Ranging Retro-Reflector array for precision Earth-Moon distance measurement."
+        },
+        {
+          "name": "SWC",
+          "type": "Solar Wind Composition",
+          "description": "Aluminum foil collector measuring noble gases in solar wind."
+        }
+      ]
+    },
+    {
+      "id": "m-bg1",
+      "name": "Firefly Blue Ghost 1",
+      "lat": 18.56,
+      "lon": 61.81,
+      "start_date": "2024-11-15",
+      "end_date": "2024-12-05",
+      "target": "Moon",
+      "description": "NASA CLPS commercial landing mission targeting Mare Crisium basin.",
+      "landing_ellipse": {
+        "semi_major_km": 0.1,
+        "semi_minor_km": 0.1,
+        "azimuth_deg": 0.0
+      },
+      "payload_instruments": [
+        {
+          "name": "LISTER",
+          "type": "Subsurface Heat Probe",
+          "description": "Lunar Instrumentation for Subsurface Thermal Exploration with Rapidity."
+        },
+        {
+          "name": "RAC",
+          "type": "Regolith Camera",
+          "description": "Regolith Adherence Characterization optical sensor."
+        },
+        {
+          "name": "LEXI",
+          "type": "X-ray Telescope",
+          "description": "Lunar Environment heliospheric X-ray Imager."
+        }
+      ]
+    },
+    {
+      "id": "m3",
+      "name": "Perseverance Jezero Exploration",
+      "lat": 18.38,
+      "lon": 77.58,
+      "start_date": "2020-07-30",
+      "end_date": "2030-01-01",
+      "target": "Mars",
+      "description": "Astrobiology mission seeking biosignatures in ancient river delta deposits.",
+      "landing_ellipse": {
+        "semi_major_km": 7.7,
+        "semi_minor_km": 6.6,
+        "azimuth_deg": 115.0
+      },
+      "payload_instruments": [
+        {
+          "name": "Mastcam-Z",
+          "type": "Multispectral Panoramic Imager",
+          "description": "High-resolution stereo imaging system."
+        },
+        {
+          "name": "SHERLOC",
+          "type": "UV Raman Spectrometer",
+          "description": "Detects organic compounds and biosignatures."
+        },
+        {
+          "name": "PIXL",
+          "type": "X-ray Fluorescence Spectrometer",
+          "description": "Elemental chemistry of sub-millimeter scale rock textures."
+        }
+      ]
+    },
+    {
+      "id": "m4",
+      "name": "Curiosity Gale Crater Traverse",
+      "lat": -4.59,
+      "lon": 137.44,
+      "start_date": "2011-11-26",
+      "end_date": "2028-12-31",
+      "target": "Mars",
+      "description": "Investigating past habitability on the slopes of Mount Sharp.",
+      "landing_ellipse": {
+        "semi_major_km": 20.0,
+        "semi_minor_km": 7.0,
+        "azimuth_deg": 68.0
+      },
+      "payload_instruments": [
+        {
+          "name": "SAM",
+          "type": "Gas Chromatograph / Mass Spectrometer",
+          "description": "Sample Analysis at Mars suite for organic and light element chemistry."
+        },
+        {
+          "name": "ChemCam",
+          "type": "Laser Spectrometer",
+          "description": "Laser-induced breakdown spectroscopy for remote rock analysis."
+        }
+      ]
+    },
+    {
+      "id": "m5",
+      "name": "Kennedy Space Center Launch Complex 39B",
+      "lat": 28.627,
+      "lon": -80.621,
+      "start_date": "2024-01-01",
+      "end_date": "2035-12-31",
+      "target": "Earth",
+      "description": "Deep space human exploration launch facility for SLS and Orion.",
+      "landing_ellipse": {
+        "semi_major_km": 0.5,
+        "semi_minor_km": 0.5,
+        "azimuth_deg": 0.0
+      },
+      "payload_instruments": [
+        {
+          "name": "Ground Telemetry Radar",
+          "type": "Tracking Array",
+          "description": "SLS launch telemetry tracking and flight termination receiver."
+        }
+      ]
+    }
+  ]
+}
