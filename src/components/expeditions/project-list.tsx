@@ -101,12 +101,23 @@ function ProjectLinks({ links, name }: { links: NonNullable<Project["links"]>; n
   );
 }
 
-/** Space Apps / BASIS / NASA / mission badge / project branding */
+const brandingStyles: Record<string, string> = {
+  harnessapollo: "h-9 w-9 sm:h-11 sm:w-11 lg:h-[3.125rem] lg:w-[3.125rem]",
+  edgeventure: "h-7 w-[7.2rem] sm:h-9 sm:w-[9.25rem] lg:h-[2.875rem] lg:w-[11.75rem]",
+  stellarquest: "h-11 w-11 sm:h-14 sm:w-14 lg:h-[5.125rem] lg:w-[5.125rem]",
+};
+
+/** Space Apps / BASIS / NASA / project branding */
 function PartnerLogos({ project }: { project?: Project }) {
+  const brandingClass =
+    project?.id && brandingStyles[project.id]
+      ? brandingStyles[project.id]
+      : "h-8 sm:h-10 lg:h-[3.125rem] w-auto";
+
   return (
     <div className="flex max-w-full flex-wrap items-center gap-x-5 gap-y-3 sm:gap-x-6 sm:gap-y-4 lg:gap-x-8">
       {/* NASA Space Apps Challenge */}
-      <div className="relative h-8 w-24 sm:h-10 sm:w-32 lg:h-[3.75rem] lg:w-[9.6rem] shrink-0">
+      <div className="relative h-8 w-20 shrink-0 sm:h-11 sm:w-28 lg:h-[4.125rem] lg:w-[10.5rem]">
         <Image
           src={`${ICONS}/logo-space-apps.webp`}
           alt="NASA Space Apps Challenge"
@@ -115,7 +126,7 @@ function PartnerLogos({ project }: { project?: Project }) {
         />
       </div>
       {/* BASIS */}
-      <div className="relative h-7 w-12 sm:h-8 sm:w-14 lg:h-[2.85rem] lg:w-[4.7rem] shrink-0">
+      <div className="relative h-7 w-11 shrink-0 sm:h-9 sm:w-14 lg:h-[3.1875rem] lg:w-[5.25rem]">
         <Image
           src={`${ICONS}/logo-basis.webp`}
           alt="BASIS"
@@ -124,7 +135,7 @@ function PartnerLogos({ project }: { project?: Project }) {
         />
       </div>
       {/* NASA */}
-      <div className="relative h-8 w-20 sm:h-10 sm:w-24 lg:h-[3.75rem] lg:w-[8.65rem] shrink-0">
+      <div className="relative h-8 w-20 shrink-0 sm:h-11 sm:w-28 lg:h-[4.875rem] lg:w-[11.25rem]">
         <Image
           src={`${ICONS}/logo-nasa.webp`}
           alt="NASA"
@@ -138,7 +149,7 @@ function PartnerLogos({ project }: { project?: Project }) {
           <img
             src={project.branding}
             alt={`${project.name} branding`}
-            className="h-8 max-h-[2.5rem] w-auto max-w-[8rem] sm:h-10 sm:max-h-[3rem] sm:max-w-[10rem] lg:h-[3.75rem] lg:max-h-[3.75rem] lg:max-w-[14rem] object-contain"
+            className={`${brandingClass} object-contain`}
           />
         </div>
       )}
