@@ -59,7 +59,7 @@ Experience the official project presentation submitted by **Team Chhayanautical*
 
 <div align="center">
 
-[![Watch the HarnessApollo Official Pitch](https://img.youtube.com/vi/u.be/aGuu1ngPULE?si=Tqs-8-tjcWd688sj)
+[![Watch our preliminary pitch](https://youtube.com)](https://youtu.be/aGuu1ngPULE)
 
 <br>
 
