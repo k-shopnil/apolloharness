@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="./rk_white_affiliation.png
+  <img src="./rk_white_affiliation.png">
 
   <br /><br />
 
