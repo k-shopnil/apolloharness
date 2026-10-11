@@ -38,7 +38,7 @@ export const projects: Project[] = [
     links: { github: null, site: null },
     partners: true,
     description:
-      "EdgeVenture is an AI-IoT smart waste management system engineered to automate waste segregation and improve urban air quality directly at the source. Produced by Chhayanautical for the NASA Space Apps Challenge, the solar-powered unit uses on-device edge AI (TensorFlow Lite) to classify and sort waste (plastic, paper, metal, and organic) completely offline. It integrates an active HEPA and carbon air purification module, municipal fill-level telemetrics, and a QR-based companion app that gamifies recycling with eco-rewards.",
+      "Addressing the Data Pathways to Healthy Cities and Human Settlements challenge, EdgeVenture is an AI-powered waste-sorting solution paired with a Flutter app that decodes edge-generated QR data to track local waste streams in real time. By correlating ground-level disposal metrics with NASA's open Earth observation datasets on air quality, water quality, surface temperature, and landfill accumulation, the platform demonstrates how intelligent waste segregation directly bolsters urban environmental health, turning everyday civic habits into vital data pathways for cleaner, more sustainable communities.",
   },
   {
     id: "harnessapollo",

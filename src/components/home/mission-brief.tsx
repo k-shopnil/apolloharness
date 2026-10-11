@@ -1,13 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface MissionSlide {
   id: string;
   title: string;
   provider: string;
   story: string;
+  audio: string;
   image: string;
   alt: string;
   creditLabel: string;
@@ -21,6 +22,7 @@ const SLIDES: MissionSlide[] = [
     provider: "Intuitive Machines — Nova-C \"Odysseus\"",
     story:
       "Missions to the Moon’s south pole face extreme lighting and communication constraints, and planning them takes careful coordination between science and engineering teams. Tools for determining Sun and Earth positions at candidate landing sites exist, but their complicated interfaces make it difficult to evaluate critical information with efficiency. Our challenge is to create an intuitive tool or application that lets mission planners, educators, and the public compare landing sites and dates quickly, visualizing Sun and Earth positions relative to the horizon to assess power generation potential and direct-to-Earth communication windows. The experience would make complex data easy to explore through clear timelines, accessible controls, and side-by-side comparisons, helping users identify favorable conditions and understand the trade-offs of each site.",
+    audio: "/audios/1.mp3",
     image: "/images/home/mission-bg.png",
     alt: "Intuitive Machines Nova-C Odysseus lunar lander on the lunar surface",
     creditLabel: "Intuitive Machines",
@@ -32,6 +34,7 @@ const SLIDES: MissionSlide[] = [
     provider: "Astrobotic Technology — Griffin Lander",
     story:
       "As robotic explorers advance toward high-relief landing zones like Mons Mouton and Nobile Crater, the terrain itself becomes the decisive factor in survival. At these polar extremes, elevation defines the boundary between life and mission failure: a ridge elevated just fifty meters can harvest weeks of low-grazing sunlight, while a crater basin plunges into permanent, sub-zero shadow. Heavy-class landers like Astrobotic’s Griffin cannot rely on static assumptions; they require real-time horizon modeling that charts how jagged crater peaks eclipse the Sun and sever direct lines of sight to Earth. By transforming raw ephemeris into clear visual horizons, mission teams can pinpoint the precise micro-windows where solar arrays stay energized and communication signals remain uninterrupted.",
+    audio: "/audios/2.mp3",
     image: "/images/home/astrobotic-peregrine-pyld-ps-10.webp",
     alt: "Astrobotic Griffin lunar lander payload",
     creditLabel: "Astrobotic / NASA",
@@ -43,6 +46,7 @@ const SLIDES: MissionSlide[] = [
     provider: "Firefly Aerospace — Blue Ghost Lander",
     story:
       "Mastering this astronomical geometry does more than safeguard individual touchdowns—it lays the groundwork for sustained lunar infrastructure. As scouts like Firefly Aerospace’s Blue Ghost touch down on the regolith, every hour of harvestable solar energy and every direct-to-Earth data link helps map the operational blueprint for future Artemis base camps and rover traverses. When the Sun dips beneath the horizon, surface temperatures crash by hundreds of degrees, testing batteries, materials, and electronics to their breaking point. By putting intuitive, comparative tools into the hands of planners and the public alike, we transform chaotic polar shadows into predictable, actionable routes—turning fleeting commercial landings into a continuous, enduring human presence on the Moon.",
+    audio: "/audios/3.mp3",
     image: "/images/home/blue-ghost-first-image-1.webp",
     alt: "Firefly Aerospace Blue Ghost lunar lander on the regolith",
     creditLabel: "Firefly Aerospace / NASA",
@@ -161,6 +165,28 @@ export default function MissionBrief() {
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const slide = SLIDES[currentSlide];
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  // Narration follows the active slide: switching slides stops the old clip.
+  useEffect(() => {
+    const el = audioRef.current;
+    if (!el) return;
+    el.pause();
+    el.currentTime = 0;
+    el.load();
+    setIsPlaying(false);
+  }, [currentSlide]);
+
+  const toggleNarration = () => {
+    const el = audioRef.current;
+    if (!el) return;
+    if (el.paused) {
+      el.play().catch(() => setIsPlaying(false));
+    } else {
+      el.pause();
+    }
+  };
 
   const handlePrev = () => {
     setCurrentSlide((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
@@ -210,19 +236,41 @@ export default function MissionBrief() {
             <p className="whitespace-nowrap text-sm lg:text-[1.2366rem] lg:leading-[0.8]">
               5 min. read
             </p>
-            {/* TODO: hook up narration audio */}
+            <audio
+              ref={audioRef}
+              src={slide.audio}
+              preload="none"
+              onPlay={() => setIsPlaying(true)}
+              onPause={() => setIsPlaying(false)}
+              onEnded={() => setIsPlaying(false)}
+            />
             <button
               type="button"
+              onClick={toggleNarration}
+              aria-label={
+                (isPlaying ? "Pause" : "Listen to") + " narration: " + slide.title
+              }
               className="flex h-10 w-[6.5625rem] items-center justify-center gap-[1.274px] bg-white text-sm font-semibold leading-[0.8] text-black lg:h-[2.625rem] lg:text-[1.2366rem]"
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/home/play-fill.svg"
-                alt=""
-                aria-hidden
-                className="size-6 lg:size-[1.672rem]"
-              />
-              Listen
+              {isPlaying ? (
+                <svg
+                  aria-hidden
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="size-6 lg:size-[1.672rem]"
+                >
+                  <path d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z" />
+                </svg>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src="/images/home/play-fill.svg"
+                  alt=""
+                  aria-hidden
+                  className="size-6 lg:size-[1.672rem]"
+                />
+              )}
+              {isPlaying ? "Pause" : "Listen"}
             </button>
           </div>
         </div>

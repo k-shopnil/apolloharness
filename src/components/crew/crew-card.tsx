@@ -27,6 +27,7 @@ export default function CrewCard({ member }: { member: CrewMember }) {
             title={member.name}
             text={member.role}
             path={`/crew#${member.slug}`}
+            slug={member.slug}
             className="absolute right-[-3.5rem] top-4 size-12 transition-opacity hover:opacity-70 max-sm:right-0 lg:left-[21.85rem] lg:right-auto lg:top-[5.375rem] lg:size-[6.4rem]"
           />
         </div>

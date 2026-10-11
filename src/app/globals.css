@@ -104,6 +104,19 @@ html {
   }
 }
 
+@keyframes star-drift {
+  from {
+    background-position-x: 0;
+  }
+  to {
+    background-position-x: var(--tile);
+  }
+}
+
+.star-drift {
+  animation: star-drift 100s linear infinite;
+}
+
 .lro-orbit {
   transform: rotate(62.7deg);
   animation: lro-orbit 20s linear infinite;
@@ -116,9 +129,95 @@ html {
   animation: lro-label 20s linear infinite;
 }
 
+/*
+ * Home hero: lunar eclipse. Earth's umbra crosses the Moon left → right once
+ * per loop; the copper moon inside it is counter-translated so it stays put
+ * while the shadow's edge sweeps over it. Like a camera exposed for the lit
+ * Moon, the shadow reads black until totality, then the copper fades up.
+ * Totality spans 36% → 64% (see UMBRA_* in hero.tsx).
+ */
+@keyframes umbra-pass {
+  0%,
+  14% {
+    transform: translateX(calc(var(--umbra-travel) * -1));
+  }
+  86%,
+  100% {
+    transform: translateX(var(--umbra-travel));
+  }
+}
+
+@keyframes umbra-counter {
+  0%,
+  14% {
+    transform: translateX(var(--umbra-travel));
+  }
+  86%,
+  100% {
+    transform: translateX(calc(var(--umbra-travel) * -1));
+  }
+}
+
+@keyframes umbra-exposure {
+  0%,
+  35.5% {
+    opacity: 0;
+  }
+  39.5%,
+  63.5% {
+    opacity: 1;
+  }
+  67.5%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* deep crimson as the exposure comes up, clearing to copper at full totality */
+@keyframes umbra-crimson {
+  0%,
+  36.5% {
+    opacity: 1;
+  }
+  41.5%,
+  61.5% {
+    opacity: 0;
+  }
+  66.5%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.umbra {
+  transform: translateX(calc(var(--umbra-travel) * -1));
+  animation: umbra-pass 48s linear infinite;
+  will-change: transform;
+}
+
+.umbra-counter {
+  transform: translateX(var(--umbra-travel));
+  animation: umbra-counter 48s linear infinite;
+  will-change: transform;
+}
+
+.umbra-blood {
+  opacity: 0;
+  animation: umbra-exposure 48s ease-in-out infinite;
+}
+
+.umbra-crimson {
+  animation: umbra-crimson 48s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .lro-orbit,
-  .lro-label {
+  .lro-label,
+  .star-drift,
+  .umbra,
+  .umbra-counter,
+  .umbra-blood,
+  .umbra-crimson {
     animation: none;
   }
 }

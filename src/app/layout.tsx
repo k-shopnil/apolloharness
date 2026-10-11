@@ -13,7 +13,7 @@ const baumans = Baumans({
 
 const onest = Onest({
   variable: "--font-onest",
-  weight: ["400", "600", "700", "800"],
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
 });
 
