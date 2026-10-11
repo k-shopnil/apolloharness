@@ -57,19 +57,30 @@ HarnessApollo bridges planetary data archives with next-generation mission plann
 
 Experience the official preliminary project presentation submitted by **Team Chhayanautical** for the **NASA Space Apps Challenge 2026**.
 
-<p align="center">
-  <a href="https://youtu.be/aGuu1ngPULE" target="_blank">
-    <img src="https://img.youtube.com/vi/aGuu1ngPULE/maxresdefault.jpg" alt="Watch the HarnessApollo NASA Space Apps Pitch" width="700" />
-  </a>
-</p>
 
-<p align="center">
-  <a href="https://youtu.be/aGuu1ngPULE">
-    <img src="https://img.shields.io/badge/NASA%20Challenge%20Pitch-Watch%20Now-FF0000?style=flat-square&logo=youtube&logoColor=white" alt="Watch the NASA Challenge Pitch on YouTube" />
+<div align="center">
+  <a
+    href="https://www.youtube.com/watch?v=aGuu1ngPULE"
+    target="_blank"
+    style="position: relative; display: inline-block; width: 700px; max-width: 100%;"
+  >
+    <img
+      src="https://img.youtube.com/vi/aGuu1ngPULE/maxresdefault.jpg"
+      alt="HarnessApollo NASA Space Apps Pitch"
+      width="700"
+      style="width: 100%; display: block;"
+    />
+    <img
+      src="https://commons.wikimedia.org/wiki/Special:FilePath/YouTube_play_button_icon_(2013%E2%80%932017).svg"
+      alt="Play video"
+      width="80"
+      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"
+    />
   </a>
-</p>
+  <br /><br />
 
-> A concise presentation of HarnessApollo’s vision, lunar mission intelligence framework, environmental analysis approach, and strategy for transforming NASA and CLPS datasets into actionable mission-planning insights.
+</div>
+
 ---
 
 
