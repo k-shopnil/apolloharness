@@ -59,22 +59,17 @@ Experience the official preliminary project presentation submitted by **Team Chh
 
 
 <div align="center">
+
   <a
     href="https://www.youtube.com/watch?v=aGuu1ngPULE"
     target="_blank"
     style="position: relative; display: inline-block; width: 700px; max-width: 100%;"
   >
     <img
-      src="https://img.youtube.com/vi/aGuu1ngPULE/maxresdefault.jpg"
+      src="https://ibb.co/1t26VmV0"
       alt="HarnessApollo NASA Space Apps Pitch"
       width="700"
       style="width: 100%; display: block;"
-    />
-    <img
-      src="https://commons.wikimedia.org/wiki/Special:FilePath/YouTube_play_button_icon_(2013%E2%80%932017).svg"
-      alt="Play video"
-      width="80"
-      style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);"
     />
   </a>
   <br /><br />
