@@ -60,7 +60,7 @@ Experience our official preliminary project presentation submitted for the **NAS
     target="_blank"
     style="position: relative; display: inline-block; width: 700px; max-width: 100%;" >
     <img
-      src="https://i.ibb.co/tMsTfPWX/ytthumbrepo.png"
+      src="https://i.ibb.co/C5ysvMkr/ytthumbrepo.png"
       alt="HarnessApollo NASA Space Apps Pitch"
       width="700"
       style="width: 100%; display: block;"
