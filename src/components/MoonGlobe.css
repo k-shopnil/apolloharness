@@ -1,0 +1,113 @@
+.globe {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  background: var(--bg);
+  overflow: hidden;
+}
+
+.globe__viewer {
+  position: absolute;
+  inset: 0;
+}
+
+.globe__viewer .cesium-viewer,
+.globe__viewer .cesium-viewer-cesiumWidgetContainer,
+.globe__viewer .cesium-widget {
+  width: 100%;
+  height: 100%;
+}
+
+/* Keep the required Cesium/imagery credits, but out of the way of the HUD. */
+.globe__viewer .cesium-viewer-bottom {
+  left: auto;
+  right: 0;
+  text-align: right;
+  background: transparent;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  opacity: 0.7;
+}
+
+.globe__target,
+.globe__readout {
+  position: absolute;
+  left: 16px;
+  margin: 0;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 0.4px;
+  pointer-events: none;
+}
+
+.globe__target {
+  top: 16px;
+  color: var(--text-secondary);
+}
+
+.globe__readout {
+  bottom: 16px;
+  color: var(--text-dim);
+  white-space: pre;
+}
+
+.globe__compare {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 7px 13px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 16.5px;
+  letter-spacing: 0.44px;
+}
+
+.globe__compare:hover {
+  border-color: var(--border-strong);
+}
+
+@media (max-width: 800px) {
+  /* The canvas stops where the collapsed manifest sheet starts, so the Moon centres in view. */
+  .globe__viewer {
+    inset: 0 0 160px 0;
+  }
+
+  .globe__target {
+    top: 8px;
+    left: 12px;
+    right: 120px;
+    font-size: 9px;
+    line-height: 13px;
+  }
+
+  .globe__compare {
+    top: 6px;
+    right: 8px;
+    padding: 8px 10px;
+    font-size: 10px;
+  }
+
+  .globe__readout {
+    bottom: 172px;
+    left: 12px;
+    right: 12px;
+    font-size: 9px;
+    white-space: normal;
+  }
+
+  /* Keep the required Cesium credit, but small. */
+  .globe__viewer .cesium-credit-logoContainer img {
+    height: 14px;
+    width: auto;
+    vertical-align: middle;
+  }
+
+  .globe__viewer .cesium-viewer-bottom,
+  .globe__viewer .cesium-credit-textContainer,
+  .globe__viewer .cesium-credit-expand-link {
+    font-size: 8px;
+    line-height: 12px;
+  }
+}

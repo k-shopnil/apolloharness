@@ -1,0 +1,251 @@
+.site-map {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.site-map__terrain {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  filter: grayscale(1) brightness(0.55);
+}
+
+.site-map__terrain--flat {
+  filter: grayscale(1) brightness(0.2);
+}
+
+.site-map__slope {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 77, 0, 0.25), rgba(255, 190, 0, 0.12) 40%, transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.site-map__psr {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 12% 8% at 68% 66%, rgba(0, 0, 0, 0.96), rgba(0, 0, 0, 0.85) 45%, transparent 85%);
+}
+
+.site-map__shade {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 45% 45%, transparent 35%, rgba(0, 0, 0, 0.7) 80%, #000 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.93), transparent 15%, transparent 82%, rgba(0, 0, 0, 0.87));
+}
+
+.site-map__overlay {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.site-map__tag {
+  position: absolute;
+  margin: 0;
+  padding: 8px 14px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid var(--border);
+  font-family: var(--font-data);
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 21px;
+  white-space: nowrap;
+}
+
+.site-map__tag--sun {
+  left: 0;
+  top: 146px;
+  border-left: 0;
+}
+
+.site-map__tag--earth {
+  left: 58%;
+  top: 358px;
+  color: var(--signal);
+  border-right: 0;
+}
+
+.site-map__tag--psr {
+  left: 62%;
+  top: 468px;
+  color: var(--cyan);
+  border-right: 0;
+}
+
+.site-map__tag-main,
+.site-map__tag-sub {
+  margin: 0;
+}
+
+.site-map__tag-sub {
+  font-weight: 400;
+  font-size: 14px;
+  color: #a37e17;
+}
+
+.site-map__back {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  padding: 7px 13px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 16.5px;
+  letter-spacing: 0.44px;
+}
+
+.site-map__back:hover {
+  border-color: var(--border-strong);
+}
+
+.site-map__dock {
+  position: absolute;
+  inset: auto 0 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 9px 14px 8px;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+  border-top: 1px solid var(--border);
+}
+
+.site-map__hud {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+  white-space: pre;
+}
+
+.site-map__hud p {
+  margin: 0;
+}
+
+.site-map__hud-dim {
+  color: var(--text-dim);
+}
+
+.site-map__chips {
+  display: flex;
+  gap: 6px;
+}
+
+.chip {
+  padding: 5px 11px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 9px;
+  line-height: 13.5px;
+  letter-spacing: 0.36px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.chip--on {
+  background: var(--surface-control);
+  border-color: var(--border-strong);
+  color: var(--text);
+}
+
+.chip--accent {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Right panel */
+.site-panel {
+  width: var(--sidebar-w);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  border-left: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.site-panel__scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+@media (max-width: 800px) {
+  /* Map on top, details below (page scrolls; see .app__main[data-screen='site']). */
+  .site-map {
+    flex: none;
+    height: 62vh;
+    min-height: 380px;
+  }
+
+  .site-panel {
+    flex: none;
+    width: 100%;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .site-panel__scroll {
+    overflow: visible;
+  }
+
+  .site-map__tag {
+    font-size: 10px;
+    line-height: 14px;
+    padding: 5px 8px;
+  }
+
+  .site-map__tag-sub {
+    font-size: 9px;
+  }
+
+  .site-map__tag--sun {
+    top: 14%;
+  }
+
+  .site-map__tag--earth {
+    left: 30%;
+    top: 25%;
+  }
+
+  .site-map__tag--psr {
+    left: 40%;
+    top: 56%;
+  }
+
+  .site-map__back {
+    padding: 10px 12px;
+  }
+
+  .site-map__dock {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .site-map__hud {
+    white-space: normal;
+    font-size: 9px;
+  }
+
+  .site-map__chips {
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .chip {
+    padding: 8px 11px;
+  }
+}

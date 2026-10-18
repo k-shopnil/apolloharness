@@ -1,0 +1,253 @@
+.details__block {
+  padding: 16px 16px 17px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.details__head {
+  gap: 4px;
+}
+
+.details__eyebrow {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.details__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 22.5px;
+}
+
+.details__sub {
+  font-size: 11px;
+  line-height: 16.5px;
+  color: var(--text-secondary);
+}
+
+.details__meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.details__meta dt {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.details__meta dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.details__score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 44px;
+}
+
+.details__score span {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+
+.details__note {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--amber);
+}
+
+.details__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.details__metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.details__metric span:first-child {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.details__metric span:last-child {
+  font-size: 12px;
+}
+
+.bar {
+  height: 4px;
+  background: var(--border-subtle);
+}
+
+.bar__fill {
+  height: 100%;
+  background: #fff;
+}
+
+.details__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 9px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.stat span {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.stat strong {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__payloads {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payload {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.payload__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.payload strong {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.payload > span {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.tag {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  font-size: 8px;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tag--volatiles {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tag--spectrometers {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.tag--rovers {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.details__block--provenance {
+  background: #050505;
+  gap: 8px;
+  padding: 12px;
+}
+
+.details__prov {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.details__link {
+  align-self: center;
+  padding-top: 24px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--accent);
+}
+
+.details__cta {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details__cta button {
+  width: 100%;
+  padding: 11px 17px;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__cta button:hover {
+  background: #fff;
+  color: #000;
+}
+
+.details__cta .details__cta-secondary {
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+  font-weight: 400;
+}
