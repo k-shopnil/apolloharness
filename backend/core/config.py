@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     offline: bool = False  # OFFLINE=1 -> True
     data_dir: Path = ROOT_DIR / "data"
     fixtures_dir: Path = ROOT_DIR / "demo_fixtures"
+    cors_origins: str = "https://chhayanautical.web.app,http://localhost:3000,http://localhost:5173"
 
 
 settings = Settings()

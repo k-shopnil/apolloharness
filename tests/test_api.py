@@ -289,3 +289,53 @@ def test_health_endpoint(client):
     data = r.json()
     assert data["status"] == "healthy"
     assert data["missions_count"] > 0
+
+
+def test_sites_comms_endpoint_returns_estimate(client):
+    response = client.get("/api/v1/sites/comms", params={"lat": -89.5, "lon": 0.0})
+    assert response.status_code == 200
+    body = response.json()
+    assert body["target"] == "Moon"
+    assert 0.0 <= body["earth_comms_viability"] <= 1.0
+    assert body["direct_to_earth_possible"] is True
+    assert body["model_status"] == "heuristic_demo_estimate"
+    assert response.headers["X-Cache"] in {"HIT", "MISS"}
+
+
+def test_sites_comms_validates_coordinate_bounds(client):
+    response = client.get("/api/v1/sites/comms", params={"lat": 95, "lon": 0})
+    assert response.status_code == 422
+
+
+def test_site_score_cache_sets_cache_headers(client):
+    params = {"lat": -77.0, "lon": 15.0, "target": "Moon"}
+    first = client.get("/api/v1/sites/score", params=params)
+    second = client.get("/api/v1/sites/score", params=params)
+    assert first.status_code == 200
+    assert second.status_code == 200
+    assert first.headers["X-Cache"] in {"HIT", "MISS"}
+    assert second.headers["X-Cache"] == "HIT"
+    assert first.json() == second.json()
+
+
+def test_cors_allows_configured_frontend_origin(client):
+    response = client.options(
+        "/api/v1/missions",
+        headers={
+            "Origin": "https://chhayanautical.web.app",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert response.status_code == 200
+    assert response.headers["access-control-allow-origin"] == "https://chhayanautical.web.app"
+
+
+def test_cors_does_not_allow_unknown_origin(client):
+    response = client.options(
+        "/api/v1/missions",
+        headers={
+            "Origin": "https://not-our-frontend.example",
+            "Access-Control-Request-Method": "GET",
+        },
+    )
+    assert "access-control-allow-origin" not in response.headers

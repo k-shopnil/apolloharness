@@ -1,12 +1,35 @@
 """Site evaluation and scoring endpoint with solar, comms, and ice proximity models."""
 from datetime import datetime, timezone
+from copy import deepcopy
 import math
+from threading import RLock
 from typing import Optional
+from cachetools import TTLCache
 from fastapi import APIRouter, HTTPException, Query, Response
 from pydantic import BaseModel, ConfigDict, Field
 from backend.core.config import settings
 
 router = APIRouter()
+
+# Short-lived in-memory cache for repeated site calculations. The lock keeps
+# access safe when FastAPI serves synchronous endpoints from multiple threads.
+_SCORE_CACHE = TTLCache(maxsize=512, ttl=60)
+_SCORE_CACHE_LOCK = RLock()
+
+def _score_cache_key(lat, lon, start_date, end_date, target, permanently_shadowed, solar_override):
+    return (lat, lon, start_date, end_date, target, permanently_shadowed, solar_override)
+
+def _cached_site_score(**kwargs):
+    key = _score_cache_key(**kwargs)
+    with _SCORE_CACHE_LOCK:
+        if key in _SCORE_CACHE:
+            return deepcopy(_SCORE_CACHE[key]), True
+    result = compute_site_score(**kwargs)
+    with _SCORE_CACHE_LOCK:
+        # Another request may have populated the same key while we calculated.
+        if key not in _SCORE_CACHE:
+            _SCORE_CACHE[key] = deepcopy(result)
+        return deepcopy(_SCORE_CACHE[key]), False
 
 
 class TacticalSunlight(BaseModel):
@@ -243,7 +266,7 @@ def get_site_score(
     permanently_shadowed: bool = Query(False, description="Flag for crater floor PSR"),
     solar_override: Optional[float] = Query(None, ge=0.0, le=1.0, description="Direct solar viability override"),
 ):
-    result = compute_site_score(
+    result, cache_hit = _cached_site_score(
         lat=lat,
         lon=lon,
         start_date=start_date,
@@ -253,4 +276,46 @@ def get_site_score(
         solar_override=solar_override,
     )
     response.headers["X-Data-Mode"] = "mock" if settings.offline else "live"
+    response.headers["X-Cache"] = "HIT" if cache_hit else "MISS"
     return result
+
+
+@router.get("/sites/comms")
+def get_site_comms(
+    response: Response,
+    lat: float = Query(..., ge=-90.0, le=90.0, description="Latitude in degrees (-90 to +90)"),
+    lon: float = Query(..., ge=-180.0, le=180.0, description="Longitude in degrees (-180 to +180)"),
+    start_date: Optional[str] = Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[str] = Query(None, description="End date (YYYY-MM-DD)"),
+    target: str = Query("Moon", description="Planetary body (default: Moon)"),
+    permanently_shadowed: bool = Query(False, description="Flag for a permanently shadowed region"),
+):
+    """Return the current prototype's direct-to-Earth communications estimate.
+
+    This shares the scoring calculation and cache with /sites/score. Values are
+    heuristic demo estimates until validated mission data/model inputs are integrated.
+    """
+    result, cache_hit = _cached_site_score(
+        lat=lat,
+        lon=lon,
+        start_date=start_date,
+        end_date=end_date,
+        target=target,
+        permanently_shadowed=permanently_shadowed,
+        solar_override=None,
+    )
+    scores = result["scores"]
+    response.headers["X-Data-Mode"] = "mock" if settings.offline else "live"
+    response.headers["X-Cache"] = "HIT" if cache_hit else "MISS"
+    return {
+        "lat": lat,
+        "lon": lon,
+        "target": target,
+        "earth_comms_viability": scores["earth_comms_viability"],
+        "direct_to_earth_possible": scores["earth_comms_viability"] > 0.0,
+        "start_date": start_date,
+        "end_date": end_date,
+        "data_mode": "mock" if settings.offline else "live",
+        "model_status": "heuristic_demo_estimate",
+        "description": "Prototype estimate only; not yet validated against mission ephemeris or the final team model.",
+    }
