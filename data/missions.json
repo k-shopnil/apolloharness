@@ -1,0 +1,310 @@
+[
+  {
+    "id": "clps-to2-ab-peregrine-1",
+    "task_order": "TO2-AB",
+    "provider": "Astrobotic",
+    "lander": "Peregrine",
+    "mission": "Peregrine Mission 1",
+    "target_site": "Sinus Viscositatis",
+    "region": "nearside",
+    "status": "failed_to_land",
+    "target_date": "2024-02-23",
+    "landing_site": {
+      "latitude_deg": 35.07,
+      "longitude_deg": -41.76,
+      "coordinate_type": "target_landing_ellipse_center"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": 2.0,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "PITMS",
+        "purpose": ["mass_spectrometer", "volatile_analysis"]
+      },
+      {
+        "name": "NIRVSS",
+        "purpose": ["spectrometer", "surface_composition"]
+      },
+      {
+        "name": "NSS",
+        "purpose": ["neutron_spectrometer", "volatile_detection"]
+      },
+      {
+        "name": "LETS",
+        "purpose": ["radiation_measurement"]
+      },
+      {
+        "name": "LRA",
+        "purpose": ["laser_ranging", "precision_landing_navigation"]
+      }
+    ]
+  },
+  {
+    "id": "clps-to2-im-im1",
+    "task_order": "TO2-IM",
+    "provider": "Intuitive Machines",
+    "lander": "Nova-C",
+    "mission": "IM-1 Odysseus",
+    "target_site": "Malapert A",
+    "region": "south_pole",
+    "status": "completed",
+    "target_date": "2024-02-22",
+    "landing_site": {
+      "latitude_deg": -80.13,
+      "longitude_deg": 1.44,
+      "coordinate_type": "actual_landing"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "LN-1",
+        "purpose": ["lunar_navigation", "communications"]
+      },
+      {
+        "name": "NDL",
+        "purpose": ["navigation_doppler_lidar", "landing_navigation"]
+      },
+      {
+        "name": "ROLSES",
+        "purpose": ["radio_science", "lunar_environment"]
+      },
+      {
+        "name": "SCALPSS",
+        "purpose": ["landing_imaging", "surface_dynamics"]
+      },
+      {
+        "name": "RFMG",
+        "purpose": ["magnetometry", "geophysics"]
+      },
+      {
+        "name": "LRA",
+        "purpose": ["laser_ranging", "precision_landing_navigation"]
+      }
+    ]
+  },
+  {
+    "id": "clps-to19d-blue-ghost-1",
+    "task_order": "TO19D",
+    "provider": "Firefly Aerospace",
+    "lander": "Blue Ghost",
+    "mission": "Blue Ghost Mission 1",
+    "target_site": "Mare Crisium",
+    "region": "nearside",
+    "status": "completed",
+    "target_date": "2025-03-02",
+    "landing_site": {
+      "latitude_deg": 18.56,
+      "longitude_deg": 61.81,
+      "coordinate_type": "landing_region_center"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "LEXI",
+        "purpose": ["x_ray_imaging", "space_weather"]
+      },
+      {
+        "name": "NGLR",
+        "purpose": ["laser_ranging", "geodesy"]
+      },
+      {
+        "name": "RadPC",
+        "purpose": ["radiation_measurement", "computer_hardware"]
+      },
+      {
+        "name": "RAC",
+        "purpose": ["regolith_characterization", "subsurface_sampling"]
+      },
+      {
+        "name": "LPV",
+        "purpose": ["lunar_surface_physics"]
+      },
+      {
+        "name": "LISTER",
+        "purpose": ["thermal_measurement", "heat_flow"]
+      },
+      {
+        "name": "SCALPSS_1.1",
+        "purpose": ["landing_imaging", "surface_dynamics"]
+      },
+      {
+        "name": "EDS",
+        "purpose": ["electrodynamic_dust", "lunar_environment"]
+      },
+      {
+        "name": "LuGRE",
+        "purpose": ["GNSS_navigation", "lunar_navigation"]
+      }
+    ]
+  },
+  {
+    "id": "clps-prime-1-im2",
+    "task_order": "TO PRIME-1",
+    "provider": "Intuitive Machines",
+    "lander": "Nova-C",
+    "mission": "IM-2 Athena",
+    "target_site": "Mons Mouton",
+    "region": "south_pole",
+    "status": "completed",
+    "target_date": "2025-03-06",
+    "landing_site": {
+      "latitude_deg": -84.7754,
+      "longitude_deg": 29.1264,
+      "coordinate_type": "landing_region_reference"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "TRIDENT",
+        "purpose": ["drill", "volatile_sampling", "water_ice"]
+      },
+      {
+        "name": "MSOLO",
+        "purpose": ["lunar_surface_operations", "resource_prospecting"]
+      },
+      {
+        "name": "LRA",
+        "purpose": ["laser_ranging", "precision_navigation"]
+      }
+    ]
+  },
+  {
+    "id": "clps-to20a-griffin-1",
+    "task_order": "TO20A",
+    "provider": "Astrobotic",
+    "lander": "Griffin",
+    "mission": "Griffin Mission 1",
+    "target_site": "Mons Mouton / Nobile Region",
+    "region": "south_pole",
+    "status": "planned",
+    "target_date": null,
+    "landing_site": {
+      "latitude_deg": -84.79,
+      "longitude_deg": 29.20,
+      "coordinate_type": "site_reference"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "VIPER",
+        "purpose": ["rover", "water_ice", "volatile_mapping", "drilling"]
+      },
+      {
+        "name": "LRA",
+        "purpose": ["laser_ranging", "precision_navigation"]
+      }
+    ]
+  },
+  {
+    "id": "clps-cp11-im3",
+    "task_order": "CP-11",
+    "provider": "Intuitive Machines",
+    "lander": "Nova-C",
+    "mission": "IM-3",
+    "target_site": "Reiner Gamma",
+    "region": "nearside",
+    "status": "planned",
+    "target_date": "2026",
+    "landing_site": {
+      "latitude_deg": 7.50,
+      "longitude_deg": -59.00,
+      "coordinate_type": "target_region_reference"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "Lunar Vertex",
+        "purpose": ["magnetometry", "lunar_geophysics"]
+      },
+      {
+        "name": "CADRE",
+        "purpose": ["rover", "distributed_robotics", "lunar_surface_mapping"]
+      },
+      {
+        "name": "MoonLIGHT",
+        "purpose": ["laser_ranging", "lunar_navigation"]
+      },
+      {
+        "name": "LUSEM",
+        "purpose": ["particle_detection", "space_weather"]
+      }
+    ]
+  },
+  {
+    "id": "clps-cp12-draper",
+    "task_order": "CP-12",
+    "provider": "Draper",
+    "lander": "ispace-U.S. APEX 1.0",
+    "mission": "Draper CP-12",
+    "target_site": "Schrödinger Basin",
+    "region": "farside",
+    "status": "planned",
+    "target_date": "2026",
+    "landing_site": {
+      "latitude_deg": -75.00,
+      "longitude_deg": 132.00,
+      "coordinate_type": "basin_reference"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "FSS",
+        "purpose": ["lunar_surface_science", "geophysics"]
+      },
+      {
+        "name": "LITMS-LISTER",
+        "purpose": ["thermal_measurement", "heat_flow"]
+      },
+      {
+        "name": "LITMS-LTC",
+        "purpose": ["thermal_measurement", "lunar_geophysics"]
+      }
+    ]
+  },
+  {
+    "id": "clps-cp22-im4",
+    "task_order": "CP-22",
+    "provider": "Intuitive Machines",
+    "lander": "Nova-C",
+    "mission": "IM-4",
+    "target_site": "Mons Mouton",
+    "region": "south_pole",
+    "status": "planned",
+    "target_date": "2027",
+    "landing_site": {
+      "latitude_deg": -84.79,
+      "longitude_deg": 29.20,
+      "coordinate_type": "site_reference"
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payloads": [
+      {
+        "name": "NASA payload suite",
+        "purpose": ["lunar_science", "south_pole_characterization"]
+      }
+    ]
+  }
+]
