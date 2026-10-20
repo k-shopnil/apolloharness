@@ -5,3 +5,20 @@ out
 .env
 .env.local
 *.log
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# Runtime/cache data
+cache/
+
+# Large SPICE kernels
+data/spice/*.bsp
+data/spice/*.bpc
+
+# OS/editor
+.DS_Store
+.vscode/
