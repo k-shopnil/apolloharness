@@ -272,6 +272,20 @@ def calculate_geometry(
     )
 
 
+def calculate_current_geometry(
+    latitude_deg: float,
+    longitude_deg: float,
+) -> HourlyGeometry:
+    """Calculate geometry for the current UTC instant from the installed kernels.
+
+    This is an ephemeris-based prediction at the current epoch, not a live
+    observation or telemetry feed. The returned ``utc`` records the exact
+    calculation epoch.
+    """
+    now_utc = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return calculate_geometry(latitude_deg, longitude_deg, now_utc)
+
+
 def calculate_hourly_geometry(
     latitude_deg: float,
     longitude_deg: float,

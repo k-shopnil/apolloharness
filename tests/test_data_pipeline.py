@@ -16,11 +16,12 @@ from shapely.geometry import Point
 from pyproj import Transformer
 
 from src.acquire import safe
+from src.acquire import nasa_products
 from src.compute.illumination_annual import calculate_annual_illumination
 from src.compute.illumination_mission import calculate_mission_illumination
 from src.compute.proximity import calculate_psr_distance
 from src.compute.spice_engine import (
-    HourlyGeometry, calculate_geometry, load_kernels, unload_kernels,
+    HourlyGeometry, calculate_current_geometry, calculate_geometry, load_kernels, unload_kernels,
     summarize_communications, _observer_position, _observer_position_me,
 )
 from src.compute.terrain import (
@@ -29,6 +30,31 @@ from src.compute.terrain import (
 
 
 class AcquisitionTests(unittest.TestCase):
+    def test_nasa_product_status_reports_cached_provenance_without_network(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            cache = root / "cache" / "nasa" / "pgda"
+            cache.mkdir(parents=True)
+            product = cache / "sample.tif"
+            product.write_bytes(b"real")
+            spec = {"test_product": {"filename": "sample.tif", "size_bytes": 4,
+                                     "url": "https://example.invalid/sample.tif",
+                                     "product": "NASA test product"}}
+            with patch.object(nasa_products, "PROJECT_ROOT", root), patch.object(
+                nasa_products, "PRODUCTS", spec
+            ):
+                before = nasa_products.get_product_status("test_product")
+                nasa_products._write_product_provenance(
+                    "test_product", product.name, product,
+                    "https://example.invalid/sample.tif", "NASA test product")
+                after = nasa_products.get_product_status("test_product")
+        self.assertEqual(before["status"], "CACHED")
+        self.assertEqual(before["integrity_status"], "UNVERIFIED")
+        self.assertEqual(after["integrity_status"], "VERIFIED")
+        self.assertEqual(after["upstream_freshness_status"], "UNKNOWN")
+        self.assertIn("last_verified_utc", after["files"][0]["provenance"])
+        self.assertGreaterEqual(after["files"][0]["verification_age_seconds"], 0)
+
     def test_online_fetch_writes_then_reads_cache(self) -> None:
         response = io.BytesIO(b'{"source":"online"}')
         with tempfile.TemporaryDirectory() as tmp:
@@ -248,6 +274,15 @@ class ComputeContractTests(unittest.TestCase):
             self.assertLess(result.earth_azimuth_deg, 360.0)
         finally:
             unload_kernels()
+
+    def test_current_geometry_is_an_epoch_stamped_spice_calculation(self) -> None:
+        expected = HourlyGeometry("2026-10-20T00:00:00Z", 0, 0, 0, 0, False)
+        with patch("src.compute.spice_engine.calculate_geometry", return_value=expected) as calculate:
+            result = calculate_current_geometry(-84.79, 29.2)
+        self.assertEqual(result, expected)
+        args, kwargs = calculate.call_args
+        self.assertEqual(args[:2], (-84.79, 29.2))
+        self.assertRegex(args[2], r"Z$")
 
     def test_spice_observer_coordinates_transform_from_me_to_pa(self) -> None:
         import spiceypy as spice

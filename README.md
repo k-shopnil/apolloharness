@@ -165,6 +165,11 @@ windows are identified and run.
 For downstream API and frontend field mappings, public function signatures,
 units, examples, dataset paths, and validation limitations, see
 [docs/DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md).
+Current-epoch SPICE geometry is a kernel-based prediction, not a live lunar
+measurement. Registered NASA products expose local cache/integrity status and
+verification timestamps; these timestamps do not claim that NASA updated the
+underlying historical product. The pipeline does not consume live CLPS
+telemetry.
 
 ---
 

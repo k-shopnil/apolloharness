@@ -15,7 +15,7 @@ backend routes, application scoring, or UI behavior.
 - `src/acquire/safe.py`: `fetch_json`, `fetch_file`, and
   `copy_fixture_to_cache`, using online → cache → fixture fallback.
 - `src/compute/spice_engine.py`: SPICE hourly geometry and geometric Earth LOS
-  summary.
+  summary, including current-UTC ephemeris geometry.
 - `src/compute/terrain.py`: LOLA DEM horizon profile and azimuth lookup.
 - `src/compute/illumination_mission.py`: tactical mission-window sunlight.
 - `src/compute/illumination_annual.py`: annual/secular polar illumination
@@ -92,6 +92,13 @@ summary has `visibility_model: "spherical_horizon_geometric_los"`,
 `communications_uptime_percent`, `longest_blackout_hours`, `total_hours`,
 `visible_hours`, and half-open UTC `blackout_intervals` (`start_utc`, `end_utc`).
 The older `.uptime_percent` attribute is retained as a compatibility alias.
+
+For the current UTC instant, `calculate_current_geometry(latitude_deg,
+longitude_deg)` returns the same `HourlyGeometry` fields and stamps the result
+with the exact UTC calculation epoch. It uses the installed SPICE kernels and
+is an ephemeris-based prediction, not a live surface observation or telemetry
+feed. Callers must load the kernels first and preserve the returned `utc` with
+the result.
 
 Serialized result shape (nulls below are schema placeholders, not observations):
 
@@ -220,6 +227,19 @@ Run `.venv/bin/python -m src.acquire.nasa_products --help` to see registered
 products, then use a product key such as
 `.venv/bin/python -m src.acquire.nasa_products lola_dem_80s_80m`. Downloads are
 cached under `cache/nasa/pgda/` and linked into ignored `data/` directories.
+After byte-size and registered-hash checks (where an upstream expected hash is
+available), acquisition writes an ignored per-file `*.metadata.json` record
+with the NASA source URL, product key, local SHA-256, file mtime, and local verification time. Existing valid cache files are reused
+without downloading them again. Inspect presence and integrity with
+`.venv/bin/python -m src.acquire.nasa_products lola_dem_80s_80m --status`.
+The status response reports local verification age and leaves
+`upstream_freshness_status` as `UNKNOWN` unless the source provides a usable
+update timestamp. `last_verified_utc` describes when this checkout checked its
+local file; it is not an upstream NASA update timestamp. These LOLA/illumination datasets are
+historical products, not real-time surface measurements. The CLPS manifest is
+source-curated from NASA pages; no stable NASA real-time CLPS telemetry API is
+currently integrated. Refreshing mission status requires an authoritative
+source update and must not infer new facts from an arbitrary page scrape.
 The registry covers the product-90 80–90°S LOLA DEM, product-69 85–90°S and
 75–90°S annual illumination TIFFs, and the full product-90 PSR shapefile. Use
 the 75–90°S illumination coverage for Mons Mouton. See
