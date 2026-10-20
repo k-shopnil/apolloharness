@@ -149,16 +149,15 @@ def fetch_file(
         )
 
         with urllib.request.urlopen(request, timeout=timeout) as response:
-            data = response.read()
-
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary_path = cache_path.with_suffix(cache_path.suffix + ".tmp")
+            try:
+                with temporary_path.open("wb") as file:
+                    shutil.copyfileobj(response, file, length=1024 * 1024)
+                temporary_path.replace(cache_path)
+            finally:
+                temporary_path.unlink(missing_ok=True)
         cache_path.parent.mkdir(parents=True, exist_ok=True)
-        temporary_path = cache_path.with_suffix(cache_path.suffix + ".tmp")
-
-        with temporary_path.open("wb") as file:
-            file.write(data)
-
-        temporary_path.replace(cache_path)
-
         return cache_path
 
     except (

@@ -18,6 +18,7 @@ KERNELS = [
     SPICE_DIR / "moon_pa_de421_1900-2050.bpc",
     SPICE_DIR / "de430.bsp",
 ]
+_ENGINE_KERNELS_LOADED: set[Path] = set()
 
 
 @dataclass
@@ -38,6 +39,25 @@ class CommunicationsSummary:
     visible_hours: int
     blackout_intervals: list[tuple[str, str]]
 
+    @property
+    def communications_uptime_percent(self) -> float:
+        """Compatibility-friendly explicit name for geometric LOS uptime."""
+        return self.uptime_percent
+
+    def to_dict(self) -> dict[str, object]:
+        """Return the stable downstream schema; intervals are UTC [start, end)."""
+        return {
+            "visibility_model": "spherical_horizon_geometric_los",
+            "communications_uptime_percent": self.uptime_percent,
+            "longest_blackout_hours": self.longest_blackout_hours,
+            "total_hours": self.total_hours,
+            "visible_hours": self.visible_hours,
+            "blackout_intervals": [
+                {"start_utc": start, "end_utc": end}
+                for start, end in self.blackout_intervals
+            ],
+        }
+
 
 def load_kernels() -> None:
     """Load required kernels once, preserving kernels loaded by other callers."""
@@ -52,21 +72,23 @@ def load_kernels() -> None:
             )
         if kernel.resolve() not in loaded:
             spice.furnsh(str(kernel))
+            _ENGINE_KERNELS_LOADED.add(kernel.resolve())
 
 
 def unload_kernels() -> None:
     """Unload only this engine's kernels, leaving unrelated SPICE state intact."""
-    for kernel in reversed(KERNELS):
-        resolved = kernel.resolve()
+    for resolved in tuple(_ENGINE_KERNELS_LOADED):
         for index in reversed(range(spice.ktotal("ALL"))):
             loaded_path = Path(spice.kdata(index, "ALL", 256, 256, 256)[0])
             if loaded_path.resolve() == resolved:
                 spice.unload(str(loaded_path))
+        _ENGINE_KERNELS_LOADED.discard(resolved)
 
 
 def _observer_position(
     latitude_deg: float,
     longitude_deg: float,
+    et: float,
 ) -> np.ndarray:
     """
     Return lunar surface observer position in MOON_PA coordinates.
@@ -77,25 +99,17 @@ def _observer_position(
     Longitude:
         Positive east, negative west.
     """
-    radii = spice.bodvrd("MOON", "RADII", 3)[1]
-    lat = np.radians(latitude_deg)
-    lon = np.radians(longitude_deg)
     # Mission coordinates are planetocentric. Intersect the radial direction
     # with the Moon's reference ellipsoid instead of treating them as geodetic.
-    radial_distance = 1.0 / np.sqrt(
-        (np.cos(lat) ** 2 / radii[0] ** 2)
-        + (np.sin(lat) ** 2 / radii[2] ** 2)
-    )
-    return np.array([
-        radial_distance * np.cos(lat) * np.cos(lon),
-        radial_distance * np.cos(lat) * np.sin(lon),
-        radial_distance * np.sin(lat),
-    ], dtype=float)
+    position_me = _observer_position_me(latitude_deg, longitude_deg)
+    # Mission coordinates are mean-Earth (ME); SPK geometry below is PA.
+    return spice.mxv(spice.pxform("MOON_ME", "MOON_PA", et), position_me)
 
 
 def _local_basis(
     latitude_deg: float,
     longitude_deg: float,
+    et: float,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Construct local East-North-Up basis in MOON_PA coordinates.
@@ -112,15 +126,47 @@ def _local_basis(
         dtype=float,
     )
 
-    up = np.asarray(spice.surfnm(
-        *spice.bodvrd("MOON", "RADII", 3)[1],
-        _observer_position(latitude_deg, longitude_deg),
+    position_me = _observer_position_me(latitude_deg, longitude_deg)
+    radii = spice.bodvrd("MOON", "RADII", 3)[1]
+    up_me = np.asarray(spice.surfnm(
+        *radii,
+        position_me,
     ), dtype=float)
-    up /= np.linalg.norm(up)
-    north = np.cross(up, east)
-    north /= np.linalg.norm(north)
+    up_me /= np.linalg.norm(up_me)
+    north_me = np.cross(up_me, east)
+    north_me /= np.linalg.norm(north_me)
 
-    return east, north, up
+    me_to_pa = spice.pxform("MOON_ME", "MOON_PA", et)
+    return tuple(np.asarray(spice.mxv(me_to_pa, axis))
+                 for axis in (east, north_me, up_me))
+
+
+def _observer_position_me(latitude_deg: float, longitude_deg: float) -> np.ndarray:
+    radii = spice.bodvrd("MOON", "RADII", 3)[1]
+    lat, lon = np.radians(latitude_deg), np.radians(longitude_deg)
+    distance = 1.0 / np.sqrt(np.cos(lat) ** 2 / radii[0] ** 2 +
+                              np.sin(lat) ** 2 / radii[2] ** 2)
+    return np.array([distance * np.cos(lat) * np.cos(lon),
+                     distance * np.cos(lat) * np.sin(lon),
+                     distance * np.sin(lat)], dtype=float)
+
+
+def _validate_coordinates(latitude_deg: float, longitude_deg: float) -> None:
+    if not np.isfinite(latitude_deg) or not -90.0 <= latitude_deg <= 90.0:
+        raise ValueError("latitude_deg must be finite and between -90 and 90")
+    if not np.isfinite(longitude_deg) or not -180.0 <= longitude_deg <= 180.0:
+        raise ValueError("longitude_deg must be finite and between -180 and 180")
+
+
+def _parse_utc(utc: str) -> tuple[datetime, str]:
+    try:
+        timestamp = datetime.fromisoformat(utc.replace("Z", "+00:00"))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("utc must be a valid timezone-aware ISO 8601 timestamp") from exc
+    if timestamp.tzinfo is None or timestamp.utcoffset() is None:
+        raise ValueError("utc must include Z or an explicit UTC offset")
+    timestamp = timestamp.astimezone(timezone.utc)
+    return timestamp, timestamp.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
 def _elevation_azimuth(
@@ -167,16 +213,20 @@ def calculate_geometry(
     """
     Calculate Earth and Sun local geometry for a lunar surface location.
     """
-    et = spice.str2et(utc)
+    _validate_coordinates(latitude_deg, longitude_deg)
+    _, normalized_utc = _parse_utc(utc)
+    et = spice.str2et(normalized_utc)
 
     observer = _observer_position(
         latitude_deg,
         longitude_deg,
+        et,
     )
 
     east, north, up = _local_basis(
         latitude_deg,
         longitude_deg,
+        et,
     )
 
     earth_moon, _ = spice.spkpos(
@@ -213,7 +263,7 @@ def calculate_geometry(
     )
 
     return HourlyGeometry(
-        utc=utc,
+        utc=normalized_utc,
         earth_elevation_deg=earth_elevation,
         earth_azimuth_deg=earth_azimuth,
         sun_elevation_deg=sun_elevation,
@@ -231,9 +281,10 @@ def calculate_hourly_geometry(
     """
     Calculate hourly Earth/Sun geometry over a mission window.
     """
-    start = datetime.fromisoformat(
-        start_utc.replace("Z", "+00:00")
-    ).astimezone(timezone.utc)
+    _validate_coordinates(latitude_deg, longitude_deg)
+    start, _ = _parse_utc(start_utc)
+    if hours < 0:
+        raise ValueError("hours must be non-negative")
 
     results: list[HourlyGeometry] = []
 
@@ -318,7 +369,10 @@ def summarize_communications(
                 current_blackout_hours = 0.0
 
     if blackout_start is not None:
-        blackout_end = geometry[-1].utc
+        final_time = datetime.fromisoformat(
+            geometry[-1].utc.replace("Z", "+00:00")
+        ) + timedelta(hours=1)
+        blackout_end = final_time.strftime("%Y-%m-%dT%H:%M:%SZ")
 
         blackout_intervals.append(
             (
