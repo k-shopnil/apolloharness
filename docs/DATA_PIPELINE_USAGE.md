@@ -21,6 +21,8 @@ backend routes, application scoring, or UI behavior.
 - `src/compute/illumination_annual.py`: annual/secular polar illumination
   raster extraction.
 - `src/compute/proximity.py`: metric distance to PSR boundaries.
+- `src/ml/features.py`: stable feature records and leakage/split audit helpers;
+  it does not train or load a model.
 
 The JSON files use the existing Issue #2 field names to avoid breaking current
 consumers: `id`, `task_order`, and nested `landing_site`. `coordinate_type`
@@ -295,6 +297,65 @@ Do not coerce a `null` target date to an exact date or a non-actual
   synthetic scientific number.
 
 No `/api/v1/...` endpoints or project scoring are implemented by Issue #2.
+
+## Physics-informed ML contract (not trained)
+
+The deterministic SPICE, terrain, annual-raster, communications, and PSR
+calculations remain authoritative. `src/ml/features.py` only combines already
+computed products into a schema-versioned candidate-site feature record. It
+preserves unavailable numbers as `null`, exposes data-quality fractions and
+source metadata separately, rejects benchmark locations by default, and labels
+the ML result `NOT_TRAINED`. It does not create scores, recommendations, or
+surrogate outputs.
+
+The stable feature schema is `apollo-lunar-site-v1`; numeric model features
+exclude target/label, physics score, rank, risk score, and benchmark expected
+values. Features include coordinate, terrain elevation/slope/roughness,
+tactical and annual illumination, time-window Sun statistics, geometric Earth
+visibility, and PSR distance. Temporal window bounds and per-source status and
+provenance remain metadata, not silently imputed predictors. Quality fractions
+and overall completeness are kept outside the physics score. Unsupported
+features stay `null`; there is no zero-fill path.
+
+The module provides deterministic 5-degree latitude/longitude block IDs,
+checks that train/validation/test block sets do not overlap, and by default can
+reject adjacent blocks across partitions with a one-cell buffer (a conservative
+5-degree screening guard, not a geodesic distance buffer). It also offers an
+optional strict chronological split check and an audit report for missingness,
+duplicate rows/coordinates, sample count, and groups. These are guardrails, not evidence
+that a dataset is suitable for training. An approved training corpus must be
+generated from real, version-pinned science inputs at independent candidate
+sites. The Shackleton rim and Mons Mouton benchmarks (and a sourced deep-crater
+site once specified) must remain evaluation-only, including a spatial buffer
+around each location.
+
+`audit_dataset` fails closed by default unless each training row has real or
+derived-real status for terrain, tactical illumination, annual illumination,
+communications, PSR, and SPICE; it also rejects benchmark coordinates, missing
+spatial groups, target leakage, and null targets. The emitted completeness
+percentage is a six-source availability indicator with sample-validity
+fractions retained alongside it; it is not a scientific suitability score.
+
+No training target is currently defined. A future target could be a documented
+physics-derived multi-objective utility, but it must be generated independently
+from model inputs and clearly labeled `PHYSICS_DERIVED_TARGET`; target-derived
+scores cannot enter the feature matrix. There is no trained model or evaluation
+metric: this repository currently has no installed scikit-learn, XGBoost,
+LightGBM, or CatBoost, and there are no legitimate independent generated
+physics samples. Do not train on the eight mission metadata rows, temporary
+synthetic test fixtures, or the held-out benchmark coordinates. Install and
+pin an estimator only after a leakage-audited corpus and training protocol are
+approved; split first, then fit imputation/scaling on training data only.
+
+If a compatible model is later introduced, downstream output should retain
+separate `physics`, `ml`, and `data_quality` objects. ML status must be
+`UNAVAILABLE`, `INSUFFICIENT_DATA`, `FEATURE_MISMATCH`, or
+`OUT_OF_DISTRIBUTION` instead of returning a fabricated score. An ML estimate
+must never overwrite deterministic outputs. Explainability, confidence,
+calibration, regression/ranking metrics, and comparison with a simple baseline
+are required before reporting model performance. No surrogate is currently
+justified; any future surrogate must be checked against new deterministic
+physics runs in independent spatial regions before candidate screening.
 
 ## Issue #4 frontend integration (contract only)
 

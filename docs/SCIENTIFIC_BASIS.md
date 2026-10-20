@@ -79,6 +79,31 @@ checksum with run metadata for reproducibility.
 
 ## Model meaning and limitations
 
+The deterministic physics engine is the ground-truth computation layer for
+this project: SPICE supplies time-dependent Sun/Earth geometry, LOLA supplies
+terrain elevation and horizon samples, product-69 rasters supply long-term
+illumination, and the product-90 vector supplies PSR boundaries subject to its
+validity/CRS limitations. Physics results remain available independently of
+ML. The optional intelligence layer in `src/ml/features.py` aggregates those
+results for future screening and audit; it does not modify, replace, or
+validate the physical calculations. No trained model, candidate ranking,
+physics-derived utility target, or surrogate exists in this revision.
+
+Feature schema `apollo-lunar-site-v1` carries deterministic outputs and leaves
+missing sources null. Completeness/status/provenance are separate metadata,
+not a hidden score. Benchmark sites are excluded from feature records by
+default and cannot enter the audit helper as training samples. Spatial groups
+are deterministic 5-degree latitude/longitude blocks; helpers reject overlap
+and adjacent cells across spatial partitions using a one-cell buffer, and
+enforce chronological ordering when evaluating a temporal model. The buffer is
+a conservative grid guard rather than a precise geodesic distance. These
+utilities prevent some common leakage paths but do not make an uncurated
+dataset scientifically valid. Current sample count for
+legitimate independent ML training is zero: the eight CLPS records are mission
+metadata, not independent site/physics labels, and the only available real
+site samples are reserved benchmarks. No preprocessing, estimator, or model
+artifact is fitted or persisted.
+
 - Tactical sunlight compares SPICE Sun elevation with a DEM-derived radial
   terrain horizon. Missing or incomplete terrain rays produce an unknown
   illumination state, not an open-sky state. The computation depends on DEM
