@@ -8,7 +8,8 @@ import numpy as np
 import spiceypy as spice
 
 
-SPICE_DIR = Path("data/spice")
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+SPICE_DIR = PROJECT_ROOT / "data" / "spice"
 
 KERNELS = [
     SPICE_DIR / "naif0012.tls",
@@ -39,21 +40,28 @@ class CommunicationsSummary:
 
 
 def load_kernels() -> None:
-    """Load the SPICE kernels required by the planetary computation engine."""
-    spice.kclear()
-
+    """Load required kernels once, preserving kernels loaded by other callers."""
+    loaded = {
+        Path(spice.kdata(i, "ALL", 256, 256, 256)[0]).resolve()
+        for i in range(spice.ktotal("ALL"))
+    }
     for kernel in KERNELS:
         if not kernel.exists():
             raise FileNotFoundError(
                 f"Required SPICE kernel not found: {kernel}"
             )
-
-        spice.furnsh(str(kernel))
+        if kernel.resolve() not in loaded:
+            spice.furnsh(str(kernel))
 
 
 def unload_kernels() -> None:
-    """Unload all currently loaded SPICE kernels."""
-    spice.kclear()
+    """Unload only this engine's kernels, leaving unrelated SPICE state intact."""
+    for kernel in reversed(KERNELS):
+        resolved = kernel.resolve()
+        for index in reversed(range(spice.ktotal("ALL"))):
+            loaded_path = Path(spice.kdata(index, "ALL", 256, 256, 256)[0])
+            if loaded_path.resolve() == resolved:
+                spice.unload(str(loaded_path))
 
 
 def _observer_position(
@@ -70,19 +78,19 @@ def _observer_position(
         Positive east, negative west.
     """
     radii = spice.bodvrd("MOON", "RADII", 3)[1]
-    radius_km = float(np.mean(radii))
-
     lat = np.radians(latitude_deg)
     lon = np.radians(longitude_deg)
-
-    return np.array(
-        [
-            radius_km * np.cos(lat) * np.cos(lon),
-            radius_km * np.cos(lat) * np.sin(lon),
-            radius_km * np.sin(lat),
-        ],
-        dtype=float,
+    # Mission coordinates are planetocentric. Intersect the radial direction
+    # with the Moon's reference ellipsoid instead of treating them as geodetic.
+    radial_distance = 1.0 / np.sqrt(
+        (np.cos(lat) ** 2 / radii[0] ** 2)
+        + (np.sin(lat) ** 2 / radii[2] ** 2)
     )
+    return np.array([
+        radial_distance * np.cos(lat) * np.cos(lon),
+        radial_distance * np.cos(lat) * np.sin(lon),
+        radial_distance * np.sin(lat),
+    ], dtype=float)
 
 
 def _local_basis(
@@ -104,23 +112,13 @@ def _local_basis(
         dtype=float,
     )
 
-    north = np.array(
-        [
-            -np.sin(lat) * np.cos(lon),
-            -np.sin(lat) * np.sin(lon),
-            np.cos(lat),
-        ],
-        dtype=float,
-    )
-
-    up = np.array(
-        [
-            np.cos(lat) * np.cos(lon),
-            np.cos(lat) * np.sin(lon),
-            np.sin(lat),
-        ],
-        dtype=float,
-    )
+    up = np.asarray(spice.surfnm(
+        *spice.bodvrd("MOON", "RADII", 3)[1],
+        _observer_position(latitude_deg, longitude_deg),
+    ), dtype=float)
+    up /= np.linalg.norm(up)
+    north = np.cross(up, east)
+    north /= np.linalg.norm(north)
 
     return east, north, up
 

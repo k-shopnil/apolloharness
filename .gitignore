@@ -11,14 +11,45 @@ out
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
 # Runtime/cache data
 cache/
+*.cache
 
 # Large SPICE kernels
 data/spice/*.bsp
 data/spice/*.bpc
+data/terrain/
+data/lola/
+data/illumination/
+data/psr/
+
+# Downloaded external datasets
+*.tif
+*.tiff
+*.vrt
+*.hdf
+*.h5
+*.nc
+
+# Generated scientific outputs
+outputs/
+results/
+reports/generated/
+artifacts/
 
 # OS/editor
 .DS_Store
 .vscode/
+.idea/
+
+# Local AI/agent artifacts
+.claude/
+.cursor/
+.copilot/
+.codex/
+.agent/
+.agents/
+.ai/
