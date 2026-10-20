@@ -3,7 +3,8 @@ dist
 build
 out
 .env
-.env.local
+.env.*
+!.env.example
 *.log
 
 # Python

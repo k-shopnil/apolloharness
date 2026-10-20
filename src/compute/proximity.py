@@ -7,7 +7,7 @@ import numpy as np
 from shapely.geometry import Point
 from .terrain import MOON_GEOGRAPHIC, MOON_SPS, PROJECT_ROOT
 
-DEFAULT_PSR = PROJECT_ROOT / "data" / "psr" / "psr_boundaries.gpkg"
+DEFAULT_PSR = PROJECT_ROOT / "data" / "psr" / "LPSR_80S_20MPP_ADJ.SHP"
 
 
 def calculate_psr_distance(latitude_deg: float, longitude_deg: float,

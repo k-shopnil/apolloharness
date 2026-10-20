@@ -12,7 +12,8 @@
     "landing_site": {
       "latitude_deg": 35.07,
       "longitude_deg": -41.76,
-      "coordinate_type": "target_landing_ellipse_center"
+      "coordinate_type": "target_landing_ellipse_center",
+      "coordinate_provenance": "NASA destination/region reference; exact coordinate provenance is not independently established in this catalog."
     },
     "landing_ellipse_km": {
       "major_axis_km": 2.0,
@@ -21,25 +22,65 @@
     "payloads": [
       {
         "name": "PITMS",
-        "purpose": ["mass_spectrometer", "volatile_analysis"]
+        "purpose": [
+          "mass_spectrometer",
+          "volatile_analysis"
+        ]
       },
       {
         "name": "NIRVSS",
-        "purpose": ["spectrometer", "surface_composition"]
+        "purpose": [
+          "spectrometer",
+          "surface_composition"
+        ]
       },
       {
         "name": "NSS",
-        "purpose": ["neutron_spectrometer", "volatile_detection"]
+        "purpose": [
+          "neutron_spectrometer",
+          "volatile_detection"
+        ]
       },
       {
         "name": "LETS",
-        "purpose": ["radiation_measurement"]
+        "purpose": [
+          "radiation_measurement"
+        ]
       },
       {
         "name": "LRA",
-        "purpose": ["laser_ranging", "precision_landing_navigation"]
+        "purpose": [
+          "laser_ranging",
+          "precision_landing_navigation"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "TO2-AB Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to2-astrobotic/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-to2-im-im1",
@@ -54,7 +95,8 @@
     "landing_site": {
       "latitude_deg": -80.13,
       "longitude_deg": 1.44,
-      "coordinate_type": "actual_landing"
+      "coordinate_type": "actual_landing",
+      "coordinate_provenance": "Catalog landing coordinate; exact geodetic source precision is not recorded."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -63,29 +105,73 @@
     "payloads": [
       {
         "name": "LN-1",
-        "purpose": ["lunar_navigation", "communications"]
+        "purpose": [
+          "lunar_navigation",
+          "communications"
+        ]
       },
       {
         "name": "NDL",
-        "purpose": ["navigation_doppler_lidar", "landing_navigation"]
+        "purpose": [
+          "navigation_doppler_lidar",
+          "landing_navigation"
+        ]
       },
       {
         "name": "ROLSES",
-        "purpose": ["radio_science", "lunar_environment"]
+        "purpose": [
+          "radio_science",
+          "lunar_environment"
+        ]
       },
       {
         "name": "SCALPSS",
-        "purpose": ["landing_imaging", "surface_dynamics"]
+        "purpose": [
+          "landing_imaging",
+          "surface_dynamics"
+        ]
       },
       {
         "name": "RFMG",
-        "purpose": ["magnetometry", "geophysics"]
+        "purpose": [
+          "magnetometry",
+          "geophysics"
+        ]
       },
       {
         "name": "LRA",
-        "purpose": ["laser_ranging", "precision_landing_navigation"]
+        "purpose": [
+          "laser_ranging",
+          "precision_landing_navigation"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "TO2-IM Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to2-im/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-to19d-blue-ghost-1",
@@ -100,7 +186,8 @@
     "landing_site": {
       "latitude_deg": 18.56,
       "longitude_deg": 61.81,
-      "coordinate_type": "landing_region_center"
+      "coordinate_type": "landing_region_center",
+      "coordinate_provenance": "NASA destination/region reference; exact coordinate provenance is not independently established in this catalog."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -109,41 +196,93 @@
     "payloads": [
       {
         "name": "LEXI",
-        "purpose": ["x_ray_imaging", "space_weather"]
+        "purpose": [
+          "x_ray_imaging",
+          "space_weather"
+        ]
       },
       {
         "name": "NGLR",
-        "purpose": ["laser_ranging", "geodesy"]
+        "purpose": [
+          "laser_ranging",
+          "geodesy"
+        ]
       },
       {
         "name": "RadPC",
-        "purpose": ["radiation_measurement", "computer_hardware"]
+        "purpose": [
+          "radiation_measurement",
+          "computer_hardware"
+        ]
       },
       {
         "name": "RAC",
-        "purpose": ["regolith_characterization", "subsurface_sampling"]
+        "purpose": [
+          "regolith_characterization",
+          "subsurface_sampling"
+        ]
       },
       {
         "name": "LPV",
-        "purpose": ["lunar_surface_physics"]
+        "purpose": [
+          "lunar_surface_physics"
+        ]
       },
       {
         "name": "LISTER",
-        "purpose": ["thermal_measurement", "heat_flow"]
+        "purpose": [
+          "thermal_measurement",
+          "heat_flow"
+        ]
       },
       {
         "name": "SCALPSS_1.1",
-        "purpose": ["landing_imaging", "surface_dynamics"]
+        "purpose": [
+          "landing_imaging",
+          "surface_dynamics"
+        ]
       },
       {
         "name": "EDS",
-        "purpose": ["electrodynamic_dust", "lunar_environment"]
+        "purpose": [
+          "electrodynamic_dust",
+          "lunar_environment"
+        ]
       },
       {
         "name": "LuGRE",
-        "purpose": ["GNSS_navigation", "lunar_navigation"]
+        "purpose": [
+          "GNSS_navigation",
+          "lunar_navigation"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "TO19D Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to19d-firefly/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-prime-1-im2",
@@ -153,12 +292,13 @@
     "mission": "IM-2 Athena",
     "target_site": "Mons Mouton",
     "region": "south_pole",
-    "status": "completed",
+    "status": "completed_limited_operations",
     "target_date": "2025-03-06",
     "landing_site": {
-      "latitude_deg": -84.7754,
-      "longitude_deg": 29.1264,
-      "coordinate_type": "landing_region_reference"
+      "latitude_deg": -84.79,
+      "longitude_deg": 29.2,
+      "coordinate_type": "reported_landing_rounded",
+      "coordinate_provenance": "NASA PDS reports 84.79S, 29.20E for Athena landing; rounded to 0.01 degree."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -167,32 +307,81 @@
     "payloads": [
       {
         "name": "TRIDENT",
-        "purpose": ["drill", "volatile_sampling", "water_ice"]
+        "purpose": [
+          "drill",
+          "volatile_sampling",
+          "water_ice"
+        ]
       },
       {
         "name": "MSOLO",
-        "purpose": ["lunar_surface_operations", "resource_prospecting"]
+        "purpose": [
+          "lunar_surface_operations",
+          "resource_prospecting"
+        ]
       },
       {
         "name": "LRA",
-        "purpose": ["laser_ranging", "precision_navigation"]
+        "purpose": [
+          "laser_ranging",
+          "precision_navigation"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "PRIME-1 Science",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/prime-1-im/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA PDS",
+        "title": "CLPS Task Order PRIME-1 Athena landing context",
+        "url": "https://pds.nasa.gov/ds-view/pds/viewContext.jsp?identifier=urn%3Anasa%3Apds%3Acontext%3Ainstrument_host%3Aspacecraft.clps_to_prime1_athena&version=1.0",
+        "supports": [
+          "launch date",
+          "landing date",
+          "reported rounded landing coordinates",
+          "payloads"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-to20a-griffin-1",
     "task_order": "TO20A",
-    "provider": "Astrobotic",
+    "provider": "Voyager Technologies (Astrobotic)",
     "lander": "Griffin",
-    "mission": "Griffin Mission 1",
-    "target_site": "Mons Mouton / Nobile Region",
+    "mission": "Griffin Mission One (Moon Base cargo delivery)",
+    "target_site": "Nobile Crater",
     "region": "south_pole",
-    "status": "planned",
-    "target_date": null,
+    "status": "planned_no_viper",
+    "target_date": "2026",
     "landing_site": {
-      "latitude_deg": -84.79,
-      "longitude_deg": 29.20,
-      "coordinate_type": "site_reference"
+      "latitude_deg": null,
+      "longitude_deg": null,
+      "coordinate_type": "target_region_reference",
+      "coordinate_provenance": "NASA identifies Nobile Crater as the target but the cited current NASA sources do not publish a landing coordinate."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -200,14 +389,77 @@
     },
     "payloads": [
       {
-        "name": "VIPER",
-        "purpose": ["rover", "water_ice", "volatile_mapping", "drilling"]
+        "name": "LDES",
+        "purpose": [
+          "lunar_dust_measurement",
+          "surface_environment"
+        ]
       },
       {
-        "name": "LRA",
-        "purpose": ["laser_ranging", "precision_navigation"]
+        "name": "Lunar LiDAR Demonstration",
+        "purpose": [
+          "lidar",
+          "terrain_mapping",
+          "navigation_technology"
+        ]
+      },
+      {
+        "name": "LRA (two arrays)",
+        "purpose": [
+          "laser_ranging",
+          "precision_navigation"
+        ]
+      },
+      {
+        "name": "METAL",
+        "purpose": [
+          "lunar_resource_mapping",
+          "titanium",
+          "helium_3"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "Moon Base: Voyager Griffin-1",
+        "url": "https://www.nasa.gov/event/clps-flight-astrobotics-griffin-mission-one/",
+        "supports": [
+          "Griffin-1 late 2026 target",
+          "Nobile Crater destination"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "Moon Base Phases: Voyager Technologies Griffin-1",
+        "url": "https://www.nasa.gov/moonbase-phases/",
+        "supports": [
+          "current Griffin-1 NASA payloads LDES, Lunar LiDAR Demonstration, two LRAs, and METAL"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "VIPER delivery reassigned to Blue Origin CS-7",
+        "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+        "supports": [
+          "VIPER reassigned away from Griffin / TO20A"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-cp11-im3",
@@ -220,9 +472,10 @@
     "status": "planned",
     "target_date": "2026",
     "landing_site": {
-      "latitude_deg": 7.50,
-      "longitude_deg": -59.00,
-      "coordinate_type": "target_region_reference"
+      "latitude_deg": 7.5,
+      "longitude_deg": -59.0,
+      "coordinate_type": "target_region_reference",
+      "coordinate_provenance": "NASA destination/region reference; exact coordinate provenance is not independently established in this catalog."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -231,21 +484,70 @@
     "payloads": [
       {
         "name": "Lunar Vertex",
-        "purpose": ["magnetometry", "lunar_geophysics"]
+        "purpose": [
+          "magnetometry",
+          "lunar_geophysics"
+        ]
       },
       {
         "name": "CADRE",
-        "purpose": ["rover", "distributed_robotics", "lunar_surface_mapping"]
+        "purpose": [
+          "rover",
+          "distributed_robotics",
+          "lunar_surface_mapping"
+        ]
       },
       {
         "name": "MoonLIGHT",
-        "purpose": ["laser_ranging", "lunar_navigation"]
+        "purpose": [
+          "laser_ranging",
+          "lunar_navigation"
+        ]
       },
       {
         "name": "LUSEM",
-        "purpose": ["particle_detection", "space_weather"]
+        "purpose": [
+          "particle_detection",
+          "space_weather"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "CP-11 Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-11/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "CP-11 Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-11/",
+        "supports": [
+          "2026 target year",
+          "Reiner Gamma destination"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-cp12-draper",
@@ -256,11 +558,12 @@
     "target_site": "Schrödinger Basin",
     "region": "farside",
     "status": "planned",
-    "target_date": "2026",
+    "target_date": null,
     "landing_site": {
-      "latitude_deg": -75.00,
-      "longitude_deg": 132.00,
-      "coordinate_type": "basin_reference"
+      "latitude_deg": -75.0,
+      "longitude_deg": 132.0,
+      "coordinate_type": "basin_reference",
+      "coordinate_provenance": "NASA destination/region reference; exact coordinate provenance is not independently established in this catalog."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -269,17 +572,52 @@
     "payloads": [
       {
         "name": "FSS",
-        "purpose": ["lunar_surface_science", "geophysics"]
+        "purpose": [
+          "lunar_surface_science",
+          "geophysics"
+        ]
       },
       {
         "name": "LITMS-LISTER",
-        "purpose": ["thermal_measurement", "heat_flow"]
+        "purpose": [
+          "thermal_measurement",
+          "heat_flow"
+        ]
       },
       {
         "name": "LITMS-LTC",
-        "purpose": ["thermal_measurement", "lunar_geophysics"]
+        "purpose": [
+          "thermal_measurement",
+          "lunar_geophysics"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "CP-12 Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-12/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-cp22-im4",
@@ -293,8 +631,9 @@
     "target_date": "2027",
     "landing_site": {
       "latitude_deg": -84.79,
-      "longitude_deg": 29.20,
-      "coordinate_type": "site_reference"
+      "longitude_deg": 29.2,
+      "coordinate_type": "site_reference",
+      "coordinate_provenance": "NASA destination/region reference; exact coordinate provenance is not independently established in this catalog."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -302,9 +641,95 @@
     },
     "payloads": [
       {
-        "name": "NASA payload suite",
-        "purpose": ["lunar_science", "south_pole_characterization"]
+        "name": "LEIA",
+        "purpose": [
+          "space_biology",
+          "radiation_environment"
+        ]
+      },
+      {
+        "name": "PROSPECT",
+        "purpose": [
+          "drilling",
+          "volatile_sampling",
+          "water_ice"
+        ]
+      },
+      {
+        "name": "L-CIRiS",
+        "purpose": [
+          "infrared_imaging",
+          "thermal_mapping",
+          "composition"
+        ]
+      },
+      {
+        "name": "SEAL",
+        "purpose": [
+          "lander_exhaust",
+          "regolith_exosphere"
+        ]
+      },
+      {
+        "name": "MAG",
+        "purpose": [
+          "magnetometry",
+          "lunar_geophysics"
+        ]
+      },
+      {
+        "name": "LRA",
+        "purpose": [
+          "laser_ranging",
+          "precision_navigation"
+        ]
       }
-    ]
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "CP-22 Science",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-22-science/",
+        "supports": [
+          "mission identity",
+          "provider",
+          "target site",
+          "task order",
+          "payload manifest"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "CP-22 Science Payloads",
+        "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-22-science/",
+        "supports": [
+          "six payloads",
+          "Mons Mouton target"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "CLPS Flight: Intuitive Machines IM-4",
+        "url": "https://www.nasa.gov/event/clps-flight-intuitive-machines-im-4-2/",
+        "supports": [
+          "2027 target year",
+          "Mons Mouton destination"
+        ],
+        "accessed_utc": "2026-10-20T12:00:00Z"
+      }
+    ],
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   }
 ]

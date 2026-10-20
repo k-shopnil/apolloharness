@@ -98,44 +98,46 @@ geometric (no aberration correction) line of sight. Earth visibility is a
 spherical-horizon test. It does not include terrain masking, lander antenna
 constraints, or relay availability.
 
-Terrain analysis accepts an externally downloaded LOLA elevation GeoTIFF in a
-projected lunar CRS with meter axes. A NASA GSFC PGDA South Pole LOLA DEM Mosaic
-provides GeoTIFFs in south polar stereographic X/Y coordinates; its product
-page documents the resolution and frame: [PGDA product 81](https://pgda.gsfc.nasa.gov/products/81).
-The newer [PGDA LOLA south-pole product 90](https://pgda.gsfc.nasa.gov/products/90)
-also provides COG GeoTIFFs. Download a suitable subset/mosaic and store it
-locally under `data/lola/` (or provide an explicit path to
-`extract_horizon_mask`). Do not commit these large rasters. The sampler uses the
-raster's declared projected CRS and interprets coordinates with a spherical
-Moon radius of 1,737,400 m; verify datum/frame compatibility for any selected
-product before interpreting results. Its 360-degree output is an observer
-height and radial-step dependent local horizon approximation.
+Terrain analysis uses NASA GSFC PGDA product 90's 80–90°S LOLA DEM at 80 m/pixel,
+which covers the Mons Mouton and Shackleton benchmark coordinates. The registry
+downloads it to `cache/nasa/pgda/` and links it at
+`data/lola/LDEM_80S_80MPP_ADJ.TIF`; the raster is ignored by Git. Product 90
+uses south-polar stereographic coordinates in meters referenced to the
+MOON_ME/DE421 realization and a 1,737,400 m reference sphere. Product 81 is a
+finer 5 m/pixel mosaic covering only 87–90°S, so it does not cover Mons Mouton.
+The acquired product-90 TIFF's WKT uses an IAU Moon-2015 ocentric CRS label;
+see [SCIENTIFIC_BASIS.md](docs/SCIENTIFIC_BASIS.md) for the metadata discrepancy
+and its effect on interpretation.
+The horizon output depends on observer height, radial step, and DEM resolution;
+incomplete rays remain unavailable rather than implying open sky.
 
-Annual illumination is a distinct strategic product and is read from a local
-LROC/LOLA annual illumination raster. NASA's [PGDA lunar polar illumination
-products](https://pgda.gsfc.nasa.gov/products/69) describe available long-term
-products and cloud-optimized GeoTIFFs. Put the selected south-pole product at
-`data/illumination/annual_south_pole.tif`, or pass its path to
-`annual_illumination`. Raster values in 0–1 are interpreted as fractions and
-values above 1 as percent. Keep product identity and units with downloaded data.
-The API will report a missing product; it does not substitute tactical
-illumination or invent a value.
+Annual illumination is a distinct strategic product. The registry downloads
+NASA PGDA product 69's 85–90°S, 60 m/pixel and 75–90°S, 120 m/pixel GeoTIFFs to
+`data/illumination/`. NASA describes these maps as average solar illumination
+over hourly samples spanning about one 18.6-year lunar nutation cycle. The
+TIFF's scale metadata (0.00004) converts stored int16 values to fraction of
+time illuminated; the API converts that to percent. These are average products,
+not mission-window predictions. Use the broader 75–90°S product for Mons
+Mouton; the higher resolution 85–90°S product covers Shackleton.
 
-PSR proximity requires authoritative polygon boundaries, placed at
-`data/psr/psr_boundaries.gpkg` or passed to `nearest_psr`. The input vector must
-declare its CRS. Distances are calculated after projection to a south-polar
-stereographic metric CRS (`MOON_SPS`), not from latitude/longitude differences.
-No PSR boundaries are currently bundled, so this calculation is unavailable
-until a sourced dataset is installed.
+PSR proximity uses NASA PGDA product 90's full south-polar PSR shapefile. The
+four shapefile components are downloaded to `cache/nasa/pgda/` and linked into
+`data/psr/`; no data binaries are committed. Distances are calculated in meters
+after projection to a south-polar stereographic CRS using the ME reference
+sphere, not from latitude/longitude differences.
+The acquired NASA vector contains 506,349 polygons, including ten invalid
+source geometries; the strict proximity calculation rejects the full source
+and reports no distance until a validity policy is established.
 
 ### Offline operation and reproducibility
 
 `src/acquire/safe.py` implements online → `cache/` → committed fixture fallback
 for JSON and file downloads. The committed mission JSON fixture keeps the
 mission catalog available offline; compute modules that depend on binary
-ephemerides still require the local SPICE kernels. Downloaded rasters and PSR
-vectors are ignored by Git and are not currently represented by invented demo
-values. Analysis output includes its analysis type and source path. For
+ephemerides still require the local SPICE kernels. NASA science rasters and PSR
+vectors are not replaced by fixture values. Fixture outputs are for software
+and offline testing and are NOT scientific results. Analysis output includes
+its analysis type and source path. For
 reproducibility, record the exact source product/version, kernel filenames,
 observer coordinate convention, DEM sampling parameters, and mission start and
 duration with each result.
@@ -148,15 +150,21 @@ python -m src.compute.spice_engine
 ```
 
 LOLA tactical illumination can be called from Python using
-`extract_horizon_mask(...)` and `calculate_tactical_illumination(...)`;
+`extract_horizon_mask(...)` and `calculate_mission_illumination(...)`;
 annual illumination and PSR distance are exposed as
-`annual_illumination(...)` and `nearest_psr(...)`. The compute API raises a
+`calculate_annual_illumination(...)` and `calculate_psr_distance(...)`.
+Earlier aliases remain available. The compute API raises a
 clear `FileNotFoundError` when its scientific input product is not installed.
 Run the included checks with `.venv/bin/python -m unittest discover -s tests -v`
-and use `.venv/bin/python -m compileall src` for a syntax check. No project-specific benchmark
-dataset or scientific validation document is currently included; benchmark
-values must not be claimed until the matching input products and time windows
-are identified and run.
+and use `.venv/bin/python -m compileall src` for a syntax check. No benchmark
+datasets are committed. The scientific basis document records an attempted
+real raster sample and its discrepancy with the brief's reference value;
+benchmark values must not be claimed until all matching products and time
+windows are identified and run.
+
+For downstream API and frontend field mappings, public function signatures,
+units, examples, dataset paths, and validation limitations, see
+[docs/DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md).
 
 ---
 
