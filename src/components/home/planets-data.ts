@@ -136,7 +136,7 @@ export const planets: Planet[] = [
       shadow("shadow.svg", SHADOW_A, A_DEG.shadow, SH_INSET),
       shadow("highlight.svg", HIGHLIGHT_A, A_DEG.highlight, HL_INSET),
       rot(
-        "image8.png",
+        "image8.webp",
         { l: 59.47, t: 60.54, w: 93.924, h: 93.924 },
         88,
         88,
@@ -187,7 +187,7 @@ export const planets: Planet[] = [
       shadow("shadow2.svg", SHADOW_B, B_DEG.shadow, SH_INSET),
       shadow("highlight2.svg", HIGHLIGHT_B, B_DEG.highlight, HL_INSET),
     ],
-    overlay: [flat("image9.png", 132.55, 166, 180, 81, undefined, { cover: true })],
+    overlay: [flat("image9.webp", 132.55, 166, 180, 81, undefined, { cover: true })],
   },
   {
     id: "69:18878",

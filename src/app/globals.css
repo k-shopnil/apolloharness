@@ -48,6 +48,31 @@ html {
   }
 }
 
+/* Compositor-only marquee (Figma 69:18614): transform + will-change keeps the
+   planets on their own GPU layer instead of repainting every frame. */
+.planet-marquee {
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  backface-visibility: hidden;
+  animation: planet-marquee 22s linear infinite;
+}
+
+@keyframes planet-marquee {
+  from {
+    transform: translate3d(1242.748px, 0, 0);
+  }
+  to {
+    transform: translate3d(-278.252px, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .planet-marquee {
+    animation: none;
+    transform: none;
+  }
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

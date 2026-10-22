@@ -1,14 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
-import type { CSSProperties } from "react";
+import { useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { planets, type Layer, type Planet } from "./planets-data";
 
-/* Figma node 69:18614 — x: 1242.748 → -278.252, 22s, linear, infinite */
-const MARQUEE_FROM = 1242.748;
-const MARQUEE_TO = -278.252;
-const MARQUEE_DURATION = 22;
-const REST_X = 0; // the static (non-animated) frame in Figma
+/* Figma node 69:18614 marquee (x: 1242.748 → -278.252, 22s) lives in
+   .planet-marquee in globals.css so it runs on the compositor thread. */
 
 const PLANET_OVERLAP = -72.775;
 const PLANET_HEIGHT = 426;
@@ -29,6 +26,7 @@ function Art({ layer }: { layer: Layer }) {
       src={layer.src}
       alt=""
       draggable={false}
+      decoding="async"
       style={{ ...fillImg, objectFit: layer.cover ? "cover" : undefined }}
     />
   );
@@ -140,9 +138,26 @@ function PlanetView({ planet, last }: { planet: Planet; last: boolean }) {
 
 export default function PlanetStrip() {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
+
+  // Only animate while the strip is on screen.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(([e]) => setInView(e.isIntersecting), {
+      rootMargin: "100px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   return (
-    <section aria-hidden className="@container w-full max-w-full overflow-hidden bg-black">
+    <section
+      ref={sectionRef}
+      aria-hidden
+      className="@container w-full max-w-full overflow-hidden bg-black"
+    >
       {/* --k comes from .planet-stage in globals.css (matches the rem scaling) */}
       <div
         className="planet-stage relative overflow-hidden"
@@ -176,34 +191,24 @@ export default function PlanetStrip() {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/home/space-stars.png"
+                src="/images/home/space-stars.webp"
                 alt=""
                 draggable={false}
+                loading="lazy"
+                decoding="async"
                 style={{ ...fillImg, transform: "scaleX(-1)" }}
               />
             </div>
           </div>
 
-          <motion.div
+          <div
             data-node-id="69:18614"
-            className="absolute flex items-center"
-            style={{ left: -201, top: 41 }}
-            initial={{ x: reduceMotion ? REST_X : MARQUEE_FROM }}
-            animate={
-              reduceMotion
-                ? { x: REST_X }
-                : {
-                    x: [MARQUEE_FROM, MARQUEE_TO],
-                    transition: {
-                      x: {
-                        duration: MARQUEE_DURATION,
-                        times: [0, 1],
-                        ease: "linear",
-                        repeat: Infinity,
-                      },
-                    },
-                  }
-            }
+            className="planet-marquee absolute flex items-center"
+            style={{
+              left: -201,
+              top: 41,
+              animationPlayState: reduceMotion || !inView ? "paused" : "running",
+            }}
           >
             {planets.map((planet, i) => (
               <PlanetView
@@ -212,7 +217,7 @@ export default function PlanetStrip() {
                 last={i === planets.length - 1}
               />
             ))}
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>
