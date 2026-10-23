@@ -19,17 +19,7 @@ __pycache__/
 cache/
 *.cache
 
-# Large SPICE kernels
-data/spice/*.bsp
-data/spice/*.bpc
-data/terrain/
-data/lola/
-data/illumination/
-data/psr/
-
 # Downloaded external datasets
-*.tif
-*.tiff
 *.vrt
 *.hdf
 *.h5
