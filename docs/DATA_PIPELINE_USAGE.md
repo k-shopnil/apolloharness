@@ -6,7 +6,7 @@ backend routes, application scoring, or UI behavior.
 
 ## Files and responsibilities
 
-- `data/missions.json`: source-curated catalog of eight CLPS missions and five
+- `data/missions.json`: source-curated catalog of eleven CLPS missions and five
   reference anchors (see `category`).
 - `demo_fixtures/missions.json`: deterministic offline mission catalog. It has
   mission metadata and provenance. Each fixture record includes a `demo_analysis`

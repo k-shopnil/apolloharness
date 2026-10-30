@@ -80,8 +80,8 @@ Experience our official preliminary project presentation submitted for the **NAS
 
 Python compute modules live in `src/compute/`; the mission catalog is
 `data/missions.json`, and the offline mission catalog is
-`demo_fixtures/missions.json`. The current catalog contains thirteen sourced
-records: eight CLPS missions (`category: "clps"`) and five historical and
+`demo_fixtures/missions.json`. The current catalog contains sixteen sourced
+records: eleven CLPS missions (`category: "clps"`) and five historical and
 international reference anchors (`category: "reference_anchor"`: Apollo 11,
 Apollo 17, Chandrayaan-3, Chang'e 4, SLIM). Coordinates are references with an explicit `coordinate_type`; a
 target or region center must not be interpreted as an achieved landing point.

@@ -308,6 +308,25 @@ class ManifestGroundingTests(unittest.TestCase):
         statuses = {m["mission_id"]: m["status"] for m in index["missions"]}
         self.assertEqual(statuses["clps-cp12-draper"], "skipped_mission_terminated")
 
+    def test_corrected_fleet_facts(self) -> None:
+        manifest = {m["id"]: m for m in json.loads(Path("data/missions.json").read_text(encoding="utf-8"))}
+        # VIPER was revived on Blue Origin (CS-7), not Griffin-1.
+        viper = manifest["clps-cs7-blue-origin-viper"]
+        self.assertEqual((viper["provider"], viper["task_order"]), ("Blue Origin", "CS-7"))
+        self.assertNotIn("VIPER", manifest["clps-to20a-griffin-1"]["payload_summary"])
+        # Blue Ghost-2 targets Nassau (far side), not Schrodinger; centre is a reference only.
+        ghost = manifest["clps-cs3-blue-ghost-2"]
+        self.assertEqual(ghost["region"], "farside")
+        self.assertTrue(ghost["landing_site"]["coordinate_type"].endswith("_reference"))
+        self.assertAlmostEqual(ghost["landing_site"]["latitude_deg"], -24.91)
+        # No invented landing coordinates where publishers give none.
+        for mission_id in ("clps-to20a-griffin-1", "clps-cs7-blue-origin-viper",
+                           "clps-blue-moon-mk1-endurance"):
+            self.assertIsNone(manifest[mission_id]["landing_site"]["latitude_deg"])
+        self.assertEqual(manifest["clps-to20a-griffin-1"]["target_feature"]["latitude_deg"], -85.28)
+        for record in manifest.values():
+            self.assertTrue(record["sources"])
+
 
 if __name__ == "__main__":
     unittest.main()

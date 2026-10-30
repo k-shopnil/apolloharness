@@ -56,6 +56,21 @@
       "status": "skipped_no_exact_date"
     },
     {
+      "mission_id": "clps-blue-moon-mk1-endurance",
+      "mission": "Blue Moon MK1 Pathfinder (Endurance)",
+      "status": "skipped_no_coordinate"
+    },
+    {
+      "mission_id": "clps-cs7-blue-origin-viper",
+      "mission": "VIPER delivery",
+      "status": "skipped_no_coordinate"
+    },
+    {
+      "mission_id": "clps-cs3-blue-ghost-2",
+      "mission": "Blue Ghost Mission 2 (Riders 2 the Dark)",
+      "status": "skipped_no_exact_date"
+    },
+    {
       "mission_id": "anchor-apollo-11",
       "mission": "Apollo 11",
       "status": "complete",

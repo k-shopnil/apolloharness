@@ -27,7 +27,7 @@ products and SPICE kernels; no network is needed at runtime.
 | Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.12–0.30 s per click when warm; call `warm_up()` at startup |
 | Launch-slip Date A vs Date B | `site_evaluation.compare_launch_dates` | Shared relative clock, delta summary |
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
-| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 8 CLPS + 5 sourced reference anchors, each with `payload_summary` |
+| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
 | Validation vs NASA (beyond the issue) | `python -m src.ml.validation`, [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md) | Held-out test: R² 0.951, MAE 1.45 pp, bias −0.05 pp |
@@ -477,8 +477,10 @@ Items in the Issue #8 text that the pipeline deliberately does **not** follow
 | Issue #8 statement | Pipeline decision | Evidence |
 |---|---|---|
 | IM-1 Odysseus at 86.00°S, 4.00°E | Kept **80.13°S, 1.44°E** | NASA reports IM-1 landed near Malapert A at about 80.1°S |
-| Griffin-1 / VIPER at 84.90°S, 31.60°W | Coordinate kept `null`; VIPER is not on Griffin | Cited NASA sources name Nobile but publish no coordinate; VIPER was removed from Griffin |
-| Blue Ghost-2, Schrödinger 75.00°S, 132.40°E | Not added | No NASA source with a coordinate found yet; CP-12 Draper already references the Schrödinger basin |
+| Griffin-1 / VIPER at 84.90°S, 31.60°W | Griffin landing coordinate kept `null`; Nobile crater centre (USGS: 85.28°S, 53.27°E) stored separately as `target_feature`, for map context only | NASA and Astrobotic name the Nobile region but publish no landing point. A crater centre is not a landing site, and Nobile's floor is largely shadowed, so computing a track there would mislead |
+| VIPER flies on Griffin | **Wrong.** VIPER was cancelled in July 2024, then **revived in September 2025** on Blue Origin's second Blue Moon MK1 (task order **CS-7**, late 2027, delivery is a contract option). Added as `clps-cs7-blue-origin-viper` | [NASA release 25-064](https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/) and NASA's Moon Base page. NASA's older *CLPS Providers* page still says "Griffin will deliver VIPER in 2024"; that stale page is the likely origin of the issue's claim |
+| Blue Ghost-2 at Schrödinger, 75.00°S, 132.40°E | **Wrong site.** Blue Ghost Mission 2 (task order CS-3, NET 2027) targets **Nassau Crater** on the far side. Added as `clps-cs3-blue-ghost-2`, with the USGS crater centre (24.91°S, 177.34°E) as a `target_feature_reference` | [Firefly mission page](https://fireflyspace.com/missions/blue-ghost-mission-2/), NASA CLPS providers (CS-3), USGS Gazetteer. Schrödinger was Draper CP-12, now terminated |
+| *(not in the issue)* Blue Moon MK1 "Endurance" | Added as `clps-blue-moon-mk1-endurance`: Shackleton Connecting Ridge, SCALPSS + LRA; no published coordinate or current date | NASA Moon Base page |
 | SLIM "proved the need for slope envelopes" | Reworded | SLIM tipped over because a main engine lost thrust during descent; the slope was a contributing factor, not the cause |
 | Apollo 11 "> 98% Earth visibility" | Not stated | Geometrically, Earth is visible 100% of the time at Tranquility Base; the pipeline reports the computed value |
 | "50 km shadow" at 1° | Flagged for the science review | See above |
@@ -492,6 +494,12 @@ Pipeline limitations:
   −5,935 m (Liu et al. 2019); both are asserted in tests. For sharper
   nearside terrain, `LDEM_128` (237 m, 2.1 GB) uses the same converter.
 - **Catalog values still waiting on publishers** (checked 2026-10-31):
+  - **Blue Moon MK1 Endurance and VIPER:** NASA names the Shackleton
+    Connecting Ridge and the "South Pole region" but publishes no landing
+    coordinate. Endurance has no current launch date (NASA's 2025 "later this
+    year" target slipped).
+  - **Blue Ghost Mission 2:** Nassau Crater is named but no landing point, and
+    the date is NET 2027 only; the crater centre is a map reference.
   - **Griffin-1:** NASA and Astrobotic name the Nobile region but publish no
     landing coordinate. Launch is no earlier than November 2026.
   - **IM-3** (Reiner Gamma) and **IM-4** (south pole): only target years

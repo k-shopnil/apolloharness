@@ -100,7 +100,7 @@ enforce chronological ordering when evaluating a temporal model. The buffer is
 a conservative grid guard rather than a precise geodesic distance. These
 utilities prevent some common leakage paths but do not make an uncurated
 dataset scientifically valid. Current sample count for
-legitimate independent ML training is zero: the eight CLPS records are mission
+legitimate independent ML training is zero: the CLPS records are mission
 metadata, not independent site/physics labels, and the only available real
 site samples are reserved benchmarks. No preprocessing, estimator, or model
 artifact is fitted or persisted.

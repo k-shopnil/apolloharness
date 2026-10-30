@@ -98,7 +98,7 @@ class AcquisitionTests(unittest.TestCase):
                     fixture_name="missions.json", timeout=0.1)
         self.assertEqual(result[0]["mission"], "Peregrine Mission 1")
 
-    def test_committed_mission_fixture_has_thirteen_sourced_records(self) -> None:
+    def test_committed_mission_fixture_has_sixteen_sourced_records(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             with patch.object(safe, "CACHE_DIR", Path(tmp) / "cache"):
                 missions = safe.fetch_json(
@@ -107,7 +107,7 @@ class AcquisitionTests(unittest.TestCase):
                     fixture_name="missions.json",
                     timeout=0.1,
                 )
-        self.assertEqual(len(missions), 13)
+        self.assertEqual(len(missions), 16)
         self.assertEqual(missions[0]["mission"], "Peregrine Mission 1")
         self.assertTrue(all(record["sources"] for record in missions))
         self.assertTrue(all(record["demo_analysis"]["analysis_status"] ==
@@ -315,7 +315,7 @@ class ComputeContractTests(unittest.TestCase):
     def test_manifest_schema_and_fixture_have_no_science_numbers(self) -> None:
         manifest = json.loads(Path("data/missions.json").read_text(encoding="utf-8"))
         fixtures = json.loads(Path("demo_fixtures/missions.json").read_text(encoding="utf-8"))
-        self.assertEqual(len(manifest), 13)
+        self.assertEqual(len(manifest), 16)
         self.assertEqual([m["id"] for m in manifest], [m["id"] for m in fixtures])
         required = {"id", "task_order", "provider", "mission", "target_site", "region",
                     "status", "target_date", "landing_site", "landing_ellipse_km", "payloads", "sources"}

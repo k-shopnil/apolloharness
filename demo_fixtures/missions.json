@@ -463,12 +463,22 @@
       },
       {
         "publisher": "NASA",
-        "title": "VIPER delivery reassigned to Blue Origin CS-7",
+        "title": "VIPER delivery reassigned to Blue Origin CS-7 (NASA release 25-064)",
         "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
         "supports": [
           "VIPER reassigned away from Griffin / TO20A"
         ],
         "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "USGS / IAU",
+        "title": "Gazetteer of Planetary Nomenclature: Nobile",
+        "url": "https://planetarynames.wr.usgs.gov/Feature/4321",
+        "supports": [
+          "crater centre -85.28, 53.27",
+          "diameter 79.27 km"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
     "demo_analysis": {
@@ -482,7 +492,16 @@
       "hourly_illumination": null,
       "blackout_intervals": null
     },
-    "category": "clps"
+    "category": "clps",
+    "status_note": "NASA Moon Base page: planned launch late 2026. VIPER is not on Griffin-1; it moved to Blue Origin under CS-7 (NASA release 25-064).",
+    "target_feature": {
+      "name": "Nobile crater",
+      "latitude_deg": -85.28,
+      "longitude_deg": 53.27,
+      "diameter_km": 79.27,
+      "use": "map context only; a crater centre is not a landing site and Nobile's floor is largely shadowed",
+      "source": "https://planetarynames.wr.usgs.gov/Feature/4321"
+    }
   },
   {
     "id": "clps-cp11-im3",
@@ -769,6 +788,270 @@
       "blackout_intervals": null
     },
     "category": "clps"
+  },
+  {
+    "id": "clps-blue-moon-mk1-endurance",
+    "task_order": null,
+    "provider": "Blue Origin",
+    "lander": "Blue Moon Mark 1 \"Endurance\"",
+    "mission": "Blue Moon MK1 Pathfinder (Endurance)",
+    "target_site": "Shackleton Connecting Ridge",
+    "region": "south_pole",
+    "status": "planned",
+    "target_date": null,
+    "status_note": "NASA (2025-09-19) targeted launch in late 2025; it had not flown as of 2026-10-31 and NASA publishes no current date. NASA does not name its task order in the cited sources.",
+    "landing_site": {
+      "latitude_deg": null,
+      "longitude_deg": null,
+      "coordinate_type": "target_region_reference",
+      "coordinate_provenance": "NASA names the Shackleton Connecting Ridge but publishes no landing coordinate."
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payload_summary": "SCALPSS, LRA",
+    "payloads": [
+      {
+        "name": "SCALPSS",
+        "purpose": [
+          "landing_imaging",
+          "plume_surface_interaction"
+        ]
+      },
+      {
+        "name": "LRA",
+        "purpose": [
+          "laser_ranging",
+          "precision_navigation"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "Moon Base Phases (Phase One assets)",
+        "url": "https://www.nasa.gov/moonbase-phases/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "lander name Endurance",
+          "Shackleton Connecting Ridge target",
+          "SCALPSS and LRA payloads"
+        ]
+      },
+      {
+        "publisher": "NASA",
+        "title": "NASA Selects Blue Origin to Deliver VIPER Rover to Moon's South Pole (Release 25-064, 2025-09-19)",
+        "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "first Blue Moon MK1 CLPS delivery of SCALPSS and LRA"
+        ]
+      }
+    ],
+    "category": "clps",
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
+  },
+  {
+    "id": "clps-cs7-blue-origin-viper",
+    "task_order": "CS-7",
+    "provider": "Blue Origin",
+    "lander": "Blue Moon Mark 1 (second unit)",
+    "mission": "VIPER delivery",
+    "target_site": "Lunar South Pole region",
+    "region": "south_pole",
+    "status": "planned",
+    "target_date": "2027",
+    "status_note": "CS-7 base task covers rover accommodation design; the late-2027 delivery is a contract option. NASA cancelled VIPER in July 2024 and revived it with this award; it does not fly on Griffin-1.",
+    "landing_site": {
+      "latitude_deg": null,
+      "longitude_deg": null,
+      "coordinate_type": "target_region_reference",
+      "coordinate_provenance": "NASA names only the lunar South Pole region; no landing coordinate is published."
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payload_summary": "VIPER rover (1 m drill)",
+    "payloads": [
+      {
+        "name": "VIPER rover (1 m drill)",
+        "purpose": [
+          "water_ice",
+          "volatile_mapping",
+          "drill",
+          "rover"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "publisher": "NASA",
+        "title": "NASA Selects Blue Origin to Deliver VIPER Rover to Moon's South Pole (Release 25-064, 2025-09-19)",
+        "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "task order CS-7",
+          "second Blue Moon MK1 lander",
+          "late 2027 landing",
+          "delivery is an option",
+          "VIPER previously cancelled"
+        ]
+      },
+      {
+        "publisher": "NASA",
+        "title": "Moon Base Phases (Phase One assets)",
+        "url": "https://www.nasa.gov/moonbase-phases/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "late 2027 arrival",
+          "1 m drill",
+          "permanently shadowed region exploration"
+        ]
+      }
+    ],
+    "category": "clps",
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
+  },
+  {
+    "id": "clps-cs3-blue-ghost-2",
+    "task_order": "CS-3",
+    "provider": "Firefly Aerospace",
+    "lander": "Blue Ghost + Elytra Dark orbiter",
+    "mission": "Blue Ghost Mission 2 (Riders 2 the Dark)",
+    "target_site": "Nassau Crater (lunar far side)",
+    "region": "farside",
+    "status": "planned",
+    "target_date": "2027",
+    "status_note": "Firefly: launch no earlier than 2027 (NASA's CLPS providers page still says 2026). First planned American far-side landing; surface operations at least 10 days, LuSEE-Night continues for up to two years.",
+    "landing_site": {
+      "latitude_deg": -24.91,
+      "longitude_deg": 177.34,
+      "coordinate_type": "target_feature_reference",
+      "coordinate_provenance": "USGS/IAU Gazetteer centre of Nassau crater (75.80 km diameter). Firefly names Nassau Crater but publishes no landing point; region reference only, not a landing site."
+    },
+    "landing_ellipse_km": {
+      "major_axis_km": null,
+      "minor_axis_km": null
+    },
+    "payload_summary": "LuSEE-Night, User Terminal, Lunar Pathfinder (orbit), SPIDER, Rashid Rover 2, LightPort",
+    "payloads": [
+      {
+        "name": "LuSEE-Night",
+        "purpose": [
+          "radio_astronomy",
+          "cosmic_dark_ages"
+        ]
+      },
+      {
+        "name": "User Terminal",
+        "purpose": [
+          "relay_communications"
+        ]
+      },
+      {
+        "name": "Lunar Pathfinder (orbit)",
+        "purpose": [
+          "relay_satellite"
+        ]
+      },
+      {
+        "name": "SPIDER",
+        "purpose": [
+          "seismometer"
+        ]
+      },
+      {
+        "name": "Rashid Rover 2",
+        "purpose": [
+          "rover"
+        ]
+      },
+      {
+        "name": "LightPort",
+        "purpose": [
+          "wireless_power"
+        ]
+      }
+    ],
+    "sources": [
+      {
+        "publisher": "Firefly Aerospace",
+        "title": "Blue Ghost + Elytra: Lunar Far Side",
+        "url": "https://fireflyspace.com/missions/blue-ghost-mission-2/",
+        "supports": [
+          "Nassau Crater landing site",
+          "launch NET 2027",
+          "payload manifest",
+          "two NASA CLPS task orders"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
+      },
+      {
+        "publisher": "NASA",
+        "title": "CLPS Providers",
+        "url": "https://www.nasa.gov/commercial-lunar-payload-services/clps-providers/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "task order CS-3",
+          "lunar far side landing"
+        ]
+      },
+      {
+        "publisher": "NASA",
+        "title": "Moon Base Phases (Phase One assets)",
+        "url": "https://www.nasa.gov/moonbase-phases/",
+        "accessed_utc": "2026-10-31T12:00:00Z",
+        "supports": [
+          "first American far-side landing",
+          "LuSEE-Night",
+          "User Terminal via Lunar Pathfinder"
+        ]
+      },
+      {
+        "publisher": "USGS / IAU",
+        "title": "Gazetteer of Planetary Nomenclature: Nassau",
+        "url": "https://planetarynames.wr.usgs.gov/Feature/4159",
+        "supports": [
+          "crater centre -24.91, 177.34",
+          "diameter 75.80 km"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
+      }
+    ],
+    "category": "clps",
+    "demo_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-apollo-11",
