@@ -205,9 +205,10 @@ def interpolate_elevation(latitude_deg: float, longitude_deg: float,
     """
     _validate_sampling(latitude_deg, longitude_deg, 1.0, 1.0, 1.0)
     path = Path(dem_path)
-    if not path.is_file():
+    # GDAL virtual paths (e.g. /vsimem/ in-memory tiles) are not on disk.
+    if not str(dem_path).startswith("/vsi") and not path.is_file():
         raise FileNotFoundError(f"LOLA DEM not found: {path}")
-    with rasterio.open(path) as ds:
+    with rasterio.open(dem_path) as ds:
         _validate_dem_crs(ds)
         tx = Transformer.from_crs(MOON_GEOGRAPHIC, ds.crs, always_xy=True)
         x, y = tx.transform(longitude_deg, latitude_deg)
@@ -285,27 +286,71 @@ def extract_horizon_mask_fast(
     return HorizonMask(azimuths, angles)
 
 
+POLAR_DEM_PRODUCT = "LOLA LDEM_80S_80MPP_ADJ (PGDA product 90)"
+
+
 def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
-                          dem_path: str | Path = DEFAULT_DEM, **mask_options: float
-                          ) -> dict[str, object]:
+                          dem_path: str | Path = DEFAULT_DEM, *, global_terrain: bool = True,
+                          **mask_options: float) -> dict[str, object]:
     """Terrain context for any coordinate: elevation plus horizon mask if covered.
 
-    Outside the LOLA polar DEM the mask is ``None`` and ``horizon_model`` is
+    Source order: the 80 m polar DEM (``dem_path``), then, outside it and when
+    ``global_terrain`` is set, a committed LDEM_64 site tile covering the point,
+    then a tile built on the fly from the global product if installed. With no
+    terrain source the mask is ``None`` and ``horizon_model`` is
     ``spherical_horizon`` so downstream countdowns state their weaker basis.
     """
+    from . import global_terrain as gt
     elevation = interpolate_elevation(latitude_deg, longitude_deg, dem_path)
+    product: str | None = POLAR_DEM_PRODUCT if elevation["status"] == "complete" else None
     mask: HorizonMask | None = None
     status = elevation["status"]
-    if status == "complete":
+    filled = 0
+    if product is not None:
         try:
             mask = extract_horizon_mask_fast(dem_path, latitude_deg, longitude_deg, **mask_options)
         except ValueError:
             status = "horizon_unavailable"
+    needs_global = mask is None or not np.isfinite(mask.elevation_deg).all()
+    if needs_global and global_terrain:
+        tile = gt.find_committed_tile(latitude_deg, longitude_deg,
+                                      max_ray_m=float(mask_options.get("max_distance_m", 50_000.0)))
+        memory = None
+        if tile is None and gt.GLOBAL_DEM.is_file():
+            memory = gt.build_site_tile(latitude_deg, longitude_deg, global_dem=gt.GLOBAL_DEM)
+            tile = memory.name
+        try:
+            if tile is not None:
+                coarse_elevation = interpolate_elevation(latitude_deg, longitude_deg, tile)
+                coarse = None
+                if coarse_elevation["status"] == "complete":
+                    try:
+                        coarse = extract_horizon_mask_fast(tile, latitude_deg, longitude_deg,
+                                                           **mask_options)
+                    except ValueError:
+                        coarse = None
+                if coarse is not None and mask is None:
+                    elevation, mask, product, status = coarse_elevation, coarse, gt.PRODUCT_NAME, "complete"
+                    if memory is not None:
+                        elevation["source_dataset"] = "ldem_64.img (on-the-fly site tile)"
+                elif coarse is not None and np.array_equal(coarse.azimuth_deg, mask.azimuth_deg):
+                    # Polar-DEM edge: rays that leave the 80 m grid take the
+                    # complete LDEM_64 ray for the same azimuth.
+                    gaps = ~np.isfinite(mask.elevation_deg)
+                    filled = int(np.count_nonzero(gaps & np.isfinite(coarse.elevation_deg)))
+                    mask = HorizonMask(mask.azimuth_deg,
+                                       np.where(gaps, coarse.elevation_deg, mask.elevation_deg))
+                    product = f"{POLAR_DEM_PRODUCT} + {gt.PRODUCT_NAME} (edge fill)"
+        finally:
+            if memory is not None:
+                memory.close()
     incomplete = 0 if mask is None else int(np.count_nonzero(~np.isfinite(mask.elevation_deg)))
     return {
         **elevation,
         "status": status,
+        "dem_product": product,
         "horizon_model": "lola_terrain_mask" if mask is not None else "spherical_horizon",
         "horizon_mask": mask,
         "horizon_incomplete_azimuths": incomplete,
+        "horizon_azimuths_filled_from_global": filled,
     }

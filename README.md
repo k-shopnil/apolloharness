@@ -101,7 +101,10 @@ spherical-horizon test. It does not include terrain masking, lander antenna
 constraints, or relay availability.
 
 Terrain analysis uses NASA GSFC PGDA product 90's 80–90°S LOLA DEM at 80 m/pixel,
-which covers the Mons Mouton and Shackleton benchmark coordinates. The registry
+which covers the Mons Mouton and Shackleton benchmark coordinates.
+Outside 80–90°S, terrain comes from the global LOLA GDR `LDEM_64` (~474
+m/pixel) through small committed per-site tiles in `data/lola/tiles/`; see
+[docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md). The registry
 downloads it to `cache/nasa/pgda/` and links it at
 `data/lola/LDEM_80S_80MPP_ADJ.TIF`; the raster is ignored by Git. Product 90
 uses south-polar stereographic coordinates in meters referenced to the

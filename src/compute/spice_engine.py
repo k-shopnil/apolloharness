@@ -480,15 +480,18 @@ def find_horizon_events(
     start_utc: str,
     duration_days: float = SYNODIC_MONTH_DAYS,
     *,
-    horizon_mask: _HorizonLike | None = None,
+    horizon_mask: _HorizonLike | None | str = "auto",
     step_minutes: float = 30.0,
     tolerance_seconds: float = 1.0,
 ) -> dict[str, object]:
     """Find Sun/Earth rise and set times against the local horizon.
 
     A body is up when its topocentric centre elevation exceeds the terrain
-    horizon at its azimuth (``horizon_mask``) or 0 deg when no mask is given
-    (spherical horizon). The window is scanned every ``step_minutes`` and each
+    horizon at its azimuth. ``horizon_mask="auto"`` (default) extracts the
+    360-degree LOLA mask for the site (80 m polar DEM, else LDEM_64 tiles);
+    pass a mask to reuse one, or ``None`` for a 0 deg spherical horizon. Where
+    no terrain product covers the site, "auto" also degrades to spherical and
+    ``horizon_model`` says so. The window is scanned every ``step_minutes`` and each
     sign change is refined by bisection to ``tolerance_seconds``. Crossings
     shorter than one scan step can be missed, and the Sun is treated as a
     point (its ~0.27 deg radius is not modelled).
@@ -503,6 +506,11 @@ def find_horizon_events(
         raise ValueError("duration_days must be positive")
     if not np.isfinite(step_minutes) or step_minutes <= 0:
         raise ValueError("step_minutes must be positive")
+    if isinstance(horizon_mask, str):
+        if horizon_mask != "auto":
+            raise ValueError('horizon_mask must be a mask, None, or "auto"')
+        from .terrain import evaluate_site_terrain  # lazy: keeps SPICE import light
+        horizon_mask = evaluate_site_terrain(latitude_deg, longitude_deg)["horizon_mask"]
     et0 = spice.str2et(normalized_start)
     step = step_minutes * 60.0
     count = int(np.ceil(duration_days * 86_400.0 / step))

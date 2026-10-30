@@ -1,7 +1,9 @@
-"""Acquisition registry for the real NASA south-polar Issue #2 products.
+"""Acquisition registry for the real NASA lunar products used by the pipeline.
 
-Large downloads are cached under cache/nasa/pgda/ and linked into ignored
-``data/`` locations. The repository contains no raster or PSR fixture substitute.
+Large downloads are cached under ``cache/nasa/<cache_subdir>/`` (PGDA products
+in ``pgda/``, PDS Geosciences products in ``pds/``) and, unless a product sets
+``link: False``, linked into ``data/`` locations. The repository contains no
+raster or PSR fixture substitute.
 """
 from __future__ import annotations
 
@@ -49,7 +51,24 @@ PRODUCTS: dict[str, dict[str, object]] = {
         "destination": PROJECT_ROOT / "data/psr/LPSR_80S_20MPP_ADJ.SHP",
         "product": "NASA GSFC PGDA product 90 full south-polar PSR vector, 506,349 features, 20 m map grid",
     },
+    "lola_gdr_global_64ppd": {
+        "files": {
+            "ldem_64.img": ("https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img", 530_841_600, "1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6"),
+            "ldem_64.lbl": ("https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.lbl", 5_128, "4e7a94c76c716a147b21ccf07669d004246b0d1b017b7d63d50befaa1a34142d"),
+        },
+        "cache_subdir": "nasa/pds",
+        "publisher": "NASA PDS Geosciences Node",
+        # 531 MB raw product stays in the git-ignored cache; only small derived
+        # per-site tiles are committed (see src/compute/global_terrain.py).
+        "link": False,
+        "destination": PROJECT_ROOT / "cache/nasa/pds/ldem_64.lbl",
+        "product": "LRO LOLA GDR LDEM_64: global 64 pixel/degree (473.8 m/pixel at the equator) simple-cylindrical DEM, int16 DN x 0.5 m above a 1737.4 km sphere (LRO-L-LOLA-3-RDR-V1)",
+    },
 }
+
+
+def _cache_dir(spec: dict[str, object]) -> Path:
+    return PROJECT_ROOT / "cache" / str(spec.get("cache_subdir", "nasa/pgda"))
 
 
 def _link_cached_file(cache_file: Path, destination: Path) -> Path:
@@ -71,13 +90,14 @@ def _sha256(path: Path) -> str:
 
 
 def _write_product_provenance(product_name: str, filename: str, cache_file: Path,
-                              source_url: str, product_description: str) -> Path:
+                              source_url: str, product_description: str,
+                              publisher: str = "NASA GSFC PGDA") -> Path:
     """Write a local verification record without changing the science raster."""
     checked_at = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
     file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime, timezone.utc)
     record = {
         "status": "CACHED",
-        "publisher": "NASA GSFC PGDA",
+        "publisher": publisher,
         "product_key": product_name,
         "product": product_description,
         "filename": filename,
@@ -109,7 +129,7 @@ def get_product_status(name: str) -> dict[str, object]:
         expected = [(str(spec["filename"]), int(spec["size_bytes"]), str(spec.get("sha256", "")))]
     integrity_states = []
     for filename, expected_size, expected_sha in expected:
-        path = PROJECT_ROOT / "cache/nasa/pgda" / filename
+        path = _cache_dir(spec) / filename
         record_path = path.with_name(path.name + ".metadata.json")
         entry: dict[str, object] = {
             "filename": filename,
@@ -177,27 +197,31 @@ def acquire_product(name: str) -> Path:
     if name not in PRODUCTS:
         raise KeyError(f"Unknown NASA product {name!r}; choose from {sorted(PRODUCTS)}")
     spec = PRODUCTS[name]
-    if name == "psr_shapefile":
-        result = None
+    cache_dir = _cache_dir(spec)
+    subdir = str(spec.get("cache_subdir", "nasa/pgda"))
+    publisher = str(spec.get("publisher", "NASA GSFC PGDA"))
+    if spec.get("files"):
+        destination = Path(spec["destination"])
         for filename, (url, _size, expected_sha) in spec["files"].items():
-            cache_file = PROJECT_ROOT / "cache/nasa/pgda" / filename
+            cache_file = cache_dir / filename
             if not cache_file.is_file() or cache_file.stat().st_size != _size:
-                cache_file = fetch_file(url, cache_name=f"nasa/pgda/{filename}",
+                cache_file = fetch_file(url, cache_name=f"{subdir}/{filename}",
                                         fixture_name=f"nasa-products/{filename}")
-            if cache_file.resolve() != (PROJECT_ROOT / "cache/nasa/pgda" / filename).resolve():
+            if cache_file.resolve() != (cache_dir / filename).resolve():
                 raise IOError(f"Scientific product fixtures are not supported: {filename}")
             if cache_file.stat().st_size != _size:
                 raise IOError(f"Unexpected size for {filename}: {cache_file.stat().st_size} != {_size}")
             if expected_sha and _sha256(cache_file) != expected_sha:
                 raise IOError(f"SHA-256 mismatch for {filename}")
-            _write_product_provenance(name, filename, cache_file, url, str(spec["product"]))
-            result = _link_cached_file(cache_file, PROJECT_ROOT / "data/psr" / filename)
-        return PROJECT_ROOT / spec["destination"]
-    cache_file = PROJECT_ROOT / "cache/nasa/pgda" / str(spec["filename"])
+            _write_product_provenance(name, filename, cache_file, url, str(spec["product"]), publisher)
+            if spec.get("link", True):
+                _link_cached_file(cache_file, destination.parent / filename)
+        return destination
+    cache_file = cache_dir / str(spec["filename"])
     if not cache_file.is_file() or cache_file.stat().st_size != spec["size_bytes"]:
-        cache_file = fetch_file(str(spec["url"]), cache_name=f"nasa/pgda/{spec['filename']}",
+        cache_file = fetch_file(str(spec["url"]), cache_name=f"{subdir}/{spec['filename']}",
                                 fixture_name=f"nasa-products/{spec['filename']}")
-    if cache_file.resolve() != (PROJECT_ROOT / "cache/nasa/pgda" / str(spec["filename"])).resolve():
+    if cache_file.resolve() != (cache_dir / str(spec["filename"])).resolve():
         raise IOError(f"Scientific product fixtures are not supported: {spec['filename']}")
     if cache_file.stat().st_size != spec["size_bytes"]:
         raise IOError(f"Unexpected size for {spec['filename']}: "
@@ -206,9 +230,10 @@ def acquire_product(name: str) -> Path:
     if expected_sha and _sha256(cache_file) != expected_sha:
         raise IOError(f"SHA-256 mismatch for {spec['filename']}")
     _write_product_provenance(name, str(spec["filename"]), cache_file,
-                              str(spec["url"]), str(spec["product"]))
+                              str(spec["url"]), str(spec["product"]), publisher)
+    if not spec.get("link", True):
+        return cache_file
     return _link_cached_file(cache_file, Path(spec["destination"]))
-
 
 if __name__ == "__main__":
     import argparse

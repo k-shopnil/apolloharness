@@ -19,6 +19,7 @@
       "major_axis_km": 2.0,
       "minor_axis_km": null
     },
+    "payload_summary": "PITMS, NIRVSS, NSS, LETS, LRA",
     "payloads": [
       {
         "name": "PITMS",
@@ -103,6 +104,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "LN-1, NDL, ROLSES, SCALPSS, RFMG, LRA",
     "payloads": [
       {
         "name": "LN-1",
@@ -195,6 +197,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "LEXI, NGLR, RadPC, RAC, LPV, LISTER, SCALPSS_1.1, EDS, LuGRE",
     "payloads": [
       {
         "name": "LEXI",
@@ -307,6 +310,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "TRIDENT, MSOLO, LRA",
     "payloads": [
       {
         "name": "TRIDENT",
@@ -391,6 +395,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "LDES, Lunar LiDAR Demonstration, LRA (two arrays), METAL",
     "payloads": [
       {
         "name": "LDES",
@@ -486,6 +491,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "Lunar Vertex, CADRE, MoonLIGHT, LUSEM",
     "payloads": [
       {
         "name": "Lunar Vertex",
@@ -575,6 +581,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "FSS, LITMS-LISTER, LITMS-LTC",
     "payloads": [
       {
         "name": "FSS",
@@ -646,6 +653,7 @@
       "major_axis_km": null,
       "minor_axis_km": null
     },
+    "payload_summary": "LEIA, PROSPECT, L-CIRiS, SEAL, MAG, LRA",
     "payloads": [
       {
         "name": "LEIA",
@@ -764,6 +772,7 @@
       "minor_axis_km": null
     },
     "baseline_role": "equatorial_baseline: Sun reaches high elevation; Earth stays near zenith (near-side center), so direct-to-Earth line of sight is continuous.",
+    "payload_summary": "EASEP",
     "payloads": [
       {
         "name": "EASEP",
@@ -831,6 +840,7 @@
       "minor_axis_km": null
     },
     "baseline_role": "mountain_valley_baseline: valley floor bounded by ~2 km massifs, illustrating local terrain masking of low Sun angles.",
+    "payload_summary": "ALSEP, Traverse Gravimeter",
     "payloads": [
       {
         "name": "ALSEP",
@@ -906,6 +916,7 @@
       "minor_axis_km": null
     },
     "baseline_role": "high_latitude_transition_baseline: low solar elevation at ~69S; Earth visible but low in the sky.",
+    "payload_summary": "ChaSTE, ILSA, RAMBHA-LP, LRA, APXS / LIBS (Pragyan)",
     "payloads": [
       {
         "name": "ChaSTE",
@@ -996,6 +1007,7 @@
       "minor_axis_km": null
     },
     "baseline_role": "farside_relay_baseline: Earth is permanently below the horizon, so communications require the Queqiao relay.",
+    "payload_summary": "LMS, LND, VNIS / LPR (Yutu-2)",
     "payloads": [
       {
         "name": "LMS",
@@ -1074,6 +1086,7 @@
       "minor_axis_km": null
     },
     "baseline_role": "sloped_terrain_case_study: landed on a crater slope and came to rest inverted after a main-engine anomaly during final descent; illustrates why slope and touchdown dynamics matter.",
+    "payload_summary": "MBC, LEV-1 / LEV-2",
     "payloads": [
       {
         "name": "MBC",

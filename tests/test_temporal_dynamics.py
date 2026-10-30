@@ -93,7 +93,7 @@ class TerrainInterpolationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "synthetic_flat.tif"
             _write_dem(path, np.zeros((21, 21)), -84.79, 29.2)
-            result = evaluate_site_terrain(20.19, 30.77, path)
+            result = evaluate_site_terrain(20.19, 30.77, path, global_terrain=False)
         self.assertIsNone(result["horizon_mask"])
         self.assertEqual(result["horizon_model"], "spherical_horizon")
 
@@ -114,7 +114,7 @@ class HorizonEventTests(unittest.TestCase):
         self.assertIsNone(format_countdown(-1.0))
 
     def test_events_are_true_horizon_crossings(self) -> None:
-        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 29.5)
+        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 29.5, horizon_mask=None)
         self.assertEqual(result["horizon_model"], "spherical_horizon")
         sun_events = [e for e in result["events"] if e["body"] == "sun"]
         self.assertTrue(sun_events)
@@ -127,7 +127,7 @@ class HorizonEventTests(unittest.TestCase):
         self.assertTrue(all(a != b for a, b in zip(kinds, kinds[1:])))
 
     def test_countdown_matches_first_set_event(self) -> None:
-        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 29.5)
+        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 29.5, horizon_mask=None)
         sun = result["sun"]
         self.assertTrue(sun["is_lit"])
         first_set = next(e for e in result["events"] if e["body"] == "sun" and e["kind"] == "set")
@@ -142,7 +142,7 @@ class HorizonEventTests(unittest.TestCase):
         self.assertLess(earth["round_trip_light_time_s"], 2.8)
 
     def test_farside_earth_never_rises_and_is_not_extrapolated(self) -> None:
-        result = find_horizon_events(-45.457, 177.589, "2019-01-03T02:26:00Z", 29.5)
+        result = find_horizon_events(-45.457, 177.589, "2019-01-03T02:26:00Z", 29.5, horizon_mask=None)
         earth = result["earth"]
         self.assertFalse(earth["direct_los"])
         self.assertIsNone(earth["time_to_earthrise_hours"])
@@ -151,10 +151,17 @@ class HorizonEventTests(unittest.TestCase):
 
     def test_apollo_11_touchdown_sun_is_low_morning_sun(self) -> None:
         # Historical landing was planned for a ~10-11 deg morning Sun.
-        result = find_horizon_events(0.67416, 23.47314, "1969-07-20T20:17:40Z", 2.0)
+        result = find_horizon_events(0.67416, 23.47314, "1969-07-20T20:17:40Z", 2.0, horizon_mask=None)
         self.assertGreater(result["sun"]["elevation_deg"], 9.5)
         self.assertLess(result["sun"]["elevation_deg"], 12.0)
         self.assertTrue(result["earth"]["direct_los"])
+
+    def test_default_auto_mask_uses_lola_terrain(self) -> None:
+        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 1.0)
+        self.assertEqual(result["horizon_model"], "lola_terrain_mask")
+        self.assertNotEqual(result["sun"]["terrain_horizon_deg"], 0.0)
+        with self.assertRaises(ValueError):
+            find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 1.0, horizon_mask="flat")
 
     def test_terrain_mask_blocks_low_sun_and_unknown_sector_is_explicit(self) -> None:
         wall = HorizonMask(np.arange(0.0, 360.0, 1.0), np.full(360, 45.0))
@@ -210,9 +217,10 @@ class SiteEvaluationTests(unittest.TestCase):
             _write_dem(dem, np.zeros((21, 21)), -84.79, 29.2)
             try:
                 site = evaluate_custom_site(20.1911, 30.7723, "1972-12-11T19:54:57Z",
-                                            duration_days=2.0, dem_path=dem)
+                                            duration_days=2.0, dem_path=dem, global_terrain=False)
                 slip = compare_launch_dates(20.1911, 30.7723, "2026-11-15T00:00:00Z",
-                                            "2026-11-18T00:00:00Z", duration_days=1.0, dem_path=dem)
+                                            "2026-11-18T00:00:00Z", duration_days=1.0, dem_path=dem,
+                                            global_terrain=False)
             finally:
                 unload_kernels()
         self.assertEqual(site["horizon_model"], "spherical_horizon")
@@ -238,6 +246,9 @@ class ManifestGroundingTests(unittest.TestCase):
             self.assertRegex(mission["touchdown_utc"], r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
             self.assertTrue(mission["sources"])
             self.assertIsNotNone(mission["landing_site"]["latitude_deg"])
+        for mission in manifest:
+            self.assertEqual(mission["payload_summary"],
+                             ", ".join(p["name"] for p in mission["payloads"]))
         self.assertTrue(all(m["category"] in {"clps", "reference_anchor"} for m in manifest))
 
 

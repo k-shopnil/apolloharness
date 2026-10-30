@@ -21,11 +21,12 @@ products and SPICE kernels; no network is needed at runtime.
 | Operational countdowns | `find_horizon_events(...)["sun"/"earth"]` | Exact Issue #8 field names, plus status |
 | Multi-day precomputation | `spice_engine.calculate_geometry_track`, `calculate_hourly_geometry(step_minutes=)` | Column arrays for a 60 FPS scrubber |
 | Offline mission tracks | `python -m src.compute.precompute_tracks` → `data/precomputed/tracks/` | 29.5-day windows from touchdown |
-| Arbitrary-coordinate interpolator | `terrain.interpolate_elevation`, `terrain.extract_horizon_mask_fast`, `terrain.evaluate_site_terrain` | Bilinear interpolation on `LDEM_80S_80MPP_ADJ.TIF` |
+| Arbitrary-coordinate interpolator | `terrain.interpolate_elevation`, `terrain.extract_horizon_mask_fast`, `terrain.evaluate_site_terrain` | Bilinear interpolation on `LDEM_80S_80MPP_ADJ.TIF`, with automatic fallback to the global LOLA GDR `LDEM_64` |
+| Global terrain (beyond the issue) | `global_terrain.build_site_tile`, committed tiles in `data/lola/tiles/` | Real mountains at every catalog site, not only 80–90°S |
 | Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.34–0.39 s per click |
 | Launch-slip Date A vs Date B | `site_evaluation.compare_launch_dates` | Shared relative clock, delta summary |
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
-| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 8 CLPS + 5 sourced reference anchors |
+| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 8 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 
 ## Data honesty rules (all teams)
 
@@ -33,11 +34,13 @@ products and SPICE kernels; no network is needed at runtime.
    that is `None` always comes with a `status` / `countdown_status` that says
    why. Show "Unavailable — outside LOLA polar coverage" (or similar). Never
    show `0`.
-2. **Always show `horizon_model`.** `lola_terrain_mask` means real mountains
-   are modelled. `spherical_horizon` means a smooth-Moon horizon: the 80 m LOLA
-   DEM covers only 80–90°S (Apollo, Chandrayaan-3, SLIM, Chang'e 4, Blue Ghost
-   and Peregrine fall outside it). In Scientific Mode, label it "Terrain not
-   modelled at this latitude".
+2. **Always show `horizon_model` and `terrain.dem_product`.**
+   `lola_terrain_mask` means real mountains are modelled, and `dem_product`
+   says from which map. That is either the 80 m polar DEM (80–90°S) or
+   LOLA GDR `LDEM_64` (~474 m/pixel, everywhere else; coarser, so small
+   craters near the site are smoothed). `spherical_horizon` (smooth Moon)
+   now only appears for a custom click outside 80–90°S on a machine without
+   the global DEM. Label that "Terrain not modelled here".
 3. **`coordinate_type` is binding.** Only `actual_landing` is a landing fix.
    `reported_landing_secondary` (Chandrayaan-3) is provisional at about 1 km.
    `*_reference` values are regions or targets.
@@ -142,7 +145,9 @@ frontend overlays them directly. Measured: about 0.5 s for two 14-day windows.
 
 ### Extending `/api/v1/sites/geometry`
 
-Merge `find_horizon_events(lat, lon, utc, horizon_mask=mask)["sun"|"earth"]`
+Merge `find_horizon_events(lat, lon, utc)["sun"|"earth"]` (the default
+`horizon_mask="auto"` loads the LOLA mask itself; pass `horizon_mask=mask` to
+reuse one you already have)
 into the Issue #7 payload. For mission sites, prefer reading the countdown at
 mission start from `data/precomputed/tracks/<id>.json → countdowns_at_start`.
 
@@ -173,8 +178,21 @@ Assert that `sun.time_to_sunset_hours` and `sun.time_to_sunset_formatted` are
 both present and either both `null` or consistent. Assert
 `earth.round_trip_light_time_s` is within `[2.3, 2.8]`. Assert that a
 far-side site (Chang'e 4) returns `direct_los == false` with
-`countdown_status == "no_earthrise_within_window"`. Assert that a request
-outside 80–90°S returns `horizon_model == "spherical_horizon"`.
+`countdown_status == "no_earthrise_within_window"`. Assert that Apollo 17
+returns `horizon_model == "lola_terrain_mask"` with `terrain.dem_product ==
+"LOLA GDR LDEM_64"` (this needs the committed tiles; see the deployment note
+below).
+
+### Deployment note: terrain files
+
+The committed site tiles are stored with **Git LFS**. On a fresh clone, run
+`git lfs pull`. Without it, the tiles are tiny pointer files, and the
+pipeline falls back to the smooth-Moon horizon and says so; the related
+science tests skip. The 531 MB global `ldem_64.img` is **not** in git. The
+server only needs it to give terrain for custom clicks outside 80–90°S that
+are far from catalog sites. Install it with
+`python -m src.acquire.nasa_products lola_gdr_global_64ppd`, which downloads
+it and verifies its size and SHA-256.
 
 ## Frontend: tracks, countdowns, manifest
 
@@ -254,8 +272,8 @@ anchors" groupings. Anchors carry `touchdown_utc` and `baseline_role`.
 
 Call `/sites/custom` with the picked lat/lon. Cesium returns cartographic
 radians, so convert them to degrees and wrap longitude to [-180, 180]. Show
-`terrain.status` and `horizon_model`. Outside 80–90°S the elevation is `null`
-by design.
+`terrain.status`, `terrain.dem_product` and `horizon_model`. Elevation is
+`null` only when no terrain map covers the point.
 
 ## Research: validation workflow
 
@@ -328,15 +346,20 @@ Items in the Issue #8 text that the pipeline deliberately does **not** follow
 
 Pipeline limitations:
 
-- No terrain horizon outside 80–90°S. To get a coarse terrain horizon for
-  equatorial and mid-latitude anchors (for example, Apollo 17's massifs),
-  acquire the global LOLA GDR `LDEM_64` (≈ 474 m/px) or `LDEM_128`
-  (≈ 237 m/px). Source:
-  `https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/`.
-  These are PDS3 `.IMG` files with `.LBL` labels, readable by GDAL/rasterio,
-  and can be registered in `src/acquire/nasa_products.py` with their size and
-  SHA-256. That decision belongs to the data-pipeline owner, so it was not
-  downloaded automatically.
+- **Global terrain is coarser.** Outside 80–90°S, horizons come from
+  `LDEM_64` (~474 m/pixel), which resolves massifs (Apollo 17's horizon
+  reaches 13.6°) but smooths nearby small craters. Published elevations
+  check out: SLIM at −913 m vs LROC −912 m, and Chang'e 4 at −5,929 m vs
+  −5,935 m (Liu et al. 2019); both are asserted in tests. For sharper
+  nearside terrain, `LDEM_128` (237 m, 2.1 GB) uses the same converter.
+- **Polar-edge sites mix two maps.** For sites near 80°S (IM-1 at 80.13°S),
+  rays that run off the 80 m polar map are completed from `LDEM_64` for the
+  same azimuth. `terrain.horizon_azimuths_filled_from_global` counts them
+  (170 of 360 for IM-1), and `dem_product` says "edge fill".
+- **Height convention trap (handled).** GDAL reports the PDS label's
+  OFFSET of 1,737,400 m. Applying it would turn heights into radii, so the
+  converter uses DN × 0.5 m only. It refuses any product whose scaling
+  differs from that.
 - The legacy `proximity.calculate_psr_distance` measures distance to the
   nearest PSR **boundary**, so a site inside a PSR reports a positive
   distance. New code should use `nearest_psr_within`, which reports
@@ -353,7 +376,9 @@ Pipeline limitations:
 ## Regenerating and testing
 
 ```sh
-python -m src.compute.precompute_tracks               # 29.5-day tracks, ~4 s total
+python -m src.acquire.nasa_products lola_gdr_global_64ppd   # 531 MB global DEM, verified
+python -m src.compute.global_terrain                  # rebuild committed site tiles
+python -m src.compute.precompute_tracks               # 29.5-day tracks, ~3 s total
 python -m src.compute.precompute_tracks --days 14 --step-minutes 30
 python -m pytest -q tests                             # or: python -m unittest discover -s tests
 ```
@@ -362,4 +387,7 @@ python -m pytest -q tests                             # or: python -m unittest d
 exactness, the known wall angle, NaN propagation, pole rays, events being
 true horizon crossings, countdown consistency, far-side Earth, the terrain
 blocking rule, sub-hour steps, track physics, PSR-inside, custom-site and
-launch-slip contracts, and manifest grounding.
+launch-slip contracts, and manifest grounding. `tests/test_global_terrain.py`
+covers the LDEM_64 height convention, the 0° longitude seam, refusal of
+unexpected scaling, tile coverage, fallback, the PDS registry, and the
+published-elevation checks for SLIM, Chang'e 4 and Taurus-Littrow.

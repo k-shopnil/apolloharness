@@ -51,7 +51,7 @@ def evaluate_custom_site(
     latitude_deg: float, longitude_deg: float, utc: str, *,
     duration_days: float = SYNODIC_MONTH_DAYS, include_track: bool = False,
     include_psr: bool = False, dem_path: str | Path = DEFAULT_DEM,
-    psr_path: str | Path = DEFAULT_PSR,
+    psr_path: str | Path = DEFAULT_PSR, global_terrain: bool = True,
 ) -> dict[str, Any]:
     """Evaluate any lunar coordinate at ``utc``: terrain, Sun/Earth, countdowns.
 
@@ -62,7 +62,8 @@ def evaluate_custom_site(
     _validate_coordinates(latitude_deg, longitude_deg)
     _, normalized = _parse_utc(utc)
     load_kernels()
-    terrain = evaluate_site_terrain(latitude_deg, longitude_deg, dem_path)
+    terrain = evaluate_site_terrain(latitude_deg, longitude_deg, dem_path,
+                                    global_terrain=global_terrain)
     mask: HorizonMask | None = terrain.pop("horizon_mask")
     events = find_horizon_events(latitude_deg, longitude_deg, normalized, duration_days,
                                  horizon_mask=mask)
@@ -88,7 +89,7 @@ def evaluate_custom_site(
 def compare_launch_dates(
     latitude_deg: float, longitude_deg: float, date_a_utc: str, date_b_utc: str, *,
     duration_days: float = 14.0, step_minutes: float = 60.0,
-    dem_path: str | Path = DEFAULT_DEM,
+    dem_path: str | Path = DEFAULT_DEM, global_terrain: bool = True,
 ) -> dict[str, Any]:
     """Same site, two arrival epochs: synchronized tracks plus a delta summary.
 
@@ -97,7 +98,8 @@ def compare_launch_dates(
     """
     _validate_coordinates(latitude_deg, longitude_deg)
     load_kernels()
-    terrain = evaluate_site_terrain(latitude_deg, longitude_deg, dem_path)
+    terrain = evaluate_site_terrain(latitude_deg, longitude_deg, dem_path,
+                                    global_terrain=global_terrain)
     mask: HorizonMask | None = terrain.pop("horizon_mask")
     scenarios: dict[str, Any] = {}
     for label, utc in (("date_a", date_a_utc), ("date_b", date_b_utc)):

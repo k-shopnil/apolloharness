@@ -19,6 +19,8 @@ backend routes, application scoring, or UI behavior.
   summary, including current-UTC ephemeris geometry.
 - `src/compute/terrain.py`: LOLA DEM horizon profile and azimuth lookup;
   bilinear elevation at any coordinate and a fast vectorized horizon mask.
+- `src/compute/global_terrain.py`: per-site metric tiles from the global LOLA
+  GDR `LDEM_64`; committed tiles live in `data/lola/tiles/` (Git LFS).
 - `src/compute/site_evaluation.py`: one-call custom-site evaluation and
   launch-date (Date A vs Date B) comparison.
 - `src/compute/precompute_tracks.py`: offline scrubber tracks written to
