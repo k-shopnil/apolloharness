@@ -434,6 +434,12 @@ The geometry engine requires these files under `data/spice/`:
 - `moon_pa_de421_1900-2050.bpc`: Moon PA orientation.
 - `de430.bsp`: solar-system ephemerides.
 
+Outside 80–90°S, terrain uses the optional global LOLA GDR `LDEM_64` (531 MB,
+`cache/nasa/pds/`, not in Git). Download and checksum steps are in
+[TEAM_INTEGRATION_GUIDE.md](TEAM_INTEGRATION_GUIDE.md#downloading-the-global-lola-dem-ldem_64);
+the one-command install is
+`python -m src.acquire.nasa_products lola_gdr_global_64ppd`.
+
 The large binary kernels are Git-ignored. Obtain the matching kernels from the
 NAIF generic-kernel archive; do not silently substitute different kernel
 versions. Small text kernels are source inputs. The engine uses `MOON_PA`,

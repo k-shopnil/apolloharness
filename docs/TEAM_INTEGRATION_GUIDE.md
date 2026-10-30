@@ -10,6 +10,7 @@ products and SPICE kernels; no network is needed at runtime.
 - [Backend: endpoint wiring](#backend-endpoint-wiring)
 - [Frontend: tracks, countdowns, manifest](#frontend-tracks-countdowns-manifest)
 - [Research: validation workflow](#research-validation-workflow)
+- [Downloading the global LOLA DEM (LDEM_64)](#downloading-the-global-lola-dem-ldem_64)
 - [Known issues and open decisions](#known-issues-and-open-decisions)
 - [Regenerating and testing](#regenerating-and-testing)
 
@@ -190,9 +191,8 @@ The committed site tiles are stored with **Git LFS**. On a fresh clone, run
 pipeline falls back to the smooth-Moon horizon and says so; the related
 science tests skip. The 531 MB global `ldem_64.img` is **not** in git. The
 server only needs it to give terrain for custom clicks outside 80–90°S that
-are far from catalog sites. Install it with
-`python -m src.acquire.nasa_products lola_gdr_global_64ppd`, which downloads
-it and verifies its size and SHA-256.
+are far from catalog sites. See
+[Downloading the global LOLA DEM](#downloading-the-global-lola-dem-ldem_64).
 
 ## Frontend: tracks, countdowns, manifest
 
@@ -329,6 +329,93 @@ Chandrayaan-3's computed local sunset (12d 3h after touchdown, about
   `2000 / tan(1°) ≈ 115 km` on flat ground. The Issue #8 "50 km shadow" text
   corresponds to about 2.3°. Fix the copy, or tie the slider to `tan`
   directly.
+
+## Downloading the global LOLA DEM (LDEM_64)
+
+### Do you need it?
+
+| You want… | Needed? |
+|---|---|
+| Terrain at catalog sites (Apollo, SLIM, Chang'e 4, Chandrayaan-3, Blue Ghost, …) | **No.** Run `git lfs pull` to get the committed site tiles |
+| Terrain anywhere in 80–90°S | **No.** The 80 m polar DEM covers it (also via `git lfs pull`) |
+| Terrain for custom clicks **outside 80–90°S**, away from catalog sites | **Yes** |
+| Rebuilding the committed site tiles (`python -m src.compute.global_terrain`) | **Yes** |
+
+Without it, custom clicks outside 80–90°S still work. They use a
+smooth-Moon horizon and report `horizon_model: "spherical_horizon"`.
+
+### The files
+
+Both files are needed; the `.lbl` label describes how to read the `.img`.
+Source: NASA PDS Geosciences Node, LRO LOLA GDR (`LRO-L-LOLA-3-RDR-V1`).
+
+| File | Bytes | SHA-256 |
+|---|---|---|
+| `ldem_64.img` | 530,841,600 (≈ 531 MB) | `1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6` |
+| `ldem_64.lbl` | 5,128 | `4e7a94c76c716a147b21ccf07669d004246b0d1b017b7d63d50befaa1a34142d` |
+
+Both go in `cache/nasa/pds/`, which is git-ignored. **Never commit them.**
+
+### Option A (recommended): one command
+
+From the repository root, with the project's Python environment active:
+
+```sh
+python -m src.acquire.nasa_products lola_gdr_global_64ppd
+```
+
+This downloads both files, or reuses them if they are already present. It
+then checks each file's size and SHA-256 against the values above, writes a
+provenance record next to each file, and stops with an error on any
+mismatch. To check an existing download without fetching:
+
+```sh
+python -m src.acquire.nasa_products lola_gdr_global_64ppd --status
+```
+
+Both files should report `"integrity_status": "VERIFIED"`.
+
+### Option B: manual download with curl
+
+Run from the repository root. `-C -` resumes an interrupted download, so
+rerun the same command if it stops.
+
+```sh
+mkdir -p cache/nasa/pds
+curl -fL -C - -o cache/nasa/pds/ldem_64.lbl https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.lbl
+curl -fL -C - -o cache/nasa/pds/ldem_64.img https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img
+```
+
+Verify the checksums. Each line must print `OK`:
+
+```sh
+echo "1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6  cache/nasa/pds/ldem_64.img" | shasum -a 256 -c
+echo "4e7a94c76c716a147b21ccf07669d004246b0d1b017b7d63d50befaa1a34142d  cache/nasa/pds/ldem_64.lbl" | shasum -a 256 -c
+```
+
+On Linux, `sha256sum -c` works the same way. On Windows PowerShell, use
+`Get-FileHash cache\nasa\pds\ldem_64.img -Algorithm SHA256`. Then run the
+`--status` command from Option A, which also records provenance.
+
+**If a checksum fails:** delete the file and download it again. A
+truncated download is the usual cause; check the size with `ls -l`. If it
+fails a second time with the correct size, NASA may have reissued the
+product. Do not edit the expected hash to make it pass; report it to the
+data-pipeline owner, who will verify the new file before updating
+`src/acquire/nasa_products.py`.
+
+### After downloading
+
+Nothing else is required. The pipeline detects `cache/nasa/pds/ldem_64.lbl`
+automatically and builds a terrain tile on the fly (about 0.1–0.2 s) for
+custom clicks outside 80–90°S. Results report `terrain.dem_product:
+"LOLA GDR LDEM_64"`. Rebuild the committed tiles only if the manifest's
+coordinates change:
+
+```sh
+python -m src.compute.global_terrain
+python -m src.compute.precompute_tracks
+```
 
 ## Known issues and open decisions
 
