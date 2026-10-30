@@ -80,8 +80,10 @@ Experience our official preliminary project presentation submitted for the **NAS
 
 Python compute modules live in `src/compute/`; the mission catalog is
 `data/missions.json`, and the offline mission catalog is
-`demo_fixtures/missions.json`. The current catalog contains eight CLPS mission
-records. Coordinates are references with an explicit `coordinate_type`; a
+`demo_fixtures/missions.json`. The current catalog contains thirteen sourced
+records: eight CLPS missions (`category: "clps"`) and five historical and
+international reference anchors (`category: "reference_anchor"`: Apollo 11,
+Apollo 17, Chandrayaan-3, Chang'e 4, SLIM). Coordinates are references with an explicit `coordinate_type`; a
 target or region center must not be interpreted as an achieved landing point.
 Dates containing only a year are target years, not exact dates.
 
@@ -164,7 +166,10 @@ windows are identified and run.
 
 For downstream API and frontend field mappings, public function signatures,
 units, examples, dataset paths, and validation limitations, see
-[docs/DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md).
+[docs/DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md). For the Issue #8
+temporal features (custom coordinates, Sun/Earth countdowns, timeline-scrubber
+tracks, launch-slip comparison) with per-team instructions, see
+[docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md).
 Current-epoch SPICE geometry is a kernel-based prediction, not a live lunar
 measurement. Registered NASA products expose local cache/integrity status and
 verification timestamps; these timestamps do not claim that NASA updated the

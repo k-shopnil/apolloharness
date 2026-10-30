@@ -6,7 +6,8 @@ backend routes, application scoring, or UI behavior.
 
 ## Files and responsibilities
 
-- `data/missions.json`: source-curated catalog of eight CLPS missions.
+- `data/missions.json`: source-curated catalog of eight CLPS missions and five
+  reference anchors (see `category`).
 - `demo_fixtures/missions.json`: deterministic offline mission catalog. It has
   mission metadata and provenance. Each fixture record includes a `demo_analysis`
   object with stable metric keys set to `null` and an explicit status explaining
@@ -16,7 +17,15 @@ backend routes, application scoring, or UI behavior.
   `copy_fixture_to_cache`, using online → cache → fixture fallback.
 - `src/compute/spice_engine.py`: SPICE hourly geometry and geometric Earth LOS
   summary, including current-UTC ephemeris geometry.
-- `src/compute/terrain.py`: LOLA DEM horizon profile and azimuth lookup.
+- `src/compute/terrain.py`: LOLA DEM horizon profile and azimuth lookup;
+  bilinear elevation at any coordinate and a fast vectorized horizon mask.
+- `src/compute/site_evaluation.py`: one-call custom-site evaluation and
+  launch-date (Date A vs Date B) comparison.
+- `src/compute/precompute_tracks.py`: offline scrubber tracks written to
+  `data/precomputed/tracks/`.
+
+Issue #8 functions, schemas and per-team usage are documented in
+[TEAM_INTEGRATION_GUIDE.md](TEAM_INTEGRATION_GUIDE.md).
 - `src/compute/illumination_mission.py`: tactical mission-window sunlight.
 - `src/compute/illumination_annual.py`: annual/secular polar illumination
   raster extraction.
@@ -362,7 +371,7 @@ from model inputs and clearly labeled `PHYSICS_DERIVED_TARGET`; target-derived
 scores cannot enter the feature matrix. There is no trained model or evaluation
 metric: this repository currently has no installed scikit-learn, XGBoost,
 LightGBM, or CatBoost, and there are no legitimate independent generated
-physics samples. Do not train on the eight mission metadata rows, temporary
+physics samples. Do not train on the mission metadata rows, temporary
 synthetic test fixtures, or the held-out benchmark coordinates. Install and
 pin an estimator only after a leakage-audited corpus and training protocol are
 approved; split first, then fit imputation/scaling on training data only.
@@ -463,7 +472,7 @@ python -m compileall src tests
 python -m json.tool data/missions.json >/dev/null
 python -m json.tool demo_fixtures/missions.json >/dev/null
 python -m unittest discover -s tests -v
-pytest -q  # when pytest is installed in the selected environment
+python -m pytest -q tests  # requires pytest in the environment
 ```
 
 The tests use small, generated temporary geospatial fixtures for API and CRS

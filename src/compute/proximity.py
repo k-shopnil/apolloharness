@@ -49,3 +49,47 @@ def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
 
 # Backwards-compatible function name.
 nearest_psr = calculate_psr_distance
+
+
+def nearest_psr_within(latitude_deg: float, longitude_deg: float,
+                       search_radius_m: float = 20_000.0,
+                       dataset_path: str | Path = DEFAULT_PSR) -> dict[str, Any]:
+    """Interactive PSR proximity using a bounding-box read of the vector dataset.
+
+    Unlike ``calculate_psr_distance`` (distance to the nearest boundary), this
+    reports ``distance_m == 0`` and ``inside_psr`` when the site lies inside a
+    PSR polygon. With no PSR inside the search box, ``distance_m`` is ``None``
+    and ``min_distance_m`` states the guaranteed lower bound.
+    """
+    if not np.isfinite(latitude_deg) or not -90 <= latitude_deg <= 90:
+        raise ValueError("latitude_deg must be finite and between -90 and 90")
+    if not np.isfinite(longitude_deg) or not -180 <= longitude_deg <= 180:
+        raise ValueError("longitude_deg must be finite and between -180 and 180")
+    if not np.isfinite(search_radius_m) or search_radius_m <= 0:
+        raise ValueError("search_radius_m must be positive")
+    path = Path(dataset_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"PSR dataset not found: {path}")
+    point = gpd.GeoSeries([Point(longitude_deg, latitude_deg)], crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS).iloc[0]
+    # The bbox is expressed in the dataset CRS (PGDA PSRs: south-polar stereographic).
+    frame = gpd.read_file(path, bbox=(point.x - search_radius_m, point.y - search_radius_m,
+                                      point.x + search_radius_m, point.y + search_radius_m))
+    base = {"search_radius_m": search_radius_m, "source_dataset": path.name,
+            "analysis_crs": MOON_SPS.to_string()}
+    if frame.empty:
+        return {**base, "status": "no_psr_within_search_radius", "distance_m": None,
+                "min_distance_m": search_radius_m, "inside_psr": False, "nearest_psr_id": None}
+    projected = frame.to_crs(MOON_SPS)
+    distances = projected.geometry.distance(point)
+    index = distances.idxmin()
+    distance_m = float(distances.loc[index])
+    if distance_m > search_radius_m:  # bbox corner hit beyond the circular radius
+        return {**base, "status": "no_psr_within_search_radius", "distance_m": None,
+                "min_distance_m": search_radius_m, "inside_psr": False, "nearest_psr_id": None}
+    id_column = next((name for name in ("psr_id", "PSR_ID", "id", "ID")
+                      if name in projected.columns), None)
+    identifier = projected.loc[index, id_column] if id_column else None
+    return {**base, "status": "complete", "distance_m": distance_m,
+            "distance_km": distance_m / 1000.0, "min_distance_m": distance_m,
+            "inside_psr": distance_m == 0.0,
+            "nearest_psr_id": None if identifier is None else str(identifier)}

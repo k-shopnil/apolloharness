@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import lru_cache
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from typing import Protocol
 
 import numpy as np
 import spiceypy as spice
@@ -216,59 +218,63 @@ def calculate_geometry(
     _validate_coordinates(latitude_deg, longitude_deg)
     _, normalized_utc = _parse_utc(utc)
     et = spice.str2et(normalized_utc)
-
-    observer = _observer_position(
-        latitude_deg,
-        longitude_deg,
-        et,
-    )
-
-    east, north, up = _local_basis(
-        latitude_deg,
-        longitude_deg,
-        et,
-    )
-
-    earth_moon, _ = spice.spkpos(
-        "EARTH",
-        et,
-        "MOON_PA",
-        "NONE",
-        "MOON",
-    )
-
-    sun_moon, _ = spice.spkpos(
-        "SUN",
-        et,
-        "MOON_PA",
-        "NONE",
-        "MOON",
-    )
-
-    earth_vector = earth_moon - observer
-    sun_vector = sun_moon - observer
-
-    earth_elevation, earth_azimuth = _elevation_azimuth(
-        earth_vector,
-        east,
-        north,
-        up,
-    )
-
-    sun_elevation, sun_azimuth = _elevation_azimuth(
-        sun_vector,
-        east,
-        north,
-        up,
-    )
+    state = _topocentric_state(latitude_deg, longitude_deg, et)
 
     return HourlyGeometry(
         utc=normalized_utc,
-        earth_elevation_deg=earth_elevation,
-        earth_azimuth_deg=earth_azimuth,
-        sun_elevation_deg=sun_elevation,
-        sun_azimuth_deg=sun_azimuth,
-        earth_visible=earth_elevation > 0.0,
+        earth_elevation_deg=state.earth_elevation_deg,
+        earth_azimuth_deg=state.earth_azimuth_deg,
+        sun_elevation_deg=state.sun_elevation_deg,
+        sun_azimuth_deg=state.sun_azimuth_deg,
+        earth_visible=state.earth_elevation_deg > 0.0,
+    )
+
+
+@lru_cache(maxsize=256)
+def _site_frame_me(latitude_deg: float, longitude_deg: float
+                   ) -> tuple[np.ndarray, tuple[np.ndarray, np.ndarray, np.ndarray]]:
+    """Epoch-independent MOON_ME observer position and ENU basis for a site.
+
+    Equivalent to ``_observer_position``/``_local_basis`` before the per-epoch
+    ME->PA rotation; cached so time scans pay only for that rotation.
+    """
+    position_me = _observer_position_me(latitude_deg, longitude_deg)
+    me_to_pa = spice.pxform("MOON_ME", "MOON_PA", 0.0)
+    pa_to_me = np.asarray(me_to_pa).T
+    east, north, up = (pa_to_me @ np.asarray(axis)
+                       for axis in _local_basis(latitude_deg, longitude_deg, 0.0))
+    for array in (position_me, east, north, up):
+        array.setflags(write=False)
+    return position_me, (east, north, up)
+
+
+@dataclass(frozen=True)
+class _TopocentricState:
+    sun_elevation_deg: float
+    sun_azimuth_deg: float
+    earth_elevation_deg: float
+    earth_azimuth_deg: float
+    sun_unit_moon_pa: np.ndarray
+    earth_unit_moon_pa: np.ndarray
+    earth_range_km: float
+
+
+def _topocentric_state(latitude_deg: float, longitude_deg: float, et: float) -> _TopocentricState:
+    """Sun/Earth topocentric geometry at an ephemeris time (no input validation)."""
+    position_me, basis_me = _site_frame_me(latitude_deg, longitude_deg)
+    me_to_pa = np.asarray(spice.pxform("MOON_ME", "MOON_PA", et))
+    observer = me_to_pa @ position_me
+    east, north, up = (me_to_pa @ axis for axis in basis_me)
+    earth_moon, _ = spice.spkpos("EARTH", et, "MOON_PA", "NONE", "MOON")
+    sun_moon, _ = spice.spkpos("SUN", et, "MOON_PA", "NONE", "MOON")
+    earth_vector = np.asarray(earth_moon) - observer
+    sun_vector = np.asarray(sun_moon) - observer
+    earth_elevation, earth_azimuth = _elevation_azimuth(earth_vector, east, north, up)
+    sun_elevation, sun_azimuth = _elevation_azimuth(sun_vector, east, north, up)
+    earth_range = float(np.linalg.norm(earth_vector))
+    return _TopocentricState(
+        sun_elevation, sun_azimuth, earth_elevation, earth_azimuth,
+        sun_vector / np.linalg.norm(sun_vector), earth_vector / earth_range, earth_range,
     )
 
 
@@ -291,19 +297,26 @@ def calculate_hourly_geometry(
     longitude_deg: float,
     start_utc: str,
     hours: int,
+    *,
+    step_minutes: float = 60.0,
 ) -> list[HourlyGeometry]:
     """
-    Calculate hourly Earth/Sun geometry over a mission window.
+    Calculate Earth/Sun geometry over a mission window.
+
+    ``hours`` is the window length; samples are ``step_minutes`` apart
+    (hourly by default, preserving the original one-sample-per-hour schema).
     """
     _validate_coordinates(latitude_deg, longitude_deg)
     start, _ = _parse_utc(start_utc)
     if hours < 0:
         raise ValueError("hours must be non-negative")
+    if not np.isfinite(step_minutes) or step_minutes <= 0:
+        raise ValueError("step_minutes must be positive")
 
     results: list[HourlyGeometry] = []
 
-    for hour in range(hours):
-        current = start + timedelta(hours=hour)
+    for index in range(int(round(hours * 60.0 / step_minutes))):
+        current = start + timedelta(minutes=index * step_minutes)
 
         utc = current.strftime(
             "%Y-%m-%dT%H:%M:%SZ"
@@ -407,6 +420,249 @@ def summarize_communications(
         visible_hours=visible_hours,
         blackout_intervals=blackout_intervals,
     )
+
+
+# --- Temporal dynamics: horizon events, countdowns and scrubber tracks -------
+
+SPEED_OF_LIGHT_KM_S = 299_792.458
+SYNODIC_MONTH_DAYS = 29.530589
+BODIES = ("sun", "earth")
+
+
+class _HorizonLike(Protocol):
+    def elevation_at(self, azimuth_deg: float) -> float: ...
+
+
+@dataclass(frozen=True)
+class HorizonEvent:
+    """A body crossing the local horizon; ``kind`` is ``rise`` or ``set``."""
+    body: str
+    kind: str
+    utc: str
+    hours_from_start: float
+
+    def to_dict(self) -> dict[str, object]:
+        return {"body": self.body, "kind": self.kind, "utc": self.utc,
+                "hours_from_start": round(self.hours_from_start, 4)}
+
+
+def format_countdown(hours: float | None) -> str | None:
+    """Human-readable countdown: ``4d 18h`` (>= 1 day) or ``5h 12m``."""
+    if hours is None or not np.isfinite(hours) or hours < 0:
+        return None
+    minutes = int(hours * 60.0)
+    days, minutes = divmod(minutes, 1440)
+    hrs, mins = divmod(minutes, 60)
+    return f"{days}d {hrs}h" if days else f"{hrs}h {mins}m"
+
+
+def _horizon_at(mask: _HorizonLike | None, azimuth_deg: float) -> float:
+    return 0.0 if mask is None else float(mask.elevation_at(azimuth_deg))
+
+
+def _margins(latitude_deg: float, longitude_deg: float, et: float,
+             mask: _HorizonLike | None) -> tuple[_TopocentricState, dict[str, float]]:
+    """Body elevation minus terrain horizon at the body azimuth (NaN = unknown)."""
+    state = _topocentric_state(latitude_deg, longitude_deg, et)
+    return state, {
+        "sun": state.sun_elevation_deg - _horizon_at(mask, state.sun_azimuth_deg),
+        "earth": state.earth_elevation_deg - _horizon_at(mask, state.earth_azimuth_deg),
+    }
+
+
+def _et_to_utc(et: float) -> str:
+    return spice.et2utc(et, "ISOC", 0) + "Z"
+
+
+def find_horizon_events(
+    latitude_deg: float,
+    longitude_deg: float,
+    start_utc: str,
+    duration_days: float = SYNODIC_MONTH_DAYS,
+    *,
+    horizon_mask: _HorizonLike | None = None,
+    step_minutes: float = 30.0,
+    tolerance_seconds: float = 1.0,
+) -> dict[str, object]:
+    """Find Sun/Earth rise and set times against the local horizon.
+
+    A body is up when its topocentric centre elevation exceeds the terrain
+    horizon at its azimuth (``horizon_mask``) or 0 deg when no mask is given
+    (spherical horizon). The window is scanned every ``step_minutes`` and each
+    sign change is refined by bisection to ``tolerance_seconds``. Crossings
+    shorter than one scan step can be missed, and the Sun is treated as a
+    point (its ~0.27 deg radius is not modelled).
+
+    Countdowns from ``start_utc`` are ``None`` with an explicit status when the
+    next event is beyond the window or crosses an unknown (NaN) horizon sector;
+    they are never extrapolated.
+    """
+    _validate_coordinates(latitude_deg, longitude_deg)
+    _, normalized_start = _parse_utc(start_utc)
+    if not np.isfinite(duration_days) or duration_days <= 0:
+        raise ValueError("duration_days must be positive")
+    if not np.isfinite(step_minutes) or step_minutes <= 0:
+        raise ValueError("step_minutes must be positive")
+    et0 = spice.str2et(normalized_start)
+    step = step_minutes * 60.0
+    count = int(np.ceil(duration_days * 86_400.0 / step))
+    ets = et0 + np.arange(count + 1) * step
+    ets[-1] = min(ets[-1], et0 + duration_days * 86_400.0)
+
+    samples = [_margins(latitude_deg, longitude_deg, float(et), horizon_mask) for et in ets]
+    margins = {body: np.array([m[body] for _, m in samples]) for body in BODIES}
+
+    events: list[HorizonEvent] = []
+    unknown_from: dict[str, float | None] = {}
+    for body in BODIES:
+        values = margins[body]
+        unknown = np.flatnonzero(~np.isfinite(values))
+        unknown_from[body] = float(ets[unknown[0]]) if len(unknown) else None
+        for i in range(count):
+            a, b = values[i], values[i + 1]
+            if not (np.isfinite(a) and np.isfinite(b)) or (a > 0) == (b > 0):
+                continue
+            lo, hi = float(ets[i]), float(ets[i + 1])
+            while hi - lo > tolerance_seconds:
+                mid = 0.5 * (lo + hi)
+                value = _margins(latitude_deg, longitude_deg, mid, horizon_mask)[1][body]
+                if not np.isfinite(value):
+                    break
+                if (value > 0) == (a > 0):
+                    lo = mid
+                else:
+                    hi = mid
+            crossing = 0.5 * (lo + hi)
+            events.append(HorizonEvent(body, "rise" if b > 0 else "set",
+                                       _et_to_utc(crossing), (crossing - et0) / 3600.0))
+    events.sort(key=lambda event: event.hours_from_start)
+
+    state0 = samples[0][0]
+    window_hours = duration_days * 24.0
+
+    def countdown(body: str, kind: str) -> tuple[float | None, str]:
+        nxt = next((e for e in events if e.body == body and e.kind == kind), None)
+        blocked = unknown_from[body]
+        if nxt is not None and (blocked is None or nxt.hours_from_start * 3600.0 + et0 <= blocked):
+            return nxt.hours_from_start, "complete"
+        if blocked is not None:
+            return None, "terrain_horizon_incomplete"
+        return None, f"no_{body}{kind}_within_window"
+
+    def body_block(body: str, elevation: float, azimuth: float, up_key: str,
+                   down_word: str, up_word: str) -> dict[str, object]:
+        margin = margins[body][0]
+        is_up = bool(margin > 0) if np.isfinite(margin) else None
+        set_hours, set_status = countdown(body, "set")
+        rise_hours, rise_status = countdown(body, "rise")
+        return {
+            "azimuth_deg": azimuth,
+            "elevation_deg": elevation,
+            "terrain_horizon_deg": _horizon_at(horizon_mask, azimuth),
+            up_key: is_up,
+            f"time_to_{down_word}_hours": set_hours if is_up else None,
+            f"time_to_{down_word}_formatted": format_countdown(set_hours) if is_up else None,
+            f"time_to_{up_word}_hours": rise_hours if is_up is False else None,
+            f"time_to_{up_word}_formatted": format_countdown(rise_hours) if is_up is False else None,
+            "countdown_status": ("terrain_horizon_incomplete" if is_up is None
+                                 else set_status if is_up else rise_status),
+            "fraction_of_window_up": (float(np.mean(margins[body] > 0))
+                                      if np.isfinite(margins[body]).all() else None),
+        }
+
+    earth = body_block("earth", state0.earth_elevation_deg, state0.earth_azimuth_deg,
+                       "direct_los", "earthset", "earthrise")
+    earth["range_km"] = state0.earth_range_km
+    earth["round_trip_light_time_s"] = 2.0 * state0.earth_range_km / SPEED_OF_LIGHT_KM_S
+    return {
+        "latitude_deg": latitude_deg,
+        "longitude_deg": longitude_deg,
+        "start_utc": normalized_start,
+        "duration_days": duration_days,
+        "window_hours": window_hours,
+        "horizon_model": "spherical_horizon" if horizon_mask is None else "lola_terrain_mask",
+        "visibility_rule": "body centre elevation > horizon elevation at body azimuth",
+        "scan_step_minutes": step_minutes,
+        "tolerance_seconds": tolerance_seconds,
+        "sun": body_block("sun", state0.sun_elevation_deg, state0.sun_azimuth_deg,
+                          "is_lit", "sunset", "sunrise"),
+        "earth": earth,
+        "events": [event.to_dict() for event in events],
+    }
+
+
+def calculate_geometry_track(
+    latitude_deg: float,
+    longitude_deg: float,
+    start_utc: str,
+    duration_days: float = 14.0,
+    *,
+    step_minutes: float = 60.0,
+    horizon_mask: _HorizonLike | None = None,
+    decimals: int = 4,
+) -> dict[str, object]:
+    """Precompute a column-oriented Sun/Earth track for a timeline scrubber.
+
+    Columns are parallel arrays so a client can interpolate between samples
+    at display frame rate without further SPICE work. Unit vectors are
+    observer-to-body directions in MOON_PA. ``sun_lit``/``earth_los`` are
+    ``None`` where the terrain horizon is unknown.
+    """
+    _validate_coordinates(latitude_deg, longitude_deg)
+    _, normalized_start = _parse_utc(start_utc)
+    if not np.isfinite(duration_days) or duration_days <= 0:
+        raise ValueError("duration_days must be positive")
+    if not np.isfinite(step_minutes) or step_minutes <= 0:
+        raise ValueError("step_minutes must be positive")
+    et0 = spice.str2et(normalized_start)
+    count = int(np.floor(duration_days * 1440.0 / step_minutes)) + 1
+    columns: dict[str, list] = {key: [] for key in (
+        "utc", "hours_from_start", "sun_elevation_deg", "sun_azimuth_deg",
+        "sun_terrain_horizon_deg", "sun_lit", "earth_elevation_deg", "earth_azimuth_deg",
+        "earth_terrain_horizon_deg", "earth_los", "earth_range_km",
+        "round_trip_light_time_s", "sun_unit_moon_pa", "earth_unit_moon_pa")}
+
+    def r(value: float) -> float | None:
+        return round(float(value), decimals) if np.isfinite(value) else None
+
+    for index in range(count):
+        et = et0 + index * step_minutes * 60.0
+        state = _topocentric_state(latitude_deg, longitude_deg, et)
+        sun_h = _horizon_at(horizon_mask, state.sun_azimuth_deg)
+        earth_h = _horizon_at(horizon_mask, state.earth_azimuth_deg)
+        columns["utc"].append(_et_to_utc(et))
+        columns["hours_from_start"].append(r(index * step_minutes / 60.0))
+        columns["sun_elevation_deg"].append(r(state.sun_elevation_deg))
+        columns["sun_azimuth_deg"].append(r(state.sun_azimuth_deg))
+        columns["sun_terrain_horizon_deg"].append(r(sun_h))
+        columns["sun_lit"].append(bool(state.sun_elevation_deg > sun_h) if np.isfinite(sun_h) else None)
+        columns["earth_elevation_deg"].append(r(state.earth_elevation_deg))
+        columns["earth_azimuth_deg"].append(r(state.earth_azimuth_deg))
+        columns["earth_terrain_horizon_deg"].append(r(earth_h))
+        columns["earth_los"].append(bool(state.earth_elevation_deg > earth_h) if np.isfinite(earth_h) else None)
+        columns["earth_range_km"].append(round(state.earth_range_km, 1))
+        columns["round_trip_light_time_s"].append(
+            round(2.0 * state.earth_range_km / SPEED_OF_LIGHT_KM_S, 4))
+        columns["sun_unit_moon_pa"].append([r(v) for v in state.sun_unit_moon_pa])
+        columns["earth_unit_moon_pa"].append([r(v) for v in state.earth_unit_moon_pa])
+
+    def percent(flags: list[bool | None]) -> float | None:
+        return None if any(f is None for f in flags) else round(100.0 * sum(flags) / len(flags), 2)
+
+    return {
+        "schema": "apolloharness.geometry_track.v1",
+        "latitude_deg": latitude_deg,
+        "longitude_deg": longitude_deg,
+        "start_utc": normalized_start,
+        "duration_days": duration_days,
+        "step_minutes": step_minutes,
+        "samples": count,
+        "frame": "MOON_PA (vectors); azimuth clockwise from north",
+        "horizon_model": "spherical_horizon" if horizon_mask is None else "lola_terrain_mask",
+        "sunlit_percent": percent(columns["sun_lit"]),
+        "earth_los_percent": percent(columns["earth_los"]),
+        "columns": columns,
+    }
 
 
 if __name__ == "__main__":

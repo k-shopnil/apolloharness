@@ -1,0 +1,99 @@
+{
+  "schema": "apolloharness.track_index.v1",
+  "duration_days": 29.530589,
+  "step_minutes": 60.0,
+  "missions": [
+    {
+      "mission_id": "clps-to2-ab-peregrine-1",
+      "mission": "Peregrine Mission 1",
+      "status": "complete",
+      "file": "clps-to2-ab-peregrine-1.json",
+      "window_start_utc": "2024-02-23T00:00:00Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "clps-to2-im-im1",
+      "mission": "IM-1 Odysseus",
+      "status": "complete",
+      "file": "clps-to2-im-im1.json",
+      "window_start_utc": "2024-02-22T00:00:00Z",
+      "horizon_model": "lola_terrain_mask"
+    },
+    {
+      "mission_id": "clps-to19d-blue-ghost-1",
+      "mission": "Blue Ghost Mission 1",
+      "status": "complete",
+      "file": "clps-to19d-blue-ghost-1.json",
+      "window_start_utc": "2025-03-02T00:00:00Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "clps-prime-1-im2",
+      "mission": "IM-2 Athena",
+      "status": "complete",
+      "file": "clps-prime-1-im2.json",
+      "window_start_utc": "2025-03-06T00:00:00Z",
+      "horizon_model": "lola_terrain_mask"
+    },
+    {
+      "mission_id": "clps-to20a-griffin-1",
+      "mission": "Griffin Mission One (Moon Base cargo delivery)",
+      "status": "skipped_no_coordinate"
+    },
+    {
+      "mission_id": "clps-cp11-im3",
+      "mission": "IM-3",
+      "status": "skipped_no_exact_date"
+    },
+    {
+      "mission_id": "clps-cp12-draper",
+      "mission": "Draper CP-12",
+      "status": "skipped_no_exact_date"
+    },
+    {
+      "mission_id": "clps-cp22-im4",
+      "mission": "IM-4",
+      "status": "skipped_no_exact_date"
+    },
+    {
+      "mission_id": "anchor-apollo-11",
+      "mission": "Apollo 11",
+      "status": "complete",
+      "file": "anchor-apollo-11.json",
+      "window_start_utc": "1969-07-20T20:17:40Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "anchor-apollo-17",
+      "mission": "Apollo 17",
+      "status": "complete",
+      "file": "anchor-apollo-17.json",
+      "window_start_utc": "1972-12-11T19:54:57Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "anchor-chandrayaan-3",
+      "mission": "Chandrayaan-3",
+      "status": "complete",
+      "file": "anchor-chandrayaan-3.json",
+      "window_start_utc": "2023-08-23T12:33:00Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "anchor-change-4",
+      "mission": "Chang'e 4",
+      "status": "complete",
+      "file": "anchor-change-4.json",
+      "window_start_utc": "2019-01-03T02:26:00Z",
+      "horizon_model": "spherical_horizon"
+    },
+    {
+      "mission_id": "anchor-slim",
+      "mission": "SLIM",
+      "status": "complete",
+      "file": "anchor-slim.json",
+      "window_start_utc": "2024-01-19T15:20:00Z",
+      "horizon_model": "spherical_horizon"
+    }
+  ]
+}
