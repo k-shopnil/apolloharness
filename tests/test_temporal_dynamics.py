@@ -250,6 +250,13 @@ class ManifestGroundingTests(unittest.TestCase):
             self.assertEqual(mission["payload_summary"],
                              ", ".join(p["name"] for p in mission["payloads"]))
         self.assertTrue(all(m["category"] in {"clps", "reference_anchor"} for m in manifest))
+        by_id = {m["id"]: m for m in manifest}
+        self.assertEqual(by_id["clps-to2-im-im1"]["touchdown_utc"], "2024-02-22T23:23:53Z")
+        self.assertEqual(by_id["anchor-chandrayaan-3"]["landing_site"]["coordinate_type"], "actual_landing")
+        self.assertEqual(by_id["clps-cp12-draper"]["status"], "terminated")
+        index = json.loads(Path("data/precomputed/tracks/index.json").read_text(encoding="utf-8"))
+        statuses = {m["mission_id"]: m["status"] for m in index["missions"]}
+        self.assertEqual(statuses["clps-cp12-draper"], "skipped_mission_terminated")
 
 
 if __name__ == "__main__":

@@ -7,8 +7,8 @@ Run from the repository root:
 
 Each eligible mission gets ``data/precomputed/tracks/<id>.json`` and the run
 writes ``index.json`` listing every mission with its eligibility status. A
-mission is skipped (never guessed) when it has no coordinate or no exact
-start date. The window starts at ``touchdown_utc`` when recorded, otherwise
+mission is skipped (never guessed) when it was terminated, or has no
+coordinate or no exact start date. The window starts at ``touchdown_utc`` when recorded, otherwise
 at 00:00Z on a full ``target_date``.
 """
 from __future__ import annotations
@@ -29,6 +29,8 @@ from .terrain import DEFAULT_DEM, PROJECT_ROOT, evaluate_site_terrain
 MANIFEST = PROJECT_ROOT / "data" / "missions.json"
 OUTPUT_DIR = PROJECT_ROOT / "data" / "precomputed" / "tracks"
 _FULL_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+# Missions that will never fly need no surface-operations window.
+TERMINAL_STATUSES = {"terminated", "cancelled"}
 
 
 def mission_window_start(mission: dict[str, Any]) -> str | None:
@@ -79,6 +81,9 @@ def main(argv: list[str] | None = None) -> int:
             site = mission.get("landing_site") or {}
             start = mission_window_start(mission)
             entry = {"mission_id": mission["id"], "mission": mission["mission"]}
+            if mission.get("status") in TERMINAL_STATUSES:
+                index.append({**entry, "status": f"skipped_mission_{mission['status']}"})
+                continue
             if site.get("latitude_deg") is None or site.get("longitude_deg") is None:
                 index.append({**entry, "status": "skipped_no_coordinate"})
                 continue

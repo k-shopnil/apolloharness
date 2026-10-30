@@ -94,11 +94,13 @@
     "region": "south_pole",
     "status": "completed",
     "target_date": "2024-02-22",
+    "touchdown_utc": "2024-02-22T23:23:53Z",
+    "touchdown_utc_precision": "second",
     "landing_site": {
       "latitude_deg": -80.13,
       "longitude_deg": 1.44,
       "coordinate_type": "actual_landing",
-      "coordinate_provenance": "Catalog landing coordinate; exact geodetic source precision is not recorded."
+      "coordinate_provenance": "LROC NAC M1463440322L rest position (80.13S, 1.44E, 2579 m elevation)."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -162,6 +164,17 @@
           "payload manifest"
         ],
         "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "LROC / Arizona State University",
+        "title": "Intuitive Machines IM-1 On The Moon!",
+        "url": "https://www.lroc.asu.edu/images/1360",
+        "supports": [
+          "touchdown time 23:23:53 UTC",
+          "rest position 80.13S, 1.44E",
+          "elevation 2579 m"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
     "demo_analysis": {
@@ -569,7 +582,7 @@
     "mission": "Draper CP-12",
     "target_site": "Schrödinger Basin",
     "region": "farside",
-    "status": "planned",
+    "status": "terminated",
     "target_date": null,
     "landing_site": {
       "latitude_deg": -75.0,
@@ -618,6 +631,15 @@
           "payload manifest"
         ],
         "accessed_utc": "2026-10-20T12:00:00Z"
+      },
+      {
+        "publisher": "SpaceNews",
+        "title": "NASA terminates Draper lunar lander mission (2026-07-18)",
+        "url": "https://spacenews.com/nasa-terminates-draper-lunar-lander-mission/",
+        "supports": [
+          "NASA and Draper terminated the CP-12 lander mission after development delays"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
     "demo_analysis": {
@@ -906,10 +928,10 @@
     "touchdown_utc": "2023-08-23T12:33:00Z",
     "touchdown_utc_precision": "minute",
     "landing_site": {
-      "latitude_deg": -69.373,
-      "longitude_deg": 32.319,
-      "coordinate_type": "reported_landing_secondary",
-      "coordinate_provenance": "69.373S, 32.319E is the widely cited landing position; no primary ISRO/LROC numeric coordinate was located when curated. Treat as provisional (~1 km)."
+      "latitude_deg": -69.3741,
+      "longitude_deg": 32.32,
+      "coordinate_type": "actual_landing",
+      "coordinate_provenance": "LROC NAC M1447750764LR position (69.3741S, 32.32E, 532 m elevation). An Icarus study reports 69.367621S, 32.348126E (~1.2 km east; different control network)."
     },
     "landing_ellipse_km": {
       "major_axis_km": null,
@@ -966,9 +988,20 @@
         "title": "Chandrayaan-3 Landing Site",
         "url": "https://www.lroc.asu.edu/images/1314",
         "supports": [
+          "landing coordinates 69.3741S, 32.32E",
+          "elevation 532 m",
           "independent orbital imaging of the lander (NAC M1447750764LR)"
         ],
-        "accessed_utc": "2026-10-30T12:00:00Z"
+        "accessed_utc": "2026-10-31T12:00:00Z"
+      },
+      {
+        "publisher": "Icarus (Elsevier)",
+        "title": "Chandrayaan-3 landing site evolution by South Pole-Aitken basin and other impact craters",
+        "url": "https://www.sciencedirect.com/science/article/abs/pii/S0019103524003890",
+        "supports": [
+          "alternative coordinate 69.367621S, 32.348126E"
+        ],
+        "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
     "demo_analysis": {

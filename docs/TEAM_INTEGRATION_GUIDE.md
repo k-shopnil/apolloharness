@@ -42,7 +42,7 @@ products and SPICE kernels; no network is needed at runtime.
    now only appears for a custom click outside 80–90°S on a machine without
    the global DEM. Label that "Terrain not modelled here".
 3. **`coordinate_type` is binding.** Only `actual_landing` is a landing fix.
-   `reported_landing_secondary` (Chandrayaan-3) is provisional at about 1 km.
+   All five anchors and IM-1 are now `actual_landing`, from LROC orbital images.
    `*_reference` values are regions or targets.
 4. **Visibility rule.** A body is up when its **centre** elevation is above
    the terrain horizon at its azimuth. The Sun is modelled as a point; its disk
@@ -287,7 +287,7 @@ is measured clockwise from north.
 | Site | Lat, Lon (ME) | UTC | Sun el | Sun az | Earth el | Earth az |
 |---|---|---|---|---|---|---|
 | Apollo 11 | 0.67416, 23.47314 | 1969-07-20T20:17:00Z | 10.692 | 88.805 | 59.225 | 272.194 |
-| Chandrayaan-3 | -69.373, 32.319 | 2023-08-23T12:34:00Z | 8.613 | 62.049 | 12.996 | 318.997 |
+| Chandrayaan-3 | -69.3741, 32.32 | 2023-08-23T12:34:00Z | 8.613 | 62.048 | 12.995 | 318.997 |
 | IM-2 Mons Mouton | -84.79, 29.20 | 2026-11-15T12:00:00Z | 2.529 | 79.329 | 1.447 | 327.516 |
 
 Reproduce:
@@ -352,6 +352,19 @@ Pipeline limitations:
   check out: SLIM at −913 m vs LROC −912 m, and Chang'e 4 at −5,929 m vs
   −5,935 m (Liu et al. 2019); both are asserted in tests. For sharper
   nearside terrain, `LDEM_128` (237 m, 2.1 GB) uses the same converter.
+- **Catalog values still waiting on publishers** (checked 2026-10-31):
+  - **Griffin-1:** NASA and Astrobotic name the Nobile region but publish no
+    landing coordinate. Launch is no earlier than November 2026.
+  - **IM-3** (Reiner Gamma) and **IM-4** (south pole): only target years
+    are published, with no exact date.
+  These get tracks automatically once the manifest has a coordinate and an
+  exact date. Rerun `python -m src.compute.precompute_tracks`.
+- **Draper CP-12 is terminated.** NASA and Draper ended the mission
+  (SpaceNews, 2026-07-18). Its status is `terminated` and the track index
+  reports `skipped_mission_terminated`. Hide it from the active fleet.
+- **Touchdown precision.** IM-1 (23:23:53 UTC, LROC), Apollo 11 and
+  Apollo 17 are to the second. Chandrayaan-3, Chang'e 4 and SLIM are to
+  the minute.
 - **Polar-edge sites mix two maps.** For sites near 80°S (IM-1 at 80.13°S),
   rays that run off the 80 m polar map are completed from `LDEM_64` for the
   same azimuth. `terrain.horizon_azimuths_filled_from_global` counts them

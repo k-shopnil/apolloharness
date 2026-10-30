@@ -150,6 +150,19 @@ class CommittedTileScienceTests(unittest.TestCase):
         result = interpolate_elevation(-45.457, 177.589, TILES / "anchor-change-4.tif")
         self.assertAlmostEqual(result["elevation_m"], -5935.0, delta=50.0)
 
+    def test_chandrayaan_3_elevation_matches_lroc(self) -> None:
+        # LROC reports 69.3741S, 32.32E at 532 m elevation.
+        result = interpolate_elevation(-69.3741, 32.32, TILES / "anchor-chandrayaan-3.tif")
+        self.assertAlmostEqual(result["elevation_m"], 532.0, delta=30.0)
+
+    @unittest.skipUnless(Path("data/lola/LDEM_80S_80MPP_ADJ.TIF").stat().st_size > 10_000
+                         if Path("data/lola/LDEM_80S_80MPP_ADJ.TIF").exists() else False,
+                         "80 m polar DEM not present (run `git lfs pull`)")
+    def test_im1_elevation_matches_lroc(self) -> None:
+        # LROC reports Odysseus at 80.13S, 1.44E, 2579 m elevation (80 m DEM).
+        result = interpolate_elevation(-80.13, 1.44)
+        self.assertAlmostEqual(result["elevation_m"], 2579.0, delta=30.0)
+
     def test_taurus_littrow_massifs_mask_the_horizon_but_mare_is_open(self) -> None:
         with patch.object(gt, "GLOBAL_DEM", Path("/nonexistent")):
             valley = evaluate_site_terrain(20.1911, 30.7723)

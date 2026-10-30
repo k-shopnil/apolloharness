@@ -16,7 +16,7 @@
       "mission": "IM-1 Odysseus",
       "status": "complete",
       "file": "clps-to2-im-im1.json",
-      "window_start_utc": "2024-02-22T00:00:00Z",
+      "window_start_utc": "2024-02-22T23:23:53Z",
       "horizon_model": "lola_terrain_mask"
     },
     {
@@ -48,7 +48,7 @@
     {
       "mission_id": "clps-cp12-draper",
       "mission": "Draper CP-12",
-      "status": "skipped_no_exact_date"
+      "status": "skipped_mission_terminated"
     },
     {
       "mission_id": "clps-cp22-im4",
