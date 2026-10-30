@@ -152,6 +152,8 @@ duration with each result.
 
 Install pinned dependencies with `python -m pip install -r requirements.txt`.
 For tests, install `requirements-dev.txt` (adds pytest) and run `python -m pytest -q tests`.
+The engine is validated against NASA's independent illumination map (held-out
+test R² 0.951, MAE 1.45 pp): see [docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md).
 Run an offline geometry example from the repository root with:
 
 ```sh

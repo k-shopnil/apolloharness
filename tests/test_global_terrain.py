@@ -48,16 +48,33 @@ class TileConversionTests(unittest.TestCase):
             result = interpolate_elevation(20.0, 30.0, tile)
         self.assertAlmostEqual(result["elevation_m"], 1000.0, places=3)
 
-    def test_tile_crosses_the_zero_longitude_seam(self) -> None:
+    def test_tile_is_exact_across_the_zero_longitude_seam(self) -> None:
+        # A flat synthetic map cannot reveal a misplaced seam, so heights vary
+        # with longitude: DN = 20000 * sin(lon) -> height = 10000 m * sin(lon).
+        lon_centres = (np.arange(360) + 0.5)
+        dn = np.tile(20000 * np.sin(np.radians(lon_centres)), (180, 1))
         with tempfile.TemporaryDirectory() as tmp:
             source = Path(tmp) / "synthetic_global.tif"
-            _write_synthetic_global(source, np.full((180, 360), 400))
-            tile = gt.build_site_tile(10.0, 0.05, Path(tmp) / "seam.tif", global_dem=source,
-                                      half_width_m=150_000, resolution_m=5_000)
+            _write_synthetic_global(source, dn)
+            for lon in (0.3, -0.7, 179.6, -179.6):
+                tile = gt.build_site_tile(10.0, lon, Path(tmp) / f"seam_{lon}.tif",
+                                          global_dem=source, half_width_m=150_000,
+                                          resolution_m=5_000)
+                with self.subTest(lon=lon):
+                    height = interpolate_elevation(10.0, lon, tile)["elevation_m"]
+                    # Bilinear interpolation of a 1-degree sine: error << 1 m.
+                    self.assertAlmostEqual(height, 10000 * np.sin(np.radians(lon)), delta=2.0)
+
+    def test_polar_tile_spanning_most_longitudes_is_not_empty(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            source = Path(tmp) / "synthetic_global.tif"
+            _write_synthetic_global(source, np.full((180, 360), 800))
+            tile = gt.build_site_tile(-80.13, 1.44, Path(tmp) / "polar.tif", global_dem=source,
+                                      half_width_m=160_000, resolution_m=5_000)
             with rasterio.open(tile) as ds:
                 values = ds.read(1)
         self.assertTrue(np.isfinite(values).all())
-        np.testing.assert_allclose(values, 200.0, atol=1e-3)
+        np.testing.assert_allclose(values, 400.0, atol=1e-3)
 
     def test_unexpected_scaling_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -73,10 +90,11 @@ class TileConversionTests(unittest.TestCase):
             (directory / gt.TILE_INDEX).write_text(json.dumps({"tiles": [{
                 "file": "a.tif", "center_lat_deg": 20.0, "center_lon_deg": 30.0,
                 "half_width_m": 80_000.0}]}), encoding="utf-8")
-            self.assertEqual(gt.find_committed_tile(20.0, 30.0, tile_dir=directory),
-                             directory / "a.tif")
+            self.assertEqual(gt.find_committed_tile(20.0, 30.0, max_ray_m=50_000.0,
+                                                    tile_dir=directory), directory / "a.tif")
             # ~1 deg = 30 km away: 30 km + 50 km rays exceed the 78.4 km usable radius.
-            self.assertIsNone(gt.find_committed_tile(21.0, 30.0, tile_dir=directory))
+            self.assertIsNone(gt.find_committed_tile(21.0, 30.0, max_ray_m=50_000.0,
+                                                     tile_dir=directory))
 
 
 class FallbackTests(unittest.TestCase):
@@ -162,6 +180,13 @@ class CommittedTileScienceTests(unittest.TestCase):
         # LROC reports Odysseus at 80.13S, 1.44E, 2579 m elevation (80 m DEM).
         result = interpolate_elevation(-80.13, 1.44)
         self.assertAlmostEqual(result["elevation_m"], 2579.0, delta=30.0)
+
+    def test_every_committed_tile_is_complete(self) -> None:
+        index = json.loads((TILES / gt.TILE_INDEX).read_text(encoding="utf-8"))
+        for tile in index["tiles"]:
+            with self.subTest(tile=tile["file"]), rasterio.open(TILES / tile["file"]) as ds:
+                self.assertTrue(np.isfinite(ds.read(1)).all())
+                self.assertGreaterEqual(tile["half_width_m"], 150_000.0 + 5_000.0)
 
     def test_taurus_littrow_massifs_mask_the_horizon_but_mare_is_open(self) -> None:
         with patch.object(gt, "GLOBAL_DEM", Path("/nonexistent")):

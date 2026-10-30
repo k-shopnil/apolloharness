@@ -135,7 +135,7 @@ artifact is fitted or persisted.
 |---|---|
 | Mission catalog | NASA-sourced mission facts with explicit source links; some site coordinates remain references or null where no exact NASA coordinate was found |
 | SPICE hourly geometry | Uses installed NAIF kernels and is software-tested against real kernel calculations; no external geometry benchmark has been validated |
-| Annual Shackleton sample | REAL DATA: product-69 85–90°S GeoTIFF acquired; sample 11.26%, comparison with brief's ~89.4% unresolved |
+| Annual Shackleton sample | REAL DATA: product-69 sample 11.26%; independent physics gives 10.2% at the same coordinate, so the brief's ~89.4% refers to a different point (resolved, see ML_VALIDATION_REPORT.md) |
 | Annual Mons Mouton sample | REAL DATA: product-69 75–90°S GeoTIFF acquired; nearest-pixel sample is 46.412% |
 | LOLA terrain horizon | REAL DATA diagnostic: the verified product-90 DEM produced 360/360 complete rays at both Mons Mouton and the reference Shackleton coordinate (20 km extent, 100 m radial step, 1° azimuth step). Result ranges are provisional while the embedded CRS discrepancy is unresolved; synthetic temporary DEM tests verify software contracts only. |
 | Tactical sunlight benchmark | UNAVAILABLE for Issue #2's active-window comparison because its exact UTC start and duration were not specified. The terrain-aware calculation is exposed; do not substitute an arbitrary window. |
@@ -184,7 +184,10 @@ verified at 83,052,039 bytes. It reports 7624 × 7624 cells at 120 m, scale
 `d539467f16ccc5f51b6a904af6be5d16c9b2f194afe619b9f1f81841d9fec0bb`. The
 nearest-pixel samples are 10.42% at Shackleton (-89.54°, 0°) and 46.412% at
 Mons Mouton (-84.79°, 29.20°). These are real-raster samples, not validation
-targets; the Shackleton comparison remains unresolved.
+targets. **Resolved (2026-10-31):** an independent physics computation at
+(-89.54°, 0°) gives 10.2%, consistent with NASA's 11.26%, so the coordinate is
+not the highly illuminated rim; see
+[ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md).
 
 The complete product-90 PSR shapefile set was downloaded and byte-size checked
 on 2026-10-20. SHA-256 values are recorded in the acquisition registry for its

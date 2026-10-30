@@ -24,10 +24,13 @@ products and SPICE kernels; no network is needed at runtime.
 | Offline mission tracks | `python -m src.compute.precompute_tracks` → `data/precomputed/tracks/` | 29.5-day windows from touchdown |
 | Arbitrary-coordinate interpolator | `terrain.interpolate_elevation`, `terrain.extract_horizon_mask_fast`, `terrain.evaluate_site_terrain` | Bilinear interpolation on `LDEM_80S_80MPP_ADJ.TIF`, with automatic fallback to the global LOLA GDR `LDEM_64` |
 | Global terrain (beyond the issue) | `global_terrain.build_site_tile`, committed tiles in `data/lola/tiles/` | Real mountains at every catalog site, not only 80–90°S |
-| Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.34–0.39 s per click |
+| Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.12–0.30 s per click when warm; call `warm_up()` at startup |
 | Launch-slip Date A vs Date B | `site_evaluation.compare_launch_dates` | Shared relative clock, delta summary |
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
 | Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 8 CLPS + 5 sourced reference anchors, each with `payload_summary` |
+| Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
+| Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
+| Validation vs NASA (beyond the issue) | `python -m src.ml.validation`, [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md) | Held-out test: R² 0.951, MAE 1.45 pp, bias −0.05 pp |
 
 ## Data honesty rules (all teams)
 
@@ -107,32 +110,36 @@ superset of the Issue #8 `/sites/geometry` schema.
   "terrain": {"elevation_m": 5320.8, "status": "complete", "interpolation": "bilinear",
               "dem_resolution_m": 80.0, "horizon_mask": {"azimuth_deg": [...], "elevation_deg": [...]},
               "horizon_incomplete_azimuths": 0},
-  "sun": {"azimuth_deg": 79.329, "elevation_deg": 2.529, "terrain_horizon_deg": 2.48,
+  "sun": {"azimuth_deg": 79.329, "elevation_deg": 2.529, "terrain_horizon_deg": 2.461,
           "is_lit": true, "time_to_sunset_hours": 367.08, "time_to_sunset_formatted": "15d 7h",
           "time_to_sunrise_hours": null, "time_to_sunrise_formatted": null,
-          "countdown_status": "complete", "fraction_of_window_up": 0.518},
+          "countdown_status": "complete", "fraction_of_window_up": 0.518,
+          "angular_radius_deg": 0.27, "disk_visible_fraction": 0.661},
   "earth": {"azimuth_deg": 327.516, "elevation_deg": 1.447, "terrain_horizon_deg": -1.451,
             "direct_los": true, "time_to_earthset_hours": 452.883,
             "time_to_earthset_formatted": "18d 20h", "time_to_earthrise_hours": null,
             "time_to_earthrise_formatted": null, "countdown_status": "complete",
-            "fraction_of_window_up": 0.824, "range_km": 403845.7, "round_trip_light_time_s": 2.694},
+            "fraction_of_window_up": 0.824, "angular_radius_deg": 0.904,
+            "disk_visible_fraction": 1.0, "range_km": 403845.7, "round_trip_light_time_s": 2.694},
   "events": [{"body": "sun", "kind": "set", "utc": "2026-11-30T19:04:47Z", "hours_from_start": 367.0797},
              {"body": "earth", "kind": "set", "utc": "2026-12-04T08:52:59Z", "hours_from_start": 452.8832}],
-  "annual_illumination": {"status": "complete", "annual_sunlight_percent": 46.55,
+  "annual_illumination": {"status": "complete", "annual_sunlight_percent": 46.552,
                           "source_dataset": "AVGVISIB_85S_060M_201608.TIF"},
   "psr": {"status": "not_requested", "distance_m": null, "inside_psr": null}
 }
 ```
 
-(Real output; arrays trimmed.) In this case the Sun clears the LOLA skyline by
-only 0.05°, which is less than the solar radius, so `sun.disk_visible_fraction`
-is 0.615: only 62% of the disc is up. This is the knife-edge case the
+(Real output with the validated 100 km horizon; arrays trimmed.) In this case
+the Sun clears the LOLA skyline by only 0.07°, which is less than the solar
+radius, so `sun.disk_visible_fraction` is 0.661: only 66% of the disc is up. This is the knife-edge case the
 launch-slip view exists for. Scientific Mode should show the margin
 `elevation_deg - terrain_horizon_deg` and the disc fraction. Both `sun` and
 `earth` also carry `angular_radius_deg` and `disk_visible_fraction`.
 
-Latency: about 0.35 s per call. `include_psr=true` adds about 1.2 s because
-it reads the vector dataset, so request it after the click (lazy load), not
+Latency: about 0.12–0.30 s per warm call (call `site_evaluation.warm_up()`
+once at startup; the first cold call is about 0.5 s). `include_psr=true`
+adds about 0.5 s because it reads the vector dataset, so request it after
+the click (lazy load), not
 on it.
 
 ### `GET /api/v1/sites/compare-dates?site_id=&date_a=&date_b=`
@@ -150,7 +157,37 @@ The response contains `date_a` and `date_b`, each with `sun`, `earth`,
 `events`, `sunlit_percent`, `earth_los_percent` and `track`, plus
 `delta_b_minus_a` with `sunlit_percent`, `earth_los_percent` and
 `lit_at_arrival_changed`. Both tracks share `hours_from_start`, so the
-frontend overlays them directly. Measured: about 0.5 s for two 14-day windows.
+frontend overlays them directly. Measured: about 0.17 s for two 14-day windows.
+
+### `POST /api/v1/sites/recommend` (suggested)
+
+This finds the best landing spots near a click, using exact physics over a
+candidate grid and then Pareto ranking. It takes seconds, so run it as a
+background task or cache it per (site, date).
+
+```python
+from src.compute.regional import screen_region
+from src.ml.recommend import recommend_sites
+
+screen = screen_region(lat, lon, start_utc, radius_m=5_000, spacing_m=500,
+                       duration_days=14)                    # ~4 s, 317 points
+result = recommend_sites(screen, max_slope_deg=8.0, top_k=10)
+# Science priority (planner chooses): drill near a cold trap
+result = recommend_sites(screen, objectives=("mean_sun_disk_percent",
+                         "earth_los_percent", "psr_distance_m"),
+                         weights={"mean_sun_disk_percent": 1, "earth_los_percent": 1,
+                                  "psr_distance_m": 2})
+```
+
+`screen["columns"]` doubles as a heatmap layer. It has parallel arrays of
+lat/lon, `elevation_m`, `slope_deg`, `sunlit_percent`,
+`mean_sun_disk_percent`, `earth_los_percent`, `longest_darkness_hours`,
+`longest_earth_blackout_hours` and `psr_distance_m`. Each recommendation
+carries `pareto_rank`, `slope_class` (nominal / caution / critical, from the
+Issue #8 envelope), `top_decile_in` (a plain-language "why") and every
+metric. `ranking_mode` says whether planner weights were used. Without
+weights the ranking is parameter-free: Pareto front, then crowding
+distance, then gentler slope.
 
 ### Extending `/api/v1/sites/geometry`
 
@@ -272,7 +309,7 @@ the exact times (precise to the second) for the original epoch.
 `terrain.horizon_mask.azimuth_deg` / `elevation_deg` is the LOLA skyline
 (0° = north, clockwise). Overlay the track's `(sun_azimuth_deg,
 sun_elevation_deg)` and Earth equivalents. `null` entries in the mask are
-azimuths where the 50 km ray left the DEM. Draw them as gaps.
+azimuths where the 100 km ray left every available DEM. Draw them as gaps.
 
 ### Manifest sync (`src/data/missions.ts`)
 

@@ -4,10 +4,19 @@ from pathlib import Path
 from typing import Any
 import numpy as np
 import rasterio
-from pyproj import Transformer
-from .terrain import MOON_ME_GEOGRAPHIC, PROJECT_ROOT
+from .terrain import MOON_ME_GEOGRAPHIC, PROJECT_ROOT, cached_transformer
 
 DEFAULT_PRODUCT = PROJECT_ROOT / "data" / "illumination" / "annual_south_pole.tif"
+# rasterio's CRS.to_string() performs an EPSG authority search (~0.1 s); the
+# label never changes for a file, so compute it once per product path.
+_CRS_LABELS: dict[str, str] = {}
+
+
+def _crs_label(path: Path, ds: rasterio.DatasetReader) -> str:
+    key = str(path)
+    if key not in _CRS_LABELS:
+        _CRS_LABELS[key] = ds.crs.to_string()
+    return _CRS_LABELS[key]
 
 
 def calculate_annual_illumination(latitude_deg: float, longitude_deg: float,
@@ -28,7 +37,7 @@ def calculate_annual_illumination(latitude_deg: float, longitude_deg: float,
     with rasterio.open(path) as ds:
         if ds.crs is None:
             raise ValueError("Annual illumination raster has no CRS")
-        x, y = Transformer.from_crs(MOON_ME_GEOGRAPHIC, ds.crs, always_xy=True).transform(
+        x, y = cached_transformer(MOON_ME_GEOGRAPHIC, ds.crs).transform(
             longitude_deg, latitude_deg)
         sample = np.ma.asarray(next(ds.sample([(x, y)], masked=True)), dtype=float)
         raw_value = sample.filled(np.nan)[0]
@@ -46,7 +55,7 @@ def calculate_annual_illumination(latitude_deg: float, longitude_deg: float,
         return {"analysis_type": "annual_strategic_illumination", "latitude_deg": latitude_deg,
                 "longitude_deg": longitude_deg, "illumination_percent": percent,
                 "annual_sunlight_percent": percent,
-                "source_raster": str(path), "source_crs": ds.crs.to_string()}
+                "source_raster": str(path), "source_crs": _crs_label(path, ds)}
 
 
 # Backwards-compatible alias used in early Issue #2 development.

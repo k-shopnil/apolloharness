@@ -331,6 +331,15 @@ No `/api/v1/...` endpoints or project scoring are implemented by Issue #2.
 
 ## Physics-informed ML contract (not trained)
 
+> **Update (Issue #8).** The decision not to train a model stands. The
+> physics is exact, and fitting a model to self-generated outputs adds error.
+> The ML work is now (1) an independent validation of the engine against
+> NASA PGDA product 69 with a held-out spatial test set (R² 0.951, MAE
+> 1.45 pp, bias −0.05 pp; [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md)),
+> which also selected the production horizon configuration, and
+> (2) transparent Pareto site recommendation (`src/ml/recommend.py`). The
+> contract below still governs any future trained model.
+
 The deterministic SPICE, terrain, annual-raster, communications, and PSR
 calculations remain authoritative. `src/ml/features.py` only combines already
 computed products into a schema-versioned candidate-site feature record. It

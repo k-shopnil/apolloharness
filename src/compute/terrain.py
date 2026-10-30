@@ -25,6 +25,36 @@ MOON_ME_SPS = CRS.from_proj4(
     f"+proj=stere +lat_0=-90 +lat_ts=-90 +lon_0=0 +x_0=0 +y_0=0 "
     f"+a={MOON_RADIUS_M} +b={MOON_RADIUS_M} +units=m +type=crs +no_defs"
 )
+_TRANSFORMERS = __import__("threading").local()
+
+
+def _crs_key(crs: object) -> str:
+    """Cheap identity for a CRS (pyproj ``srs``/rasterio WKT) without re-parsing it."""
+    if isinstance(crs, str):
+        return crs
+    srs = getattr(crs, "srs", None)  # pyproj CRS
+    if isinstance(srs, str):
+        return srs
+    to_wkt = getattr(crs, "to_wkt", None)  # rasterio CRS; to_string() is slow
+    return to_wkt() if callable(to_wkt) else repr(crs)
+
+
+def cached_transformer(source: object, target: object) -> Transformer:
+    """Per-thread cached ``always_xy`` transformer (construction costs ~15 ms).
+
+    pyproj ``Transformer`` objects are not thread-safe, so each thread keeps
+    its own cache instead of sharing one.
+    """
+    cache = getattr(_TRANSFORMERS, "cache", None)
+    if cache is None:
+        cache = _TRANSFORMERS.cache = {}
+    key = (_crs_key(source), _crs_key(target))
+    transformer = cache.get(key)
+    if transformer is None:
+        transformer = cache[key] = Transformer.from_crs(source, target, always_xy=True)
+    return transformer
+
+
 # Backwards-compatible names; coordinates in NASA PGDA products use MOON_ME.
 MOON_GEOGRAPHIC = MOON_ME_GEOGRAPHIC
 MOON_SPS = MOON_ME_SPS
@@ -71,7 +101,7 @@ def extract_horizon_mask(
                        radial_step_m, azimuth_step_deg)
     with rasterio.open(dem_path) as ds:
         _validate_dem_crs(ds)
-        tx = Transformer.from_crs(MOON_GEOGRAPHIC, ds.crs, always_xy=True)
+        tx = cached_transformer(MOON_GEOGRAPHIC, ds.crs)
         x0, y0, east_xy, north_xy = _projected_local_axes(tx, latitude_deg, longitude_deg)
         distances = np.arange(radial_step_m, max_distance_m + radial_step_m, radial_step_m)
         azimuths = np.arange(0.0, 360.0, azimuth_step_deg)
@@ -210,7 +240,7 @@ def interpolate_elevation(latitude_deg: float, longitude_deg: float,
         raise FileNotFoundError(f"LOLA DEM not found: {path}")
     with rasterio.open(dem_path) as ds:
         _validate_dem_crs(ds)
-        tx = Transformer.from_crs(MOON_GEOGRAPHIC, ds.crs, always_xy=True)
+        tx = cached_transformer(MOON_GEOGRAPHIC, ds.crs)
         x, y = tx.transform(longitude_deg, latitude_deg)
         row, col = _fractional_index(ds, np.array([x]), np.array([y]))
         r0, c0 = int(np.floor(row[0])), int(np.floor(col[0]))
@@ -234,53 +264,157 @@ def interpolate_elevation(latitude_deg: float, longitude_deg: float,
     }
 
 
+# Horizon defaults selected on a development split against NASA PGDA product 69
+# and confirmed once on a disjoint test split (docs/ML_VALIDATION_REPORT.md,
+# data/validation/annual_illumination_validation.json): the former 50 km rays
+# missed distant massifs and over-predicted polar sunlight by ~1.6 pp; 100 km
+# multi-resolution rays are unbiased (test bias -0.05 pp, R^2 0.95).
+HORIZON_MAX_DISTANCE_M = 100_000.0
+# Multi-resolution tracing: full DEM resolution out to NEAR_FIELD_M, then a
+# block-averaged copy (FAR_FIELD_FACTOR x coarser). Distant terrain subtends
+# tiny angles, so this keeps accuracy while cutting latency ~3x.
+NEAR_FIELD_M = 20_000.0
+FAR_FIELD_FACTOR = 4
+# Only DEMs finer than this use the coarse far field (LDEM_64 tiles do not).
+MULTIRES_MAX_PIXEL_M = 200.0
+DERIVED_DIR = PROJECT_ROOT / "cache" / "derived"
+
+
+@dataclass(frozen=True)
+class _Grid:
+    """An in-memory raster with its inverse affine, for bilinear sampling."""
+    values: np.ndarray
+    inverse: tuple[float, float, float, float, float, float]
+    pixel_m: float
+
+    @classmethod
+    def from_window(cls, ds: rasterio.DatasetReader, window: Window) -> "_Grid":
+        values = _read_valid(ds, window)
+        transform = ds.window_transform(window)
+        inv = ~transform
+        return cls(values, (inv.a, inv.b, inv.c, inv.d, inv.e, inv.f),
+                   float(min(abs(transform.a), abs(transform.e))))
+
+    def sample(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
+        a, b, c, d, e, f = self.inverse
+        x, y = np.asarray(x, dtype=float), np.asarray(y, dtype=float)
+        return _bilinear(self.values, d * x + e * y + f - 0.5, a * x + b * y + c - 0.5)
+
+
+_COARSE_CACHE: dict[tuple[str, float, int], _Grid] = {}
+_COARSE_LOCK = __import__("threading").Lock()
+
+
+def coarse_grid(dem_path: str | Path, factor: int = FAR_FIELD_FACTOR) -> _Grid:
+    """Whole-DEM block average (``factor`` x coarser), cached in memory and on disk.
+
+    GDAL's average resampling ignores nodata, so blocks on the DEM edge use
+    their valid pixels. The disk copy lives in git-ignored ``cache/derived``.
+    """
+    path = Path(dem_path)
+    key = (str(path.resolve()), path.stat().st_mtime, factor)
+    with _COARSE_LOCK:
+        if key in _COARSE_CACHE:
+            return _COARSE_CACHE[key]
+        cached = DERIVED_DIR / f"{path.stem}_x{factor}.tif"
+        if not cached.is_file() or cached.stat().st_mtime < path.stat().st_mtime:
+            from rasterio.enums import Resampling
+            with rasterio.open(path) as ds:
+                shape = (ds.height // factor, ds.width // factor)
+                data = ds.read(1, out_shape=shape, resampling=Resampling.average,
+                               masked=True).astype("float32").filled(np.nan)
+                transform = ds.transform * ds.transform.scale(ds.width / shape[1],
+                                                              ds.height / shape[0])
+                profile = {"driver": "GTiff", "height": shape[0], "width": shape[1],
+                           "count": 1, "dtype": "float32", "crs": ds.crs,
+                           "transform": transform, "nodata": np.nan,
+                           "compress": "deflate", "predictor": 3}
+            DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+            temporary = cached.with_suffix(".tmp.tif")
+            with rasterio.open(temporary, "w", **profile) as out:
+                out.write(data, 1)
+            temporary.replace(cached)
+        with rasterio.open(cached) as ds:
+            grid = _Grid.from_window(ds, Window(0, 0, ds.width, ds.height))
+        _COARSE_CACHE[key] = grid
+        return grid
+
+
+def _ray_distances(max_distance_m: float, radial_step_m: float, near_m: float,
+                   far_step_m: float) -> tuple[np.ndarray, np.ndarray]:
+    near = np.arange(radial_step_m, min(near_m, max_distance_m) + radial_step_m / 2, radial_step_m)
+    far = (np.arange(near[-1] + far_step_m, max_distance_m + far_step_m / 2, far_step_m)
+           if max_distance_m > near_m else np.empty(0))
+    return near, far
+
+
+def trace_horizon(fine: _Grid, coarse: _Grid | None, x0: float, y0: float,
+                  east_xy: np.ndarray, north_xy: np.ndarray, base_height_m: float, *,
+                  max_distance_m: float, radial_step_m: float, azimuth_step_deg: float,
+                  near_field_m: float) -> tuple[np.ndarray, np.ndarray]:
+    """Shared ray tracer: returns (azimuths, horizon elevations; NaN = incomplete)."""
+    if coarse is None:
+        near_field_m = max_distance_m
+    far_step = coarse.pixel_m if coarse is not None else radial_step_m
+    near_d, far_d = _ray_distances(max_distance_m, radial_step_m, near_field_m, far_step)
+    azimuths = np.arange(0.0, 360.0, azimuth_step_deg)
+    theta = np.radians(azimuths)[:, None]
+    dx = east_xy[0] * np.sin(theta) + north_xy[0] * np.cos(theta)
+    dy = east_xy[1] * np.sin(theta) + north_xy[1] * np.cos(theta)
+    heights = fine.sample(x0 + dx * near_d, y0 + dy * near_d)
+    distances = near_d
+    if far_d.size:
+        assert coarse is not None
+        heights = np.concatenate([heights, coarse.sample(x0 + dx * far_d, y0 + dy * far_d)], axis=1)
+        distances = np.concatenate([near_d, far_d])
+    complete = np.isfinite(heights).all(axis=1)
+    angles = np.full(azimuths.shape, np.nan)
+    if complete.any():
+        apparent = _apparent_elevation_deg(distances[None, :], heights[complete], base_height_m)
+        angles[complete] = apparent.max(axis=1)
+    return azimuths, angles
+
+
 def extract_horizon_mask_fast(
     dem_path: str | Path, latitude_deg: float, longitude_deg: float, *,
-    max_distance_m: float = 50_000.0, radial_step_m: float = 80.0,
+    max_distance_m: float = HORIZON_MAX_DISTANCE_M, radial_step_m: float = 80.0,
     azimuth_step_deg: float = 1.0, observer_height_m: float = 1.5,
+    near_field_m: float = NEAR_FIELD_M,
 ) -> HorizonMask:
     """Vectorized horizon mask for interactive (click-to-pin) evaluation.
 
-    Same physics and completeness rule as ``extract_horizon_mask`` but reads
-    one DEM window and samples it with bilinear interpolation in memory,
-    which is orders of magnitude faster than per-point ``ds.sample`` calls.
-    Rays leaving the DEM footprint before ``max_distance_m`` are NaN.
+    Same physics and completeness rule as ``extract_horizon_mask``, with
+    bilinear sampling in memory. For fine DEMs, terrain beyond
+    ``near_field_m`` is sampled from a cached block-averaged copy
+    (``coarse_grid``); pass ``near_field_m=max_distance_m`` for a
+    single-resolution trace. Rays leaving the DEM footprint are NaN.
     """
     _validate_sampling(latitude_deg, longitude_deg, max_distance_m,
                        radial_step_m, azimuth_step_deg)
     with rasterio.open(dem_path) as ds:
         _validate_dem_crs(ds)
-        tx = Transformer.from_crs(MOON_GEOGRAPHIC, ds.crs, always_xy=True)
+        tx = cached_transformer(MOON_GEOGRAPHIC, ds.crs)
         x0, y0, east_xy, north_xy = _projected_local_axes(tx, latitude_deg, longitude_deg)
         pixel = float(min(abs(ds.transform.a), abs(ds.transform.e)))
+        multires = pixel < MULTIRES_MAX_PIXEL_M and max_distance_m > near_field_m
+        fine_reach = near_field_m if multires else max_distance_m
         row_c, col_c = _fractional_index(ds, np.array([x0]), np.array([y0]))
-        radius_px = int(np.ceil(max_distance_m / pixel)) + 2
+        radius_px = int(np.ceil(fine_reach / pixel)) + 2
         row_off = max(int(np.floor(row_c[0])) - radius_px, 0)
         col_off = max(int(np.floor(col_c[0])) - radius_px, 0)
         row_end = min(int(np.floor(row_c[0])) + radius_px + 2, ds.height)
         col_end = min(int(np.floor(col_c[0])) + radius_px + 2, ds.width)
         if row_end <= row_off or col_end <= col_off:
             raise ValueError("Observer coordinate falls outside valid LOLA DEM pixels")
-        values = _read_valid(ds, Window(col_off, row_off, col_end - col_off, row_end - row_off))
-        base_row, base_col = row_c - row_off, col_c - col_off
-        base_value = float(_bilinear(values, base_row, base_col)[0])
-        if not np.isfinite(base_value):
-            raise ValueError("Observer coordinate falls outside valid LOLA DEM pixels")
-        distances = np.arange(radial_step_m, max_distance_m + radial_step_m, radial_step_m)
-        azimuths = np.arange(0.0, 360.0, azimuth_step_deg)
-        theta = np.radians(azimuths)[:, None]
-        dx = east_xy[0] * np.sin(theta) + north_xy[0] * np.cos(theta)
-        dy = east_xy[1] * np.sin(theta) + north_xy[1] * np.cos(theta)
-        xs = x0 + dx * distances[None, :]
-        ys = y0 + dy * distances[None, :]
-        rows, cols = _fractional_index(ds, xs, ys, row_off, col_off)
-        heights = _bilinear(values, rows, cols)
-    complete = np.isfinite(heights).all(axis=1)
-    angles = np.full(azimuths.shape, np.nan)
-    if complete.any():
-        apparent = _apparent_elevation_deg(distances[None, :], heights[complete],
-                                           base_value + observer_height_m)
-        angles[complete] = apparent.max(axis=1)
+        fine = _Grid.from_window(ds, Window(col_off, row_off, col_end - col_off, row_end - row_off))
+    base_value = float(fine.sample(np.array([x0]), np.array([y0]))[0])
+    if not np.isfinite(base_value):
+        raise ValueError("Observer coordinate falls outside valid LOLA DEM pixels")
+    coarse = coarse_grid(dem_path) if multires and not str(dem_path).startswith("/vsi") else None
+    azimuths, angles = trace_horizon(
+        fine, coarse, x0, y0, east_xy, north_xy, base_value + observer_height_m,
+        max_distance_m=max_distance_m, radial_step_m=radial_step_m,
+        azimuth_step_deg=azimuth_step_deg, near_field_m=near_field_m if coarse else max_distance_m)
     if not np.isfinite(angles).any():
         raise ValueError("No complete terrain rays found around observer")
     return HorizonMask(azimuths, angles)
@@ -313,37 +447,35 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
             status = "horizon_unavailable"
     needs_global = mask is None or not np.isfinite(mask.elevation_deg).all()
     if needs_global and global_terrain:
-        tile = gt.find_committed_tile(latitude_deg, longitude_deg,
-                                      max_ray_m=float(mask_options.get("max_distance_m", 50_000.0)))
-        memory = None
+        max_ray = float(mask_options.get("max_distance_m", HORIZON_MAX_DISTANCE_M))
+        tile: str | Path | None = gt.find_committed_tile(latitude_deg, longitude_deg,
+                                                         max_ray_m=max_ray)
+        on_the_fly = False
         if tile is None and gt.GLOBAL_DEM.is_file():
-            memory = gt.build_site_tile(latitude_deg, longitude_deg, global_dem=gt.GLOBAL_DEM)
-            tile = memory.name
-        try:
-            if tile is not None:
-                coarse_elevation = interpolate_elevation(latitude_deg, longitude_deg, tile)
-                coarse = None
-                if coarse_elevation["status"] == "complete":
-                    try:
-                        coarse = extract_horizon_mask_fast(tile, latitude_deg, longitude_deg,
-                                                           **mask_options)
-                    except ValueError:
-                        coarse = None
-                if coarse is not None and mask is None:
-                    elevation, mask, product, status = coarse_elevation, coarse, gt.PRODUCT_NAME, "complete"
-                    if memory is not None:
-                        elevation["source_dataset"] = "ldem_64.img (on-the-fly site tile)"
-                elif coarse is not None and np.array_equal(coarse.azimuth_deg, mask.azimuth_deg):
-                    # Polar-DEM edge: rays that leave the 80 m grid take the
-                    # complete LDEM_64 ray for the same azimuth.
-                    gaps = ~np.isfinite(mask.elevation_deg)
-                    filled = int(np.count_nonzero(gaps & np.isfinite(coarse.elevation_deg)))
-                    mask = HorizonMask(mask.azimuth_deg,
-                                       np.where(gaps, coarse.elevation_deg, mask.elevation_deg))
-                    product = f"{POLAR_DEM_PRODUCT} + {gt.PRODUCT_NAME} (edge fill)"
-        finally:
-            if memory is not None:
-                memory.close()
+            tile = gt.cached_site_tile(latitude_deg, longitude_deg, max_ray_m=max_ray,
+                                       global_dem=gt.GLOBAL_DEM)
+            on_the_fly = True
+        if tile is not None:
+            coarse_elevation = interpolate_elevation(latitude_deg, longitude_deg, tile)
+            coarse = None
+            if coarse_elevation["status"] == "complete":
+                try:
+                    coarse = extract_horizon_mask_fast(tile, latitude_deg, longitude_deg,
+                                                       **mask_options)
+                except ValueError:
+                    coarse = None
+            if coarse is not None and mask is None:
+                elevation, mask, product, status = coarse_elevation, coarse, gt.PRODUCT_NAME, "complete"
+                if on_the_fly:
+                    elevation["source_dataset"] = "ldem_64.img (on-the-fly site tile)"
+            elif coarse is not None and np.array_equal(coarse.azimuth_deg, mask.azimuth_deg):
+                # Polar-DEM edge: rays that leave the 80 m grid take the
+                # complete LDEM_64 ray for the same azimuth.
+                gaps = ~np.isfinite(mask.elevation_deg)
+                filled = int(np.count_nonzero(gaps & np.isfinite(coarse.elevation_deg)))
+                mask = HorizonMask(mask.azimuth_deg,
+                                   np.where(gaps, coarse.elevation_deg, mask.elevation_deg))
+                product = f"{POLAR_DEM_PRODUCT} + {gt.PRODUCT_NAME} (edge fill)"
     incomplete = 0 if mask is None else int(np.count_nonzero(~np.isfinite(mask.elevation_deg)))
     return {
         **elevation,

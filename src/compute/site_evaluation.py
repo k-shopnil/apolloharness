@@ -23,11 +23,25 @@ ANNUAL_PRODUCTS = (
     DATA_DIR / "illumination" / "AVGVISIB_85S_060M_201608.TIF",
     DATA_DIR / "illumination" / "AVGVISIB_75S_120M_201608.TIF",
 )
+_PRODUCT_FOOTPRINTS: dict[Path, tuple[object, tuple[float, float, float, float]]] = {}
+
+
+def _covers(product: Path, latitude_deg: float, longitude_deg: float) -> bool:
+    """Exact raster-footprint test (the products are squares, not latitude caps)."""
+    import rasterio
+    from .terrain import MOON_GEOGRAPHIC, cached_transformer
+    if product not in _PRODUCT_FOOTPRINTS:
+        with rasterio.open(product) as ds:
+            _PRODUCT_FOOTPRINTS[product] = (ds.crs, tuple(ds.bounds))
+    crs, (left, bottom, right, top) = _PRODUCT_FOOTPRINTS[product]
+    x, y = cached_transformer(MOON_GEOGRAPHIC, crs).transform(longitude_deg, latitude_deg)
+    return left <= x <= right and bottom <= y <= top
 
 
 def _annual_illumination(latitude_deg: float, longitude_deg: float) -> dict[str, Any]:
+    # Finest product first; skip opening rasters whose footprint excludes the point.
     for product in ANNUAL_PRODUCTS:
-        if not product.is_file():
+        if not product.is_file() or not _covers(product, latitude_deg, longitude_deg):
             continue
         try:
             result = calculate_annual_illumination(latitude_deg, longitude_deg, product)
@@ -45,6 +59,19 @@ def _psr(latitude_deg: float, longitude_deg: float, psr_path: Path) -> dict[str,
     if not psr_path.is_file():
         return {"status": "product_not_installed", "distance_m": None, "inside_psr": None}
     return nearest_psr_within(latitude_deg, longitude_deg, dataset_path=psr_path)
+
+
+def warm_up() -> None:
+    """Load kernels, the far-field DEM cache and projections before serving.
+
+    Call once at application startup so the first user request does not pay
+    ~0.25 s of one-time initialisation.
+    """
+    from .terrain import coarse_grid
+    load_kernels()
+    if Path(DEFAULT_DEM).is_file():
+        coarse_grid(DEFAULT_DEM)
+        evaluate_custom_site(-85.0, 0.0, "2026-01-01T00:00:00Z", duration_days=1.0)
 
 
 def evaluate_custom_site(

@@ -93,3 +93,32 @@ def nearest_psr_within(latitude_deg: float, longitude_deg: float,
             "distance_km": distance_m / 1000.0, "min_distance_m": distance_m,
             "inside_psr": distance_m == 0.0,
             "nearest_psr_id": None if identifier is None else str(identifier)}
+
+
+def psr_distances(latitudes: np.ndarray, longitudes: np.ndarray, *,
+                  search_radius_m: float = 20_000.0,
+                  dataset_path: str | Path = DEFAULT_PSR) -> np.ndarray:
+    """Vectorized distance (m) from many points to the nearest PSR polygon.
+
+    One bounding-box read covers all points; an STRtree answers the queries.
+    0 means inside a PSR; NaN means no PSR within ``search_radius_m``
+    (a lower bound, not an estimate).
+    """
+    import shapely
+    path = Path(dataset_path)
+    if not path.is_file():
+        raise FileNotFoundError(f"PSR dataset not found: {path}")
+    points = gpd.GeoSeries(gpd.points_from_xy(longitudes, latitudes),
+                           crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS)
+    xmin, ymin, xmax, ymax = points.total_bounds
+    pad = search_radius_m
+    frame = gpd.read_file(path, bbox=(xmin - pad, ymin - pad, xmax + pad, ymax + pad))
+    out = np.full(len(points), np.nan)
+    if frame.empty:
+        return out
+    geometries = frame.to_crs(MOON_SPS).geometry.values
+    tree = shapely.STRtree(geometries)
+    (point_index, _), distances = tree.query_nearest(points.values, max_distance=search_radius_m,
+                                                     return_distance=True, all_matches=False)
+    out[point_index] = distances
+    return out

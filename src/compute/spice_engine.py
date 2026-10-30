@@ -143,7 +143,6 @@ def _local_basis(
     """
     Construct local East-North-Up basis in MOON_PA coordinates.
     """
-    lat = np.radians(latitude_deg)
     lon = np.radians(longitude_deg)
 
     east = np.array(
@@ -521,6 +520,45 @@ def _margins(latitude_deg: float, longitude_deg: float, et: float,
     }
 
 
+def _horizon_values(mask: _HorizonLike | None, azimuth_deg: np.ndarray) -> np.ndarray:
+    """Vectorized ``mask.elevation_at`` for regularly spaced masks (scalar fallback)."""
+    if mask is None:
+        return np.zeros_like(azimuth_deg)
+    azimuths = getattr(mask, "azimuth_deg", None)
+    elevations = getattr(mask, "elevation_deg", None)
+    if azimuths is None or elevations is None or len(azimuths) < 2:
+        return np.array([mask.elevation_at(float(a)) for a in azimuth_deg])
+    step = float(azimuths[1] - azimuths[0])
+    count = len(azimuths)
+    position = (azimuth_deg % 360.0) / step
+    lower = np.floor(position).astype(int) % count
+    fraction = position - np.floor(position)
+    low, high = elevations[lower], elevations[(lower + 1) % count]
+    # Match elevation_at: exact on-grid azimuths take that sample even next to NaN.
+    on_grid = np.isclose(fraction, 0.0)
+    return np.where(on_grid, low, low + fraction * (high - low))
+
+
+def _scan_margins(latitude_deg: float, longitude_deg: float, ets: np.ndarray,
+                  mask: _HorizonLike | None) -> dict[str, np.ndarray]:
+    """Body-minus-horizon margins at many epochs in one vectorized pass.
+
+    Computed in MOON_ME (body - observer), which is exactly the per-epoch
+    ME->PA path of ``_topocentric_state`` up to floating-point rounding.
+    """
+    position, (east, north, up) = _site_frame_me(latitude_deg, longitude_deg)
+    margins: dict[str, np.ndarray] = {}
+    for body in BODIES:
+        target = "SUN" if body == "sun" else "EARTH"
+        vectors = np.array([spice.spkpos(target, float(et), "MOON_ME", "NONE", "MOON")[0]
+                            for et in ets]) - position
+        unit = vectors / np.linalg.norm(vectors, axis=1)[:, None]
+        elevation = np.degrees(np.arcsin(np.clip(unit @ up, -1.0, 1.0)))
+        azimuth = np.degrees(np.arctan2(unit @ east, unit @ north)) % 360.0
+        margins[body] = elevation - _horizon_values(mask, azimuth)
+    return margins
+
+
 def _et_to_utc(et: float) -> str:
     return spice.et2utc(et, "ISOC", 0) + "Z"
 
@@ -569,8 +607,7 @@ def find_horizon_events(
     ets = et0 + np.arange(count + 1) * step
     ets[-1] = min(ets[-1], et0 + duration_days * 86_400.0)
 
-    samples = [_margins(latitude_deg, longitude_deg, float(et), horizon_mask) for et in ets]
-    margins = {body: np.array([m[body] for _, m in samples]) for body in BODIES}
+    margins = _scan_margins(latitude_deg, longitude_deg, ets, horizon_mask)
 
     events: list[HorizonEvent] = []
     unknown_from: dict[str, float | None] = {}
@@ -597,7 +634,7 @@ def find_horizon_events(
                                        _et_to_utc(crossing), (crossing - et0) / 3600.0))
     events.sort(key=lambda event: event.hours_from_start)
 
-    state0 = samples[0][0]
+    state0 = _topocentric_state(latitude_deg, longitude_deg, float(ets[0]))
     window_hours = duration_days * 24.0
 
     def countdown(body: str, kind: str) -> tuple[float | None, str]:

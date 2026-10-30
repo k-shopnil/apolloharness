@@ -1,0 +1,408 @@
+{
+  "schema": "apolloharness.validation.annual_illumination.v2",
+  "generated_utc": "2026-10-30T20:48:15Z",
+  "truth": {
+    "product": "AVGVISIB_85S_060M_201608.TIF",
+    "quantity": "mean visible solar-disc fraction",
+    "sampling": "nearest pixel (60 m)",
+    "source_dem_epoch": "LOLA 2009-2013"
+  },
+  "physics": {
+    "dem": "LDEM_80S_80MPP_ADJ (PGDA product 90, 80 m)",
+    "ephemeris": "NAIF DE430 + moon_pa_de421, geometric",
+    "epochs": 2000,
+    "epoch_span_days": 6798.38,
+    "epoch_sampling": "stratified-jittered over one nodal cycle from 2000-01-01",
+    "max_epoch_standard_error_pct": 1.118033988749895,
+    "observer_height_m": 1.5,
+    "azimuth_step_deg": 1.0,
+    "radial_step_m": 80.0
+  },
+  "protocol": {
+    "points": 800,
+    "seed": 20261031,
+    "split": "alternating 30-deg wedges, 5 km buffer",
+    "dev_points": 309,
+    "test_points": 305,
+    "buffer_points": 186,
+    "selection_rule": "lowest dev RMSE with single-site latency <= 0.15 s",
+    "spatial_block_m": 15000.0,
+    "bootstrap_replicates": 1000
+  },
+  "candidates": {
+    "rays_050km_single_res": {
+      "max_distance_m": 50000.0,
+      "near_field_m": 50000.0
+    },
+    "rays_100km_multires": {
+      "max_distance_m": 100000.0,
+      "near_field_m": 20000.0
+    },
+    "rays_150km_multires": {
+      "max_distance_m": 150000.0,
+      "near_field_m": 20000.0
+    },
+    "rays_150km_single_res": {
+      "max_distance_m": 150000.0,
+      "near_field_m": 150000.0
+    }
+  },
+  "dev_selection": {
+    "rays_050km_single_res": {
+      "evaluated_points": 309,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 2.2467178628383087,
+        "rmse_pct": 3.6659553855787195,
+        "bias_pct": 1.5187147494147133,
+        "r2": 0.936846380853368,
+        "pearson_r": 0.9763520222661889,
+        "within_5pct": 0.8414239482200647
+      },
+      "centre_fraction": {
+        "mae_pct": 2.264433656957928,
+        "rmse_pct": 3.684437462826004,
+        "bias_pct": 1.5205113268608397,
+        "r2": 0.9362079921032646,
+        "pearson_r": 0.9761243002156843,
+        "within_5pct": 0.8414239482200647
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.89706761345199,
+          2.8181887287677454
+        ],
+        "rmse_pct": [
+          3.1076894056066746,
+          4.398970976255082
+        ],
+        "bias_pct": [
+          1.0421637268618367,
+          2.1091222367803986
+        ],
+        "r2": [
+          0.901629959027064,
+          0.955786342748389
+        ],
+        "pearson_r": [
+          0.9644650341135997,
+          0.9832086088366877
+        ],
+        "within_5pct": [
+          0.773761576940221,
+          0.89234219269103
+        ]
+      },
+      "single_site_latency_s": 0.111,
+      "within_latency_budget": true
+    },
+    "rays_100km_multires": {
+      "evaluated_points": 309,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 1.2762167115925418,
+        "rmse_pct": 1.9459695216881643,
+        "bias_pct": -0.33222228065439036,
+        "r2": 0.9822050832339759,
+        "pearson_r": 0.9916209745482532,
+        "within_5pct": 0.970873786407767
+      },
+      "centre_fraction": {
+        "mae_pct": 1.289954692556635,
+        "rmse_pct": 1.9630425496610957,
+        "bias_pct": -0.34016828478964567,
+        "r2": 0.981891464890508,
+        "pearson_r": 0.9915008541476996,
+        "within_5pct": 0.9676375404530745
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.123697932825063,
+          1.423056669140241
+        ],
+        "rmse_pct": [
+          1.5976672181725773,
+          2.288686317010745
+        ],
+        "bias_pct": [
+          -0.5297420803042564,
+          -0.12488257428021152
+        ],
+        "r2": [
+          0.973930688218709,
+          0.9878210554032724
+        ],
+        "pearson_r": [
+          0.9872611938310493,
+          0.9945602164061973
+        ],
+        "within_5pct": [
+          0.9509387507146941,
+          0.9870591519588077
+        ]
+      },
+      "single_site_latency_s": 0.052,
+      "within_latency_budget": true
+    },
+    "rays_150km_multires": {
+      "evaluated_points": 309,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 1.3308512649211899,
+        "rmse_pct": 1.9722557549850535,
+        "bias_pct": -0.43244319828151967,
+        "r2": 0.9817210873669664,
+        "pearson_r": 0.9915514566814307,
+        "within_5pct": 0.970873786407767
+      },
+      "centre_fraction": {
+        "mae_pct": 1.339527508090616,
+        "rmse_pct": 1.9889547270234353,
+        "bias_pct": -0.4364466019417493,
+        "r2": 0.9814102440388527,
+        "pearson_r": 0.9914324639268464,
+        "within_5pct": 0.9676375404530745
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.188774063485351,
+          1.4816829410862322
+        ],
+        "rmse_pct": [
+          1.644702604003252,
+          2.302152798933378
+        ],
+        "bias_pct": [
+          -0.6468987490309827,
+          -0.21989887193421317
+        ],
+        "r2": [
+          0.9735458829339219,
+          0.9871005983606885
+        ],
+        "pearson_r": [
+          0.9872610700299633,
+          0.9945402579715888
+        ],
+        "within_5pct": [
+          0.9509387507146941,
+          0.9870591519588077
+        ]
+      },
+      "single_site_latency_s": 0.057,
+      "within_latency_budget": true
+    },
+    "rays_150km_single_res": {
+      "evaluated_points": 309,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 1.3421809295703544,
+        "rmse_pct": 1.9775680045347046,
+        "bias_pct": -0.4515307790516818,
+        "r2": 0.9816224866485286,
+        "pearson_r": 0.991539634589384,
+        "within_5pct": 0.970873786407767
+      },
+      "centre_fraction": {
+        "mae_pct": 1.3512427184466027,
+        "rmse_pct": 1.992871227188385,
+        "bias_pct": -0.45651132686084306,
+        "r2": 0.9813369608573705,
+        "pearson_r": 0.9914344832332432,
+        "within_5pct": 0.9676375404530745
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.2007373166496262,
+          1.493060119385967
+        ],
+        "rmse_pct": [
+          1.654316447154344,
+          2.3049219565517514
+        ],
+        "bias_pct": [
+          -0.6655204288465751,
+          -0.23665765667542035
+        ],
+        "r2": [
+          0.973550181942926,
+          0.9869843269880866
+        ],
+        "pearson_r": [
+          0.9873056466934278,
+          0.9945135875390138
+        ],
+        "within_5pct": [
+          0.9509387507146941,
+          0.9870591519588077
+        ]
+      },
+      "single_site_latency_s": 0.506,
+      "within_latency_budget": false
+    }
+  },
+  "selected": "rays_100km_multires",
+  "previous_production": "rays_050km_single_res",
+  "test": {
+    "rays_100km_multires": {
+      "evaluated_points": 305,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 1.4468829206006093,
+        "rmse_pct": 3.024388842422363,
+        "bias_pct": -0.051706013520780365,
+        "r2": 0.9507239571962954,
+        "pearson_r": 0.9752806172835546,
+        "within_5pct": 0.9704918032786886
+      },
+      "centre_fraction": {
+        "mae_pct": 1.4452918032786892,
+        "rmse_pct": 3.018997820903975,
+        "bias_pct": -0.05296393442623134,
+        "r2": 0.9508994712983728,
+        "pearson_r": 0.9753810491094315,
+        "within_5pct": 0.9704918032786886
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.1731433696083995,
+          1.7522034758795761
+        ],
+        "rmse_pct": [
+          1.7435712917254673,
+          4.118686788523088
+        ],
+        "bias_pct": [
+          -0.344291967619738,
+          0.29255356468780136
+        ],
+        "r2": [
+          0.905230217256861,
+          0.9841229406131643
+        ],
+        "pearson_r": [
+          0.9526204695790517,
+          0.9922300153306727
+        ],
+        "within_5pct": [
+          0.9520761302464004,
+          0.9869333585524243
+        ]
+      }
+    },
+    "rays_050km_single_res": {
+      "evaluated_points": 305,
+      "excluded_points": 0,
+      "disk_fraction": {
+        "mae_pct": 2.3782357547543462,
+        "rmse_pct": 4.432949942385582,
+        "bias_pct": 1.5939476845293117,
+        "r2": 0.8941365059670376,
+        "pearson_r": 0.955682074386642,
+        "within_5pct": 0.8852459016393442
+      },
+      "centre_fraction": {
+        "mae_pct": 2.378406557377049,
+        "rmse_pct": 4.4290037706012395,
+        "bias_pct": 1.5981836065573753,
+        "r2": 0.8943248995187271,
+        "pearson_r": 0.955835967255473,
+        "within_5pct": 0.8852459016393442
+      },
+      "disk_fraction_ci95": {
+        "mae_pct": [
+          1.827414158226681,
+          2.9563571151547414
+        ],
+        "rmse_pct": [
+          3.225101041549476,
+          5.511819991962748
+        ],
+        "bias_pct": [
+          0.9490476172105835,
+          2.2252602643386745
+        ],
+        "r2": [
+          0.8290315832284896,
+          0.9455618757373964
+        ],
+        "pearson_r": [
+          0.9298631042181884,
+          0.9769288179918313
+        ],
+        "within_5pct": [
+          0.8322460054265903,
+          0.932449380818946
+        ]
+      }
+    }
+  },
+  "test_no_skill_baseline": {
+    "mae_pct": 11.7290578810547,
+    "rmse_pct": 13.632690388954567,
+    "bias_pct": 0.4732656798769141,
+    "r2": -0.0012066202028704343,
+    "pearson_r": 1.8702028530205845e-17,
+    "within_5pct": 0.2
+  },
+  "test_error_by_local_gradient": {
+    "smooth_lower_50pct": {
+      "points": 152,
+      "nasa_local_range_pct": [
+        0.0,
+        7.136000000000001
+      ],
+      "mae_pct": 0.8793382097742991,
+      "rmse_pct": 1.1873082846727705,
+      "bias_pct": -0.4747297595720204,
+      "r2": 0.9935370983900875,
+      "pearson_r": 0.9972815353042888,
+      "within_5pct": 1.0
+    },
+    "moderate_50_90pct": {
+      "points": 122,
+      "nasa_local_range_pct": [
+        7.136000000000001,
+        27.076800000000027
+      ],
+      "mae_pct": 1.5817119706887723,
+      "rmse_pct": 2.403305997872325,
+      "bias_pct": -0.2785838614796516,
+      "r2": 0.9537598604506103,
+      "pearson_r": 0.9769414897001818,
+      "within_5pct": 0.9672131147540983
+    },
+    "steep_top_10pct": {
+      "points": 31,
+      "nasa_local_range_pct": [
+        27.076800000000027,
+        48.75600000000001
+      ],
+      "mae_pct": 3.6990652410794254,
+      "rmse_pct": 7.768590872099307,
+      "bias_pct": 2.9153490461815026,
+      "r2": 0.6655221062935411,
+      "pearson_r": 0.8456874597209197,
+      "within_5pct": 0.8387096774193549
+    }
+  },
+  "test_residual_analysis": {
+    "corr_with_elevation": 0.026884209341334692,
+    "corr_with_horizon_max": -0.004133981662335416,
+    "corr_with_colatitude": 0.09857429390585756,
+    "corr_with_local_nasa_gradient": 0.325436080078618,
+    "abs_error_p50_pct": 1.0761499679624094,
+    "abs_error_p90_pct": 2.55719735424066,
+    "abs_error_max_pct": 29.099310118289463
+  },
+  "reference_points": {
+    "brief_shackleton_reference": {
+      "latitude_deg": -89.54,
+      "longitude_deg": 0.0,
+      "nasa_product69_pct": 11.26,
+      "physics_disk_pct": 10.221421871780867,
+      "physics_centre_pct": 10.299999999999999
+    }
+  },
+  "runtime_s": 51.7
+}

@@ -21,20 +21,22 @@ from pathlib import Path
 
 import numpy as np
 import rasterio
-from pyproj import CRS, Transformer
+from pyproj import CRS
 from rasterio.io import MemoryFile
 from rasterio.transform import from_origin
 from rasterio.warp import Resampling, reproject
 from rasterio.windows import Window
 
-from .terrain import DATA_DIR, MOON_GEOGRAPHIC, MOON_RADIUS_M, PROJECT_ROOT
+from .terrain import DATA_DIR, MOON_GEOGRAPHIC, MOON_RADIUS_M, PROJECT_ROOT, cached_transformer
 
 GLOBAL_DEM = PROJECT_ROOT / "cache" / "nasa" / "pds" / "ldem_64.lbl"
 TILE_DIR = DATA_DIR / "lola" / "tiles"
 PRODUCT_NAME = "LOLA GDR LDEM_64"
 EXPECTED_SCALE = 0.5
 EXPECTED_OFFSET_M = MOON_RADIUS_M
-DEFAULT_HALF_WIDTH_M = 80_000.0
+# Exceeds terrain.HORIZON_MAX_DISTANCE_M (100 km) so clicks up to ~55 km from a
+# catalog site still find complete rays inside its committed tile.
+DEFAULT_HALF_WIDTH_M = 160_000.0
 
 
 def site_crs(latitude_deg: float, longitude_deg: float) -> CRS:
@@ -43,30 +45,36 @@ def site_crs(latitude_deg: float, longitude_deg: float) -> CRS:
         f"+R={MOON_RADIUS_M} +units=m +type=crs +no_defs")
 
 
-def _source_window(src: rasterio.DatasetReader, latitude_deg: float, longitude_deg: float,
-                   half_width_m: float) -> Window | None:
-    """Source pixel window covering the tile, or None when it crosses the map seam."""
+def _recentred_band(src: rasterio.DatasetReader, latitude_deg: float, longitude_deg: float,
+                    half_width_m: float) -> tuple[np.ndarray, rasterio.Affine, CRS]:
+    """Latitude band around the site, re-centred so the site longitude is mid-grid.
+
+    In simple-cylindrical projection, changing ``lon_0`` is an exact column
+    roll. Re-centring removes the 0/360 seam and keeps the warp well posed
+    near the poles, where a tile spans most longitudes.
+    """
     pad_deg = np.degrees(half_width_m / MOON_RADIUS_M) * 1.2
     lat_lo, lat_hi = max(latitude_deg - pad_deg, -90.0), min(latitude_deg + pad_deg, 90.0)
-    widest = max(abs(lat_lo), abs(lat_hi))
-    if widest >= 89.0:
-        return None  # polar cap: let the warper read what it needs
-    lon_pad = pad_deg / np.cos(np.radians(widest))
-    to_map = Transformer.from_crs(MOON_GEOGRAPHIC, src.crs, always_xy=True)
-    xs, ys = [], []
-    for lon in (longitude_deg - lon_pad, longitude_deg + lon_pad):
-        for lat in (lat_lo, lat_hi):
-            x, y = to_map.transform(lon, lat)
-            xs.append(x); ys.append(y)
-    # Longitudes across the product's 0/360 seam map to opposite edges.
-    if max(xs) - min(xs) > 0.5 * (src.bounds.right - src.bounds.left):
-        return None
     inverse = ~src.transform
-    cols = [inverse.a * x + inverse.b * y + inverse.c for x, y in zip(xs, ys)]
-    rows = [inverse.d * x + inverse.e * y + inverse.f for x, y in zip(xs, ys)]
-    col0, col1 = max(int(np.floor(min(cols))) - 2, 0), min(int(np.ceil(max(cols))) + 2, src.width)
-    row0, row1 = max(int(np.floor(min(rows))) - 2, 0), min(int(np.ceil(max(rows))) + 2, src.height)
-    return Window(col0, row0, col1 - col0, row1 - row0)
+    row_hi = int(np.floor(inverse.e * (np.radians(lat_hi) * MOON_RADIUS_M) + inverse.f)) - 1
+    row_lo = int(np.ceil(inverse.e * (np.radians(lat_lo) * MOON_RADIUS_M) + inverse.f)) + 1
+    row0, row1 = max(row_hi, 0), min(row_lo, src.height)
+    data = src.read(1, window=Window(0, row0, src.width, row1 - row0), masked=True)
+    data = np.ma.asarray(data, dtype="float32").filled(np.nan)
+    to_geo = cached_transformer(src.crs, MOON_GEOGRAPHIC)
+    first_lon, _ = to_geo.transform(src.transform.c + src.transform.a / 2, 0.0)
+    pixels_per_degree = 1.0 / np.degrees(abs(src.transform.a) / MOON_RADIUS_M)
+    # Column holding the site longitude in the original grid -> move to centre.
+    site_col = ((longitude_deg - first_lon) % 360.0) * pixels_per_degree
+    shift = int(round(site_col - (src.width - 1) / 2))
+    data = np.roll(data, -shift, axis=1)
+    crs = CRS.from_proj4(f"+proj=eqc +lat_ts=0 +lat_0=0 +lon_0={longitude_deg} +x_0=0 +y_0=0 "
+                         f"+R={MOON_RADIUS_M} +units=m +type=crs +no_defs")
+    # Residual sub-pixel offset of the roll, applied to the grid origin.
+    residual_m = (site_col - (src.width - 1) / 2 - shift) * abs(src.transform.a)
+    transform = rasterio.Affine(src.transform.a, 0.0, src.transform.c - residual_m,
+                                0.0, src.transform.e, src.transform.f + row0 * src.transform.e)
+    return data, transform, crs
 
 
 def build_site_tile(latitude_deg: float, longitude_deg: float, output: str | Path | None = None,
@@ -95,17 +103,14 @@ def build_site_tile(latitude_deg: float, longitude_deg: float, output: str | Pat
         size = int(np.ceil(2 * half_width_m / res))
         dst_crs = site_crs(latitude_deg, longitude_deg)
         dst_transform = from_origin(-size * res / 2, size * res / 2, res, res)
-        window = _source_window(src, latitude_deg, longitude_deg, half_width_m)
-        source = src.read(1, window=window, masked=True) if window is not None else None
+        band, band_transform, band_crs = _recentred_band(src, latitude_deg, longitude_deg,
+                                                         half_width_m)
         dn = np.full((size, size), np.nan, dtype="float32")
-        if source is not None:
-            data = np.ma.asarray(source, dtype="float32").filled(np.nan)
-            reproject(data, dn, src_transform=src.window_transform(window), src_crs=src.crs,
-                      dst_transform=dst_transform, dst_crs=dst_crs, src_nodata=np.nan,
-                      dst_nodata=np.nan, resampling=Resampling.bilinear)
-        else:
-            reproject(rasterio.band(src, 1), dn, dst_transform=dst_transform, dst_crs=dst_crs,
-                      src_nodata=src.nodata, dst_nodata=np.nan, resampling=Resampling.bilinear)
+        reproject(band, dn, src_transform=band_transform, src_crs=band_crs,
+                  dst_transform=dst_transform, dst_crs=dst_crs, src_nodata=np.nan,
+                  dst_nodata=np.nan, resampling=Resampling.bilinear)
+        if not np.isfinite(dn).any():
+            raise ValueError("Tile resampling produced no valid pixels; refusing an empty tile")
     heights = dn * scale  # DN x SCALING_FACTOR; OFFSET (sphere radius) intentionally omitted
     profile = {"driver": "GTiff", "height": size, "width": size, "count": 1,
                "dtype": "float32", "crs": dst_crs, "transform": dst_transform,
@@ -151,6 +156,35 @@ def find_committed_tile(latitude_deg: float, longitude_deg: float, *,
         if path.is_file() and offset + max_ray_m <= tile["half_width_m"] * 0.98:
             return path
     return None
+
+
+_TILE_CACHE: list[tuple[float, float, float, MemoryFile]] = []
+_TILE_CACHE_LOCK = __import__("threading").Lock()
+TILE_CACHE_SIZE = 6
+ON_THE_FLY_MARGIN_M = 30_000.0
+
+
+def cached_site_tile(latitude_deg: float, longitude_deg: float, *, max_ray_m: float,
+                     global_dem: str | Path | None = None) -> str:
+    """Return a /vsimem tile covering every ray from the point, building if needed.
+
+    Tiles are sized to the ray length plus ``ON_THE_FLY_MARGIN_M`` so repeated
+    clicks within ~30 km reuse one tile. A small LRU owns the in-memory files.
+    """
+    source = GLOBAL_DEM if global_dem is None else Path(global_dem)
+    with _TILE_CACHE_LOCK:
+        for index, (lat, lon, half, memory) in enumerate(_TILE_CACHE):
+            offset = _angular_distance_m(latitude_deg, longitude_deg, lat, lon)
+            if offset + max_ray_m <= half * 0.98:
+                _TILE_CACHE.append(_TILE_CACHE.pop(index))  # mark most recently used
+                return memory.name
+        half_width = max_ray_m + ON_THE_FLY_MARGIN_M
+        memory = build_site_tile(latitude_deg, longitude_deg, None, global_dem=source,
+                                 half_width_m=half_width)
+        _TILE_CACHE.append((latitude_deg, longitude_deg, half_width, memory))
+        while len(_TILE_CACHE) > TILE_CACHE_SIZE:
+            _TILE_CACHE.pop(0)[3].close()
+        return memory.name
 
 
 def main(argv: list[str] | None = None) -> int:
