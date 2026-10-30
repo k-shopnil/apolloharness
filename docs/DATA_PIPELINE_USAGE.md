@@ -480,7 +480,7 @@ python -m compileall src tests
 python -m json.tool data/missions.json >/dev/null
 python -m json.tool demo_fixtures/missions.json >/dev/null
 python -m unittest discover -s tests -v
-python -m pytest -q tests  # requires pytest in the environment
+python -m pip install -r requirements-dev.txt && python -m pytest -q tests
 ```
 
 The tests use small, generated temporary geospatial fixtures for API and CRS

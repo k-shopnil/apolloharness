@@ -192,6 +192,56 @@ class HorizonEventTests(unittest.TestCase):
         json.dumps(track)  # must be serializable for the API/frontend
 
 
+class DiskAndConcurrencyTests(unittest.TestCase):
+    def test_disk_fraction_is_exact_segment_area(self) -> None:
+        from src.compute.spice_engine import disk_visible_fraction
+        self.assertEqual(disk_visible_fraction(1.0, 0.25), 1.0)
+        self.assertEqual(disk_visible_fraction(-1.0, 0.25), 0.0)
+        self.assertAlmostEqual(disk_visible_fraction(0.0, 0.25), 0.5)
+        for h in (0.05, 0.1, 0.2):
+            self.assertAlmostEqual(disk_visible_fraction(h, 0.25) + disk_visible_fraction(-h, 0.25), 1.0)
+        # Analytic: centre at half a radius above the line -> 1 - (acos(.5) - .5*sqrt(.75))/pi
+        self.assertAlmostEqual(disk_visible_fraction(0.125, 0.25),
+                               1 - (np.arccos(0.5) - 0.5 * np.sqrt(0.75)) / np.pi)
+        self.assertIsNone(disk_visible_fraction(float("nan"), 0.25))
+
+    def test_sun_and_earth_angular_radii_are_physical(self) -> None:
+        result = find_horizon_events(-84.79, 29.2, "2026-11-15T12:00:00Z", 1.0, horizon_mask=None)
+        self.assertGreater(result["sun"]["angular_radius_deg"], 0.26)   # aphelion ~0.262
+        self.assertLess(result["sun"]["angular_radius_deg"], 0.275)     # perihelion ~0.271
+        self.assertGreater(result["earth"]["angular_radius_deg"], 0.85)
+        self.assertLess(result["earth"]["angular_radius_deg"], 1.0)
+        track = calculate_geometry_track(-84.79, 29.2, "2026-11-15T12:00:00Z", 1.0)
+        for key in ("sun_disk_visible_fraction", "earth_disk_visible_fraction"):
+            self.assertEqual(len(track["columns"][key]), track["samples"])
+        self.assertIn("mean_sun_disk_visible_fraction", track)
+
+    def test_concurrent_calls_and_hostile_unloads_are_safe(self) -> None:
+        import threading
+        expected = calculate_geometry(-84.79, 29.2, "2026-11-15T12:00:00Z")
+        errors: list[str] = []
+        results: list[object] = []
+
+        def worker(index: int) -> None:
+            try:
+                if index % 3 == 0:
+                    unload_kernels()  # another request tearing down mid-flight
+                for _ in range(20):
+                    results.append(calculate_geometry(-84.79, 29.2, "2026-11-15T12:00:00Z"))
+            except Exception as exc:  # noqa: BLE001 - the test records any failure
+                errors.append(repr(exc))
+
+        threads = [threading.Thread(target=worker, args=(i,)) for i in range(8)]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        unload_kernels()
+        self.assertEqual(errors, [])
+        self.assertEqual(len(results), 160)
+        self.assertTrue(all(r == expected for r in results))
+
+
 class SiteEvaluationTests(unittest.TestCase):
     def test_psr_inside_polygon_reports_zero_distance(self) -> None:
         import geopandas as gpd

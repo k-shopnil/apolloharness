@@ -45,10 +45,12 @@ products and SPICE kernels; no network is needed at runtime.
 3. **`coordinate_type` is binding.** Only `actual_landing` is a landing fix.
    All five anchors and IM-1 are now `actual_landing`, from LROC orbital images.
    `*_reference` values are regions or targets.
-4. **Visibility rule.** A body is up when its **centre** elevation is above
-   the terrain horizon at its azimuth. The Sun is modelled as a point; its disk
-   radius of ~0.27° is not included, so a limb can be visible up to a few hours
-   before the reported "sunrise" at grazing polar angles. Earth LOS is
+4. **Visibility rule.** `is_lit` / `direct_los`, the events and the countdowns
+   use the body's **centre** against the terrain horizon at its azimuth.
+   `disk_visible_fraction` (0–1) adds the finite disc, using the exact
+   circular-segment area for the Sun (radius ~0.27°) and Earth (~0.9°). Use
+   it for grazing cases such as "Sun 62% visible", and as a solar-power
+   proxy. The horizon is treated as straight across the disc. Earth LOS is
    geometric only: it does not model link budget or DSN scheduling.
 5. **Countdowns never extrapolate.** If the next event is beyond the window,
    the status is `no_sunset_within_window` (or the matching earth status) and
@@ -72,9 +74,14 @@ def _spice_down() -> None:
     unload_kernels()
 ```
 
-> SPICE (CSPICE) is not thread-safe. Run these calls in one worker thread,
-> or guard them with a `threading.Lock`. Do not run them concurrently in
-> FastAPI's default threadpool.
+> CSPICE is not thread-safe. Without serialization, 6 concurrent requests
+> all failed with `SpiceINVALIDDIVISOR`. The pipeline now serializes every
+> public SPICE entry point with `spice_engine.SPICE_LOCK` (re-entrant), and
+> each call re-loads kernels inside the lock. Plain FastAPI `def` endpoints
+> in the default thread pool are therefore safe, and no lock is needed in
+> backend code. A concurrency test (8 threads, with hostile
+> `unload_kernels()` calls) guards this. SPICE work runs one call at a time,
+> so scale with processes (workers), not threads.
 
 ### `GET /api/v1/sites/custom?lat=&lon=&utc=`
 
@@ -83,12 +90,11 @@ def _spice_down() -> None:
 def custom_site(lat: float = Query(ge=-90, le=90), lon: float = Query(ge=-180, le=180),
                 utc: str | None = None, include_psr: bool = False, include_track: bool = False):
     utc = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
-    with SPICE_LOCK:
-        try:
-            return evaluate_custom_site(lat, lon, utc, include_psr=include_psr,
-                                        include_track=include_track)
-        except ValueError as exc:      # bad UTC / coordinates
-            raise HTTPException(422, str(exc))
+    try:
+        return evaluate_custom_site(lat, lon, utc, include_psr=include_psr,
+                                    include_track=include_track)
+    except ValueError as exc:      # bad UTC / coordinates
+        raise HTTPException(422, str(exc))
 ```
 
 The response shape is shown below. Field names inside `sun` and `earth` are a
@@ -119,9 +125,11 @@ superset of the Issue #8 `/sites/geometry` schema.
 ```
 
 (Real output; arrays trimmed.) In this case the Sun clears the LOLA skyline by
-only 0.05°, which is less than the solar radius. This is the knife-edge case
-the launch-slip view exists for, and Scientific Mode should show the margin
-`elevation_deg - terrain_horizon_deg`.
+only 0.05°, which is less than the solar radius, so `sun.disk_visible_fraction`
+is 0.615: only 62% of the disc is up. This is the knife-edge case the
+launch-slip view exists for. Scientific Mode should show the margin
+`elevation_deg - terrain_horizon_deg` and the disc fraction. Both `sun` and
+`earth` also carry `angular_radius_deg` and `disk_visible_fraction`.
 
 Latency: about 0.35 s per call. `include_psr=true` adds about 1.2 s because
 it reads the vector dataset, so request it after the click (lazy load), not
@@ -211,12 +219,17 @@ type Track = {
   start_utc: string; step_minutes: number; samples: number;
   horizon_model: "lola_terrain_mask" | "spherical_horizon";
   sunlit_percent: number | null; earth_los_percent: number | null;
+  mean_sun_disk_visible_fraction: number | null;   // solar-power proxy over the window
+  sun_partially_blocked_percent: number | null;    // % of samples with a cut disc
+  earth_partially_blocked_percent: number | null;  // IM-2: 12.7%; elsewhere ~0
   columns: {
     utc: string[]; hours_from_start: number[];
     sun_elevation_deg: number[]; sun_azimuth_deg: number[];
     sun_terrain_horizon_deg: (number | null)[]; sun_lit: (boolean | null)[];
+    sun_disk_visible_fraction: (number | null)[];   // 0..1 of the solar disc
     earth_elevation_deg: number[]; earth_azimuth_deg: number[];
     earth_terrain_horizon_deg: (number | null)[]; earth_los: (boolean | null)[];
+    earth_disk_visible_fraction: (number | null)[]; // 0..1 of Earth's disc
     earth_range_km: number[]; round_trip_light_time_s: number[];
     sun_unit_moon_pa: [number, number, number][];   // observer→Sun, MOON_PA
     earth_unit_moon_pa: [number, number, number][]; // observer→Earth, MOON_PA
@@ -246,6 +259,8 @@ Take these from `evaluate_custom_site` or `countdowns_at_start`:
 | "Sunrise in …" | `sun.time_to_sunrise_formatted` when `sun.is_lit === false` |
 | "Direct Earth contact: ACTIVE" | `earth.direct_los` |
 | "Round-trip ping: 2.69 s" | `earth.round_trip_light_time_s` |
+| "Solar power: PARTIAL (62% of the Sun visible)" | `sun.disk_visible_fraction` between 0 and 1 |
+| "Radio link: MARGINAL (Earth partly behind terrain)" | `earth.disk_visible_fraction` between 0 and 1 |
 | "> 29.5 days" | when `countdown_status` starts with `no_` |
 
 While scrubbing, recompute the countdown from the track: find the next index
@@ -480,6 +495,7 @@ python -m src.acquire.nasa_products lola_gdr_global_64ppd   # 531 MB global DEM,
 python -m src.compute.global_terrain                  # rebuild committed site tiles
 python -m src.compute.precompute_tracks               # 29.5-day tracks, ~3 s total
 python -m src.compute.precompute_tracks --days 14 --step-minutes 30
+python -m pip install -r requirements-dev.txt         # runtime deps + pytest
 python -m pytest -q tests                             # or: python -m unittest discover -s tests
 ```
 

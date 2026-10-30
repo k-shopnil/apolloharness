@@ -4,7 +4,7 @@ from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta, timezone
 import math
 from typing import Any
-from .spice_engine import calculate_geometry, load_kernels, unload_kernels
+from .spice_engine import SPICE_LOCK, calculate_geometry, load_kernels, unload_kernels
 from .terrain import HorizonMask
 
 @dataclass(frozen=True)
@@ -27,6 +27,16 @@ def calculate_tactical_illumination(latitude_deg: float, longitude_deg: float,
         raise ValueError("mission_start_utc must include a UTC offset")
     start = start.astimezone(timezone.utc)
     count = int(round(duration_days * 24))
+    # Hold the SPICE lock across load -> compute -> unload so the unload cannot
+    # interleave with another thread's geometry calls.
+    with SPICE_LOCK:
+        records = _hourly_records(latitude_deg, longitude_deg, start, count,
+                                  horizon_mask, manage_kernels)
+    return _summarize(records, start, count)
+
+
+def _hourly_records(latitude_deg: float, longitude_deg: float, start: datetime, count: int,
+                    horizon_mask: HorizonMask, manage_kernels: bool) -> list[HourlyIllumination]:
     if manage_kernels:
         load_kernels()
     try:
@@ -41,6 +51,10 @@ def calculate_tactical_illumination(latitude_deg: float, longitude_deg: float,
     finally:
         if manage_kernels:
             unload_kernels()
+    return records
+
+
+def _summarize(records: list[HourlyIllumination], start: datetime, count: int) -> dict[str, Any]:
     lit = [r.illuminated for r in records]
     unknown = any(value is None for value in lit)
     intervals = []

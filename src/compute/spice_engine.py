@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from functools import lru_cache
+import threading
+from functools import lru_cache, wraps
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Protocol
+from typing import Callable, Protocol, TypeVar
 
 import numpy as np
 import spiceypy as spice
@@ -21,6 +22,30 @@ KERNELS = [
     SPICE_DIR / "de430.bsp",
 ]
 _ENGINE_KERNELS_LOADED: set[Path] = set()
+
+# CSPICE keeps global state and is not thread-safe: concurrent calls from a
+# web server's thread pool fail (e.g. SpiceINVALIDDIVISOR) or corrupt results.
+# Every public entry point holds this re-entrant lock; callers composing
+# several calls atomically may also hold it (``with SPICE_LOCK: ...``).
+SPICE_LOCK = threading.RLock()
+_F = TypeVar("_F", bound=Callable[..., object])
+
+
+def spice_serialized(*, ensure_kernels: bool) -> Callable[[_F], _F]:
+    """Run under ``SPICE_LOCK``; compute entry points also (re)load kernels.
+
+    Re-loading inside the lock means one caller's ``unload_kernels()`` can
+    never pull kernels out from under another caller's computation.
+    """
+    def decorate(function: _F) -> _F:
+        @wraps(function)
+        def wrapper(*args: object, **kwargs: object) -> object:
+            with SPICE_LOCK:
+                if ensure_kernels:
+                    load_kernels()
+                return function(*args, **kwargs)
+        return wrapper  # type: ignore[return-value]
+    return decorate
 
 
 @dataclass
@@ -61,6 +86,7 @@ class CommunicationsSummary:
         }
 
 
+@spice_serialized(ensure_kernels=False)
 def load_kernels() -> None:
     """Load required kernels once, preserving kernels loaded by other callers."""
     loaded = {
@@ -77,6 +103,7 @@ def load_kernels() -> None:
             _ENGINE_KERNELS_LOADED.add(kernel.resolve())
 
 
+@spice_serialized(ensure_kernels=False)
 def unload_kernels() -> None:
     """Unload only this engine's kernels, leaving unrelated SPICE state intact."""
     for resolved in tuple(_ENGINE_KERNELS_LOADED):
@@ -207,6 +234,7 @@ def _elevation_azimuth(
     return elevation_deg, azimuth_deg
 
 
+@spice_serialized(ensure_kernels=True)
 def calculate_geometry(
     latitude_deg: float,
     longitude_deg: float,
@@ -257,6 +285,7 @@ class _TopocentricState:
     sun_unit_moon_pa: np.ndarray
     earth_unit_moon_pa: np.ndarray
     earth_range_km: float
+    sun_range_km: float
 
 
 def _topocentric_state(latitude_deg: float, longitude_deg: float, et: float) -> _TopocentricState:
@@ -272,12 +301,14 @@ def _topocentric_state(latitude_deg: float, longitude_deg: float, et: float) -> 
     earth_elevation, earth_azimuth = _elevation_azimuth(earth_vector, east, north, up)
     sun_elevation, sun_azimuth = _elevation_azimuth(sun_vector, east, north, up)
     earth_range = float(np.linalg.norm(earth_vector))
+    sun_range = float(np.linalg.norm(sun_vector))
     return _TopocentricState(
         sun_elevation, sun_azimuth, earth_elevation, earth_azimuth,
-        sun_vector / np.linalg.norm(sun_vector), earth_vector / earth_range, earth_range,
+        sun_vector / sun_range, earth_vector / earth_range, earth_range, sun_range,
     )
 
 
+@spice_serialized(ensure_kernels=True)
 def calculate_current_geometry(
     latitude_deg: float,
     longitude_deg: float,
@@ -292,6 +323,7 @@ def calculate_current_geometry(
     return calculate_geometry(latitude_deg, longitude_deg, now_utc)
 
 
+@spice_serialized(ensure_kernels=True)
 def calculate_hourly_geometry(
     latitude_deg: float,
     longitude_deg: float,
@@ -425,6 +457,8 @@ def summarize_communications(
 # --- Temporal dynamics: horizon events, countdowns and scrubber tracks -------
 
 SPEED_OF_LIGHT_KM_S = 299_792.458
+SUN_RADIUS_KM = 695_700.0      # IAU 2015 nominal solar radius
+EARTH_RADIUS_KM = 6_371.0      # mean radius; the visible limb, not the antenna
 SYNODIC_MONTH_DAYS = 29.530589
 BODIES = ("sun", "earth")
 
@@ -456,6 +490,23 @@ def format_countdown(hours: float | None) -> str | None:
     return f"{days}d {hrs}h" if days else f"{hrs}h {mins}m"
 
 
+def angular_radius_deg(body_radius_km: float, range_km: float) -> float:
+    return float(np.degrees(np.arcsin(min(body_radius_km / range_km, 1.0))))
+
+
+def disk_visible_fraction(margin_deg: float, radius_deg: float) -> float | None:
+    """Fraction of a body's disc area above a locally straight horizon.
+
+    ``margin_deg`` is centre elevation minus horizon elevation. Uses the exact
+    circular-segment area; the horizon is treated as a straight line across
+    the disc (the mask is sampled at the centre azimuth only).
+    """
+    if not np.isfinite(margin_deg):
+        return None
+    h = float(np.clip(margin_deg / radius_deg, -1.0, 1.0))
+    return float(1.0 - (np.arccos(h) - h * np.sqrt(1.0 - h * h)) / np.pi)
+
+
 def _horizon_at(mask: _HorizonLike | None, azimuth_deg: float) -> float:
     return 0.0 if mask is None else float(mask.elevation_at(azimuth_deg))
 
@@ -474,6 +525,7 @@ def _et_to_utc(et: float) -> str:
     return spice.et2utc(et, "ISOC", 0) + "Z"
 
 
+@spice_serialized(ensure_kernels=True)
 def find_horizon_events(
     latitude_deg: float,
     longitude_deg: float,
@@ -558,7 +610,7 @@ def find_horizon_events(
         return None, f"no_{body}{kind}_within_window"
 
     def body_block(body: str, elevation: float, azimuth: float, up_key: str,
-                   down_word: str, up_word: str) -> dict[str, object]:
+                   down_word: str, up_word: str, radius_deg: float) -> dict[str, object]:
         margin = margins[body][0]
         is_up = bool(margin > 0) if np.isfinite(margin) else None
         set_hours, set_status = countdown(body, "set")
@@ -576,10 +628,13 @@ def find_horizon_events(
                                  else set_status if is_up else rise_status),
             "fraction_of_window_up": (float(np.mean(margins[body] > 0))
                                       if np.isfinite(margins[body]).all() else None),
+            "angular_radius_deg": radius_deg,
+            "disk_visible_fraction": disk_visible_fraction(margin, radius_deg),
         }
 
     earth = body_block("earth", state0.earth_elevation_deg, state0.earth_azimuth_deg,
-                       "direct_los", "earthset", "earthrise")
+                       "direct_los", "earthset", "earthrise",
+                       angular_radius_deg(EARTH_RADIUS_KM, state0.earth_range_km))
     earth["range_km"] = state0.earth_range_km
     earth["round_trip_light_time_s"] = 2.0 * state0.earth_range_km / SPEED_OF_LIGHT_KM_S
     return {
@@ -590,15 +645,18 @@ def find_horizon_events(
         "window_hours": window_hours,
         "horizon_model": "spherical_horizon" if horizon_mask is None else "lola_terrain_mask",
         "visibility_rule": "body centre elevation > horizon elevation at body azimuth",
+        "disk_rule": "disk_visible_fraction: exact disc-segment area above a locally straight horizon",
         "scan_step_minutes": step_minutes,
         "tolerance_seconds": tolerance_seconds,
         "sun": body_block("sun", state0.sun_elevation_deg, state0.sun_azimuth_deg,
-                          "is_lit", "sunset", "sunrise"),
+                          "is_lit", "sunset", "sunrise",
+                          angular_radius_deg(SUN_RADIUS_KM, state0.sun_range_km)),
         "earth": earth,
         "events": [event.to_dict() for event in events],
     }
 
 
+@spice_serialized(ensure_kernels=True)
 def calculate_geometry_track(
     latitude_deg: float,
     longitude_deg: float,
@@ -626,8 +684,9 @@ def calculate_geometry_track(
     count = int(np.floor(duration_days * 1440.0 / step_minutes)) + 1
     columns: dict[str, list] = {key: [] for key in (
         "utc", "hours_from_start", "sun_elevation_deg", "sun_azimuth_deg",
-        "sun_terrain_horizon_deg", "sun_lit", "earth_elevation_deg", "earth_azimuth_deg",
-        "earth_terrain_horizon_deg", "earth_los", "earth_range_km",
+        "sun_terrain_horizon_deg", "sun_lit", "sun_disk_visible_fraction",
+        "earth_elevation_deg", "earth_azimuth_deg", "earth_terrain_horizon_deg", "earth_los",
+        "earth_disk_visible_fraction", "earth_range_km",
         "round_trip_light_time_s", "sun_unit_moon_pa", "earth_unit_moon_pa")}
 
     def r(value: float) -> float | None:
@@ -644,10 +703,16 @@ def calculate_geometry_track(
         columns["sun_azimuth_deg"].append(r(state.sun_azimuth_deg))
         columns["sun_terrain_horizon_deg"].append(r(sun_h))
         columns["sun_lit"].append(bool(state.sun_elevation_deg > sun_h) if np.isfinite(sun_h) else None)
+        sun_fraction = disk_visible_fraction(
+            state.sun_elevation_deg - sun_h, angular_radius_deg(SUN_RADIUS_KM, state.sun_range_km))
+        columns["sun_disk_visible_fraction"].append(None if sun_fraction is None else r(sun_fraction))
         columns["earth_elevation_deg"].append(r(state.earth_elevation_deg))
         columns["earth_azimuth_deg"].append(r(state.earth_azimuth_deg))
         columns["earth_terrain_horizon_deg"].append(r(earth_h))
         columns["earth_los"].append(bool(state.earth_elevation_deg > earth_h) if np.isfinite(earth_h) else None)
+        earth_fraction = disk_visible_fraction(
+            state.earth_elevation_deg - earth_h, angular_radius_deg(EARTH_RADIUS_KM, state.earth_range_km))
+        columns["earth_disk_visible_fraction"].append(None if earth_fraction is None else r(earth_fraction))
         columns["earth_range_km"].append(round(state.earth_range_km, 1))
         columns["round_trip_light_time_s"].append(
             round(2.0 * state.earth_range_km / SPEED_OF_LIGHT_KM_S, 4))
@@ -656,6 +721,14 @@ def calculate_geometry_track(
 
     def percent(flags: list[bool | None]) -> float | None:
         return None if any(f is None for f in flags) else round(100.0 * sum(flags) / len(flags), 2)
+
+    def mean(values: list[float | None]) -> float | None:
+        return None if any(v is None for v in values) else round(float(np.mean(values)), 4)
+
+    def partial_percent(values: list[float | None]) -> float | None:
+        if any(v is None for v in values):
+            return None
+        return round(100.0 * sum(0.0 < v < 1.0 for v in values) / len(values), 2)
 
     return {
         "schema": "apolloharness.geometry_track.v1",
@@ -669,6 +742,9 @@ def calculate_geometry_track(
         "horizon_model": "spherical_horizon" if horizon_mask is None else "lola_terrain_mask",
         "sunlit_percent": percent(columns["sun_lit"]),
         "earth_los_percent": percent(columns["earth_los"]),
+        "mean_sun_disk_visible_fraction": mean(columns["sun_disk_visible_fraction"]),
+        "sun_partially_blocked_percent": partial_percent(columns["sun_disk_visible_fraction"]),
+        "earth_partially_blocked_percent": partial_percent(columns["earth_disk_visible_fraction"]),
         "columns": columns,
     }
 

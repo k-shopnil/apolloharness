@@ -151,6 +151,7 @@ observer coordinate convention, DEM sampling parameters, and mission start and
 duration with each result.
 
 Install pinned dependencies with `python -m pip install -r requirements.txt`.
+For tests, install `requirements-dev.txt` (adds pytest) and run `python -m pytest -q tests`.
 Run an offline geometry example from the repository root with:
 
 ```sh
