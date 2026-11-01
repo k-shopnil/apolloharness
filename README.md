@@ -187,6 +187,65 @@ telemetry.
 
 ---
 
+## Phase 2 Active Integration Sprint (Issue #8)
+
+> [!IMPORTANT]
+> **STALENESS & LIFECYCLE MARKER:**
+> * **Anchor Merge Commit:** [`7cb8a02`](https://github.com/k-shopnil/apolloharness/commit/7cb8a02) (*Merge pull request #9: Issue #8 data pipeline*)
+> * **Milestone Baseline:** Issue #8 Challenge-Alignment Foundation (NASA-Validated Engine & Grounded Fleet)
+> * **Last Updated:** `2026-11-02`
+> * **Sprint Status:** 🟡 **ACTIVE INTEGRATION (Awaiting Backend & Frontend PRs)**
+> 
+> *Notice for team members: If `git log -n 1 --oneline` shows a commit newer than `7cb8a02` on `main` (such as a merged backend or frontend PR), the checklist and instructions below may be **PARTIALLY OR FULLY STALE**. Check recent PRs before executing pending tasks.*
+
+### What Has Been Accomplished & Merged (at `7cb8a02`)
+
+* **Horizon Event Root-Finder & Operational Countdowns:** `src/compute/spice_engine.py` calculates Sun and Earth rise/set to within 1 s against the 360° LOLA skyline (`find_horizon_events`), producing dynamic hours and `"4d 18h"` countdowns. Added finite disc visible fractions (`disk_visible_fraction`) and CSPICE thread-safety locks.
+* **Multi-Day Precomputations:** 29.5-day precomputed hourly tracks generated for 9 missions in `data/precomputed/tracks/` to power the 60 FPS scrubber without runtime backend latency.
+* **Arbitrary Coordinates & Global Lunar Terrain:** Bilinear interpolation on polar DEM (`LDEM_80S_80MPP_ADJ.TIF`) with automatic fallback to global LOLA `LDEM_64`. Pre-cut per-site tiles committed via Git LFS. Custom coordinates evaluate in 0.12–0.30 s warm; regional screening runs at ~13 ms/point. PSR proximity inside cold traps fixed (`nearest_psr_within`).
+* **Manifest Grounding (Zero Invented Data):** Fictional mock missions (`ls-1`, `PRIME-2`) purged. Added 5 primary-source reference anchors (Apollo 11, Apollo 17, Chandrayaan-3, Chang'e 4, SLIM) and 11 verified CLPS missions with payload summaries in `data/missions.json`. Draper CP-12 marked `terminated`.
+* **NASA PGDA Product 69 Validation:** Spatial dev/test validation achieved held-out test $R^2 = 0.951$, MAE = 1.45 pp, resolving the Shackleton crater illumination discrepancy ([docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md)).
+* **Regression Suite:** 78 passing unit and physics tests in `tests/`.
+
+---
+
+### Team Execution Guide (How to Carry From Here)
+
+#### 1. Baseline Synchronization (All Teams)
+Before writing or running code, fetch the merged LFS assets and engine modules:
+```sh
+git checkout <your-branch>
+git pull origin main
+git lfs pull
+```
+*(Crucial: Terrain GeoTIFF tiles, PSR vectors, and SPICE kernels are Git LFS objects).*
+
+#### 2. Backend Team (`feature/backend-systems`) — `@ariful305`, `@Eetherr77`
+* [ ] **Wire Custom Coordinate Route:** Add `GET /api/v1/sites/custom?lat=...&lon=...&utc=...` calling `src.compute.site_evaluation.evaluate_custom_site`.
+* [ ] **Wire Launch-Slip Route:** Add `GET /api/v1/sites/compare-dates?site_id=...&date_a=...&date_b=...` calling `src.compute.site_evaluation.compare_launch_dates`.
+* [ ] **Expand Geometry Schema:** Update `/api/v1/sites/geometry` to return the new operational countdown fields (`time_to_sunset_hours`, `time_to_sunset_formatted`, etc.).
+* [ ] **Ingest Nested Mission Models:** Adapt backend `Mission` schema to ingest the nested structure in `data/missions.json` (see [docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md#backend-endpoint-wiring)).
+* [ ] **Regression & PR:** Verify `pytest tests/` passes, push to `feature/backend-systems`, and open a PR targeting `main`. In your PR description, tag `@ASMFahim71` with the finalized response payloads.
+
+#### 3. Frontend Team (`feature/frontend-systems`) — `@ASMFahim71`
+* [ ] **Manifest Alignment:** Update `src/data/missions.ts` to match `data/missions.json` (remove `ls-1`/`PRIME-2`, adopt the 5 anchor missions, hide terminated Draper CP-12).
+* [ ] **Dual-Mode Header:** Add the Simple Mode vs Scientific Mode switcher in `src/components/Header.tsx`.
+* [ ] **Survival Countdown HUD:** Build large countdown indicators ("4d 18h Sunlight Remaining", "Earth Link: Active") in Simple Mode.
+* [ ] **29.5-Day Scrubber:** Feed `data/precomputed/tracks/` into `TimelineScrubber.tsx` for 60 FPS orbital playback.
+* [ ] **Cesium Click-to-Pin:** In `MoonGlobe.tsx`, add left-click raycasting to grab lat/lon and query `/api/v1/sites/custom`.
+* [ ] **Date A vs Date B View:** Add the launch rescheduling comparison tab in `src/components/CompareView.tsx`.
+* [ ] **PR:** Once Backend PR merges into `main`, pull `main`, verify end-to-end, and open Frontend PR.
+
+#### 4. Scientific Review (`feature/research`) — `@Thirtha17`
+* [ ] **JPL Horizons Ephemeris Spot-Check:** Cross-check SPICE Sun and Earth elevations for Apollo 11, Chandrayaan-3, and IM-2 against NASA JPL Horizons (target Δ < 0.1°).
+* [ ] **Documentation Sign-off:** Complete review in `docs/SCIENTIFIC_VALIDATION_REPORT.md`.
+
+#### 5. Deployment / CI Notice
+* Automatic CD deployment to live Firebase Hosting is temporarily halted (`workflow 379013184` disabled manually) until the backend and frontend PRs are integrated and full builds pass cleanly.
+
+
+---
+
 ## Team & Contacts
 
 **HarnessApollo** is engineered and maintained by **Team Chhayanautical**.
