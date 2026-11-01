@@ -194,7 +194,7 @@ telemetry.
 > * **Anchor Merge Commit:** [`7cb8a02`](https://github.com/k-shopnil/apolloharness/commit/7cb8a02) (*Merge pull request #9: Issue #8 data pipeline*)
 > * **Milestone Baseline:** Issue #8 Challenge-Alignment Foundation (NASA-Validated Engine & Grounded Fleet)
 > * **Last Updated:** `2026-11-02`
-> * **Sprint Status:** 🟡 **ACTIVE INTEGRATION (Awaiting Backend & Frontend PRs)**
+> * **Sprint Status:** **ACTIVE INTEGRATION (Awaiting Backend & Frontend PRs)**
 > 
 > *Notice for team members: If `git log -n 1 --oneline` shows a commit newer than `7cb8a02` on `main` (such as a merged backend or frontend PR), the checklist and instructions below may be **PARTIALLY OR FULLY STALE**. Check recent PRs before executing pending tasks.*
 
