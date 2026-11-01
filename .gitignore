@@ -3,5 +3,44 @@ dist
 build
 out
 .env
-.env.local
+.env.*
+!.env.example
 *.log
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime/cache data
+cache/
+*.cache
+
+# Downloaded external datasets
+*.vrt
+*.hdf
+*.h5
+*.nc
+
+# Generated scientific outputs
+outputs/
+results/
+reports/generated/
+artifacts/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Local AI/agent artifacts
+.claude/
+.cursor/
+.copilot/
+.codex/
+.agent/
+.agents/
+.ai/

@@ -1,0 +1,5 @@
+data/spice/*.bsp filter=lfs diff=lfs merge=lfs -text
+data/spice/*.bpc filter=lfs diff=lfs merge=lfs -text
+data/lola/** filter=lfs diff=lfs merge=lfs -text
+data/illumination/** filter=lfs diff=lfs merge=lfs -text
+data/psr/** filter=lfs diff=lfs merge=lfs -text
