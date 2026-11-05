@@ -1,0 +1,1045 @@
+[
+ {
+  "id": "clps-to2-ab-peregrine-1",
+  "name": "Peregrine Mission 1",
+  "category": "clps",
+  "provider": "Astrobotic",
+  "lander": "Peregrine",
+  "status": "failed_to_land",
+  "target_site": "Sinus Viscositatis",
+  "lat": 35.07,
+  "lon": -41.76,
+  "coordinate_type": "target_landing_ellipse_center",
+  "target_feature": null,
+  "start_date": "2024-02-23",
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": 2.0,
+   "minor_axis_km": null
+  },
+  "payload_summary": "PITMS, NIRVSS, NSS, LETS, LRA",
+  "payload_instruments": [
+   {
+    "name": "PITMS",
+    "type": "mass_spectrometer, volatile_analysis"
+   },
+   {
+    "name": "NIRVSS",
+    "type": "spectrometer, surface_composition"
+   },
+   {
+    "name": "NSS",
+    "type": "neutron_spectrometer, volatile_detection"
+   },
+   {
+    "name": "LETS",
+    "type": "radiation_measurement"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging, precision_landing_navigation"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "TO2-AB Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to2-astrobotic/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-to2-im-im1",
+  "name": "IM-1 Odysseus",
+  "category": "clps",
+  "provider": "Intuitive Machines",
+  "lander": "Nova-C",
+  "status": "completed",
+  "target_site": "Malapert A",
+  "lat": -80.13,
+  "lon": 1.44,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "2024-02-22",
+  "touchdown_utc": "2024-02-22T23:23:53Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LN-1, NDL, ROLSES, SCALPSS, RFMG, LRA",
+  "payload_instruments": [
+   {
+    "name": "LN-1",
+    "type": "lunar_navigation, communications"
+   },
+   {
+    "name": "NDL",
+    "type": "navigation_doppler_lidar, landing_navigation"
+   },
+   {
+    "name": "ROLSES",
+    "type": "radio_science, lunar_environment"
+   },
+   {
+    "name": "SCALPSS",
+    "type": "landing_imaging, surface_dynamics"
+   },
+   {
+    "name": "RFMG",
+    "type": "magnetometry, geophysics"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging, precision_landing_navigation"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "TO2-IM Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to2-im/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "LROC / Arizona State University",
+    "title": "Intuitive Machines IM-1 On The Moon!",
+    "url": "https://www.lroc.asu.edu/images/1360",
+    "supports": [
+     "touchdown time 23:23:53 UTC",
+     "rest position 80.13S, 1.44E",
+     "elevation 2579 m"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-to19d-blue-ghost-1",
+  "name": "Blue Ghost Mission 1",
+  "category": "clps",
+  "provider": "Firefly Aerospace",
+  "lander": "Blue Ghost",
+  "status": "completed",
+  "target_site": "Mare Crisium",
+  "lat": 18.56,
+  "lon": 61.81,
+  "coordinate_type": "landing_region_center",
+  "target_feature": null,
+  "start_date": "2025-03-02",
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LEXI, NGLR, RadPC, RAC, LPV, LISTER, SCALPSS_1.1, EDS, LuGRE",
+  "payload_instruments": [
+   {
+    "name": "LEXI",
+    "type": "x_ray_imaging, space_weather"
+   },
+   {
+    "name": "NGLR",
+    "type": "laser_ranging, geodesy"
+   },
+   {
+    "name": "RadPC",
+    "type": "radiation_measurement, computer_hardware"
+   },
+   {
+    "name": "RAC",
+    "type": "regolith_characterization, subsurface_sampling"
+   },
+   {
+    "name": "LPV",
+    "type": "lunar_surface_physics"
+   },
+   {
+    "name": "LISTER",
+    "type": "thermal_measurement, heat_flow"
+   },
+   {
+    "name": "SCALPSS_1.1",
+    "type": "landing_imaging, surface_dynamics"
+   },
+   {
+    "name": "EDS",
+    "type": "electrodynamic_dust, lunar_environment"
+   },
+   {
+    "name": "LuGRE",
+    "type": "GNSS_navigation, lunar_navigation"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "TO19D Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/to19d-firefly/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-prime-1-im2",
+  "name": "IM-2 Athena",
+  "category": "clps",
+  "provider": "Intuitive Machines",
+  "lander": "Nova-C",
+  "status": "completed_limited_operations",
+  "target_site": "Mons Mouton",
+  "lat": -84.79,
+  "lon": 29.2,
+  "coordinate_type": "reported_landing_rounded",
+  "target_feature": null,
+  "start_date": "2025-03-06",
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "TRIDENT, MSOLO, LRA",
+  "payload_instruments": [
+   {
+    "name": "TRIDENT",
+    "type": "drill, volatile_sampling, water_ice"
+   },
+   {
+    "name": "MSOLO",
+    "type": "lunar_surface_operations, resource_prospecting"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging, precision_navigation"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "PRIME-1 Science",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/prime-1-im/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA PDS",
+    "title": "CLPS Task Order PRIME-1 Athena landing context",
+    "url": "https://pds.nasa.gov/ds-view/pds/viewContext.jsp?identifier=urn%3Anasa%3Apds%3Acontext%3Ainstrument_host%3Aspacecraft.clps_to_prime1_athena&version=1.0",
+    "supports": [
+     "launch date",
+     "landing date",
+     "reported rounded landing coordinates",
+     "payloads"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-to20a-griffin-1",
+  "name": "Griffin Mission One (Moon Base cargo delivery)",
+  "category": "clps",
+  "provider": "Voyager Technologies (Astrobotic)",
+  "lander": "Griffin",
+  "status": "planned_no_viper",
+  "target_site": "Nobile Crater",
+  "lat": null,
+  "lon": null,
+  "coordinate_type": "target_region_reference",
+  "target_feature": {
+   "name": "Nobile crater",
+   "latitude_deg": -85.28,
+   "longitude_deg": 53.27,
+   "diameter_km": 79.27,
+   "use": "map context only; a crater centre is not a landing site and Nobile's floor is largely shadowed",
+   "source": "https://planetarynames.wr.usgs.gov/Feature/4321"
+  },
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LDES, Lunar LiDAR Demonstration, LRA (two arrays), METAL",
+  "payload_instruments": [
+   {
+    "name": "LDES",
+    "type": "lunar_dust_measurement, surface_environment"
+   },
+   {
+    "name": "Lunar LiDAR Demonstration",
+    "type": "lidar, terrain_mapping, navigation_technology"
+   },
+   {
+    "name": "LRA (two arrays)",
+    "type": "laser_ranging, precision_navigation"
+   },
+   {
+    "name": "METAL",
+    "type": "lunar_resource_mapping, titanium, helium_3"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "Moon Base: Voyager Griffin-1",
+    "url": "https://www.nasa.gov/event/clps-flight-astrobotics-griffin-mission-one/",
+    "supports": [
+     "Griffin-1 late 2026 target",
+     "Nobile Crater destination"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "Moon Base Phases: Voyager Technologies Griffin-1",
+    "url": "https://www.nasa.gov/moonbase-phases/",
+    "supports": [
+     "current Griffin-1 NASA payloads LDES, Lunar LiDAR Demonstration, two LRAs, and METAL"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "VIPER delivery reassigned to Blue Origin CS-7 (NASA release 25-064)",
+    "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+    "supports": [
+     "VIPER reassigned away from Griffin / TO20A"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "USGS / IAU",
+    "title": "Gazetteer of Planetary Nomenclature: Nobile",
+    "url": "https://planetarynames.wr.usgs.gov/Feature/4321",
+    "supports": [
+     "crater centre -85.28, 53.27",
+     "diameter 79.27 km"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-cp11-im3",
+  "name": "IM-3",
+  "category": "clps",
+  "provider": "Intuitive Machines",
+  "lander": "Nova-C",
+  "status": "planned",
+  "target_site": "Reiner Gamma",
+  "lat": 7.5,
+  "lon": -59.0,
+  "coordinate_type": "target_region_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "Lunar Vertex, CADRE, MoonLIGHT, LUSEM",
+  "payload_instruments": [
+   {
+    "name": "Lunar Vertex",
+    "type": "magnetometry, lunar_geophysics"
+   },
+   {
+    "name": "CADRE",
+    "type": "rover, distributed_robotics, lunar_surface_mapping"
+   },
+   {
+    "name": "MoonLIGHT",
+    "type": "laser_ranging, lunar_navigation"
+   },
+   {
+    "name": "LUSEM",
+    "type": "particle_detection, space_weather"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "CP-11 Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-11/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "CP-11 Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-11/",
+    "supports": [
+     "2026 target year",
+     "Reiner Gamma destination"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-cp12-draper",
+  "name": "Draper CP-12",
+  "category": "clps",
+  "provider": "Draper",
+  "lander": "ispace-U.S. APEX 1.0",
+  "status": "terminated",
+  "target_site": "Schr\u00f6dinger Basin",
+  "lat": -75.0,
+  "lon": 132.0,
+  "coordinate_type": "basin_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "FSS, LITMS-LISTER, LITMS-LTC",
+  "payload_instruments": [
+   {
+    "name": "FSS",
+    "type": "lunar_surface_science, geophysics"
+   },
+   {
+    "name": "LITMS-LISTER",
+    "type": "thermal_measurement, heat_flow"
+   },
+   {
+    "name": "LITMS-LTC",
+    "type": "thermal_measurement, lunar_geophysics"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "CP-12 Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-12/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "SpaceNews",
+    "title": "NASA terminates Draper lunar lander mission (2026-07-18)",
+    "url": "https://spacenews.com/nasa-terminates-draper-lunar-lander-mission/",
+    "supports": [
+     "NASA and Draper terminated the CP-12 lander mission after development delays"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-cp22-im4",
+  "name": "IM-4",
+  "category": "clps",
+  "provider": "Intuitive Machines",
+  "lander": "Nova-C",
+  "status": "planned",
+  "target_site": "Mons Mouton",
+  "lat": -84.79,
+  "lon": 29.2,
+  "coordinate_type": "site_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LEIA, PROSPECT, L-CIRiS, SEAL, MAG, LRA",
+  "payload_instruments": [
+   {
+    "name": "LEIA",
+    "type": "space_biology, radiation_environment"
+   },
+   {
+    "name": "PROSPECT",
+    "type": "drilling, volatile_sampling, water_ice"
+   },
+   {
+    "name": "L-CIRiS",
+    "type": "infrared_imaging, thermal_mapping, composition"
+   },
+   {
+    "name": "SEAL",
+    "type": "lander_exhaust, regolith_exosphere"
+   },
+   {
+    "name": "MAG",
+    "type": "magnetometry, lunar_geophysics"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging, precision_navigation"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "CP-22 Science",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-22-science/",
+    "supports": [
+     "mission identity",
+     "provider",
+     "target site",
+     "task order",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "CP-22 Science Payloads",
+    "url": "https://science.nasa.gov/lunar-science/clps-deliveries/cp-22-science/",
+    "supports": [
+     "six payloads",
+     "Mons Mouton target"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "CLPS Flight: Intuitive Machines IM-4",
+    "url": "https://www.nasa.gov/event/clps-flight-intuitive-machines-im-4-2/",
+    "supports": [
+     "2027 target year",
+     "Mons Mouton destination"
+    ],
+    "accessed_utc": "2026-10-20T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "clps-blue-moon-mk1-endurance",
+  "name": "Blue Moon MK1 Pathfinder (Endurance)",
+  "category": "clps",
+  "provider": "Blue Origin",
+  "lander": "Blue Moon Mark 1 \"Endurance\"",
+  "status": "planned",
+  "target_site": "Shackleton Connecting Ridge",
+  "lat": null,
+  "lon": null,
+  "coordinate_type": "target_region_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "SCALPSS, LRA",
+  "payload_instruments": [
+   {
+    "name": "SCALPSS",
+    "type": "landing_imaging, plume_surface_interaction"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging, precision_navigation"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "Moon Base Phases (Phase One assets)",
+    "url": "https://www.nasa.gov/moonbase-phases/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "lander name Endurance",
+     "Shackleton Connecting Ridge target",
+     "SCALPSS and LRA payloads"
+    ]
+   },
+   {
+    "publisher": "NASA",
+    "title": "NASA Selects Blue Origin to Deliver VIPER Rover to Moon's South Pole (Release 25-064, 2025-09-19)",
+    "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "first Blue Moon MK1 CLPS delivery of SCALPSS and LRA"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "clps-cs7-blue-origin-viper",
+  "name": "VIPER delivery",
+  "category": "clps",
+  "provider": "Blue Origin",
+  "lander": "Blue Moon Mark 1 (second unit)",
+  "status": "planned",
+  "target_site": "Lunar South Pole region",
+  "lat": null,
+  "lon": null,
+  "coordinate_type": "target_region_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "VIPER rover (1 m drill)",
+  "payload_instruments": [
+   {
+    "name": "VIPER rover (1 m drill)",
+    "type": "water_ice, volatile_mapping, drill, rover"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "NASA Selects Blue Origin to Deliver VIPER Rover to Moon's South Pole (Release 25-064, 2025-09-19)",
+    "url": "https://www.nasa.gov/news-release/nasa-selects-blue-origin-to-deliver-viper-rover-to-moons-south-pole/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "task order CS-7",
+     "second Blue Moon MK1 lander",
+     "late 2027 landing",
+     "delivery is an option",
+     "VIPER previously cancelled"
+    ]
+   },
+   {
+    "publisher": "NASA",
+    "title": "Moon Base Phases (Phase One assets)",
+    "url": "https://www.nasa.gov/moonbase-phases/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "late 2027 arrival",
+     "1 m drill",
+     "permanently shadowed region exploration"
+    ]
+   }
+  ]
+ },
+ {
+  "id": "clps-cs3-blue-ghost-2",
+  "name": "Blue Ghost Mission 2 (Riders 2 the Dark)",
+  "category": "clps",
+  "provider": "Firefly Aerospace",
+  "lander": "Blue Ghost + Elytra Dark orbiter",
+  "status": "planned",
+  "target_site": "Nassau Crater (lunar far side)",
+  "lat": -24.91,
+  "lon": 177.34,
+  "coordinate_type": "target_feature_reference",
+  "target_feature": null,
+  "start_date": null,
+  "touchdown_utc": null,
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LuSEE-Night, User Terminal, Lunar Pathfinder (orbit), SPIDER, Rashid Rover 2, LightPort",
+  "payload_instruments": [
+   {
+    "name": "LuSEE-Night",
+    "type": "radio_astronomy, cosmic_dark_ages"
+   },
+   {
+    "name": "User Terminal",
+    "type": "relay_communications"
+   },
+   {
+    "name": "Lunar Pathfinder (orbit)",
+    "type": "relay_satellite"
+   },
+   {
+    "name": "SPIDER",
+    "type": "seismometer"
+   },
+   {
+    "name": "Rashid Rover 2",
+    "type": "rover"
+   },
+   {
+    "name": "LightPort",
+    "type": "wireless_power"
+   }
+  ],
+  "has_precomputed_track": false,
+  "sources": [
+   {
+    "publisher": "Firefly Aerospace",
+    "title": "Blue Ghost + Elytra: Lunar Far Side",
+    "url": "https://fireflyspace.com/missions/blue-ghost-mission-2/",
+    "supports": [
+     "Nassau Crater landing site",
+     "launch NET 2027",
+     "payload manifest",
+     "two NASA CLPS task orders"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "CLPS Providers",
+    "url": "https://www.nasa.gov/commercial-lunar-payload-services/clps-providers/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "task order CS-3",
+     "lunar far side landing"
+    ]
+   },
+   {
+    "publisher": "NASA",
+    "title": "Moon Base Phases (Phase One assets)",
+    "url": "https://www.nasa.gov/moonbase-phases/",
+    "accessed_utc": "2026-10-31T12:00:00Z",
+    "supports": [
+     "first American far-side landing",
+     "LuSEE-Night",
+     "User Terminal via Lunar Pathfinder"
+    ]
+   },
+   {
+    "publisher": "USGS / IAU",
+    "title": "Gazetteer of Planetary Nomenclature: Nassau",
+    "url": "https://planetarynames.wr.usgs.gov/Feature/4159",
+    "supports": [
+     "crater centre -24.91, 177.34",
+     "diameter 75.80 km"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "anchor-apollo-11",
+  "name": "Apollo 11",
+  "category": "reference_anchor",
+  "provider": "NASA",
+  "lander": "Lunar Module Eagle",
+  "status": "completed",
+  "target_site": "Tranquility Base, Mare Tranquillitatis",
+  "lat": 0.67416,
+  "lon": 23.47314,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "1969-07-20",
+  "touchdown_utc": "1969-07-20T20:17:40Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "EASEP",
+  "payload_instruments": [
+   {
+    "name": "EASEP",
+    "type": "passive_seismometer, laser_ranging_retroreflector"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA NSSDCA",
+    "title": "Apollo Landing Site Coordinates (LRO-derived, ME/DE421; Wagner et al. 2017)",
+    "url": "https://nssdc.gsfc.nasa.gov/planetary/lunar/lunar_sites.html",
+    "supports": [
+     "Lunar Module landing coordinates",
+     "MOON_ME DE421 reference frame"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "Apollo Lunar Surface Journal: Apollo 11",
+    "url": "https://www.nasa.gov/history/alsj/a11/a11.landing.html",
+    "supports": [
+     "mission identity",
+     "touchdown time"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "anchor-apollo-17",
+  "name": "Apollo 17",
+  "category": "reference_anchor",
+  "provider": "NASA",
+  "lander": "Lunar Module Challenger",
+  "status": "completed",
+  "target_site": "Taurus-Littrow Valley",
+  "lat": 20.1911,
+  "lon": 30.7723,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "1972-12-11",
+  "touchdown_utc": "1972-12-11T19:54:57Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "ALSEP, Traverse Gravimeter",
+  "payload_instruments": [
+   {
+    "name": "ALSEP",
+    "type": "heat_flow, seismic_profiling, surface_gravimeter, atmospheric_composition"
+   },
+   {
+    "name": "Traverse Gravimeter",
+    "type": "gravimetry"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "LROC / Arizona State University",
+    "title": "2016 LROC Coordinates of Human Features",
+    "url": "https://www.lroc.asu.edu/data/support/downloads/2016_LROC_Coordinates_of_Human_Features.pdf",
+    "supports": [
+     "Lunar Module landing coordinates"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   },
+   {
+    "publisher": "NASA",
+    "title": "Apollo Lunar Surface Journal: Apollo 17 overview",
+    "url": "https://www.nasa.gov/history/alsj/a17/a17ov.html",
+    "supports": [
+     "mission identity",
+     "touchdown time",
+     "landing site"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "anchor-chandrayaan-3",
+  "name": "Chandrayaan-3",
+  "category": "reference_anchor",
+  "provider": "ISRO",
+  "lander": "Vikram (with Pragyan rover)",
+  "status": "completed",
+  "target_site": "Statio Shiv Shakti",
+  "lat": -69.3741,
+  "lon": 32.32,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "2023-08-23",
+  "touchdown_utc": "2023-08-23T12:33:00Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "ChaSTE, ILSA, RAMBHA-LP, LRA, APXS / LIBS (Pragyan)",
+  "payload_instruments": [
+   {
+    "name": "ChaSTE",
+    "type": "regolith_thermal_profile"
+   },
+   {
+    "name": "ILSA",
+    "type": "seismometer"
+   },
+   {
+    "name": "RAMBHA-LP",
+    "type": "plasma_density"
+   },
+   {
+    "name": "LRA",
+    "type": "laser_ranging"
+   },
+   {
+    "name": "APXS / LIBS (Pragyan)",
+    "type": "surface_composition"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "ISRO",
+    "title": "Chandrayaan-3",
+    "url": "https://www.isro.gov.in/Chandrayaan3_Details.html",
+    "supports": [
+     "mission identity",
+     "landing date",
+     "payload manifest"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   },
+   {
+    "publisher": "LROC / Arizona State University",
+    "title": "Chandrayaan-3 Landing Site",
+    "url": "https://www.lroc.asu.edu/images/1314",
+    "supports": [
+     "landing coordinates 69.3741S, 32.32E",
+     "elevation 532 m",
+     "independent orbital imaging of the lander (NAC M1447750764LR)"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   },
+   {
+    "publisher": "Icarus (Elsevier)",
+    "title": "Chandrayaan-3 landing site evolution by South Pole-Aitken basin and other impact craters",
+    "url": "https://www.sciencedirect.com/science/article/abs/pii/S0019103524003890",
+    "supports": [
+     "alternative coordinate 69.367621S, 32.348126E"
+    ],
+    "accessed_utc": "2026-10-31T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "anchor-change-4",
+  "name": "Chang'e 4",
+  "category": "reference_anchor",
+  "provider": "CNSA",
+  "lander": "Chang'e-4 lander (with Yutu-2 rover)",
+  "status": "completed",
+  "target_site": "Von Karman Crater",
+  "lat": -45.457,
+  "lon": 177.589,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "2019-01-03",
+  "touchdown_utc": "2019-01-03T02:26:00Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "LMS, LND, VNIS / LPR (Yutu-2)",
+  "payload_instruments": [
+   {
+    "name": "LMS",
+    "type": "low_frequency_radio"
+   },
+   {
+    "name": "LND",
+    "type": "neutron_dosimetry"
+   },
+   {
+    "name": "VNIS / LPR (Yutu-2)",
+    "type": "spectrometer, ground_penetrating_radar"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "LROC / Arizona State University",
+    "title": "Chang'e 4 Lander Coordinates",
+    "url": "https://www.lroc.asu.edu/posts/1087",
+    "supports": [
+     "landing coordinates"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   },
+   {
+    "publisher": "Chinese Academy of Sciences",
+    "title": "Reconstructing the first successful lunar farside landing",
+    "url": "https://english.cas.cn/newsroom/news/201909/t20190929_219570.shtml",
+    "supports": [
+     "alternative refined coordinate",
+     "landing context"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   }
+  ]
+ },
+ {
+  "id": "anchor-slim",
+  "name": "SLIM",
+  "category": "reference_anchor",
+  "provider": "JAXA",
+  "lander": "SLIM (Smart Lander for Investigating Moon)",
+  "status": "completed_limited_operations",
+  "target_site": "Shioli Crater slope",
+  "lat": -13.316,
+  "lon": 25.251,
+  "coordinate_type": "actual_landing",
+  "target_feature": null,
+  "start_date": "2024-01-19",
+  "touchdown_utc": "2024-01-19T15:20:00Z",
+  "landing_ellipse": {
+   "major_axis_km": null,
+   "minor_axis_km": null
+  },
+  "payload_summary": "MBC, LEV-1 / LEV-2",
+  "payload_instruments": [
+   {
+    "name": "MBC",
+    "type": "multiband_spectral_camera"
+   },
+   {
+    "name": "LEV-1 / LEV-2",
+    "type": "rover_imaging"
+   }
+  ],
+  "has_precomputed_track": true,
+  "sources": [
+   {
+    "publisher": "NASA",
+    "title": "NASA's LRO Spots Japan's Moon Lander",
+    "url": "https://www.nasa.gov/missions/lro/nasas-lro-spots-japans-moon-lander",
+    "supports": [
+     "landing coordinates",
+     "landing date"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   },
+   {
+    "publisher": "LROC / Arizona State University",
+    "title": "JAXA SLIM Landing",
+    "url": "https://www.lroc.asu.edu/images/1358",
+    "supports": [
+     "landing coordinates",
+     "elevation"
+    ],
+    "accessed_utc": "2026-10-30T12:00:00Z"
+   }
+  ]
+ }
+]

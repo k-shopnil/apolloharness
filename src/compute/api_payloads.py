@@ -141,9 +141,39 @@ def mission_geometry(site_id: str, *, track_dir: str | Path = TRACK_DIR) -> dict
         "sun": sun,
         "earth": earth,
         "events": track["events"],
-        "psr": {"status": "not_in_track"},
+        "psr": track.get("psr") or {"status": "not_in_track"},
         "horizon_model": track["track"]["horizon_model"],
         "terrain": _terrain_summary(track.get("terrain") or {}),
         "track_summary": {k: track["track"][k] for k in (
             "sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction")},
     })
+
+
+FIXTURE_DIR = DATA_DIR.parent / "offline_fixtures" / "site_geometry"
+
+
+def export_fixtures(output: str | Path = FIXTURE_DIR) -> list[str]:
+    """Write ``mission_geometry`` for every tracked site, plus the flat catalog.
+
+    The files have exactly the API's shape, so the frontend's offline fallback
+    is the same code path as the live API (Issue #8 gate 7).
+    """
+    out = Path(output)
+    out.mkdir(parents=True, exist_ok=True)
+    written = []
+    for record in catalog_records():
+        if record["has_precomputed_track"]:
+            payload = mission_geometry(record["id"])
+            (out / f"{record['id']}.json").write_text(
+                json.dumps(payload, indent=1, allow_nan=False) + "\n", encoding="utf-8")
+            written.append(record["id"])
+    (out / "missions.json").write_text(
+        json.dumps(catalog_records(), indent=1, allow_nan=False) + "\n", encoding="utf-8")
+    return written
+
+
+if __name__ == "__main__":
+    import sys
+    target = sys.argv[1] if len(sys.argv) > 1 else FIXTURE_DIR
+    ids = export_fixtures(target)
+    print(f"{len(ids)} site_geometry fixtures + missions.json -> {target}")

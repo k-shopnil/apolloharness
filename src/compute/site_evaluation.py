@@ -71,7 +71,9 @@ def warm_up() -> None:
     load_kernels()
     if Path(DEFAULT_PSR).is_file():
         from .proximity import indexed_psr_path
+        from .proximity import LARGE_PSR_KM2, _large_psrs
         indexed_psr_path(DEFAULT_PSR)  # one-time ~5 s build of the spatially indexed copy
+        _large_psrs(str(DEFAULT_PSR), LARGE_PSR_KM2)  # ~0.6 s; then large-PSR queries are ~0 ms
     if Path(DEFAULT_DEM).is_file():
         coarse_grid(DEFAULT_DEM)
         evaluate_custom_site(-85.0, 0.0, "2026-01-01T00:00:00Z", duration_days=1.0)

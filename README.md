@@ -80,7 +80,7 @@ Experience our official preliminary project presentation submitted for the **NAS
 
 Python compute modules live in `src/compute/`; the mission catalog is
 `data/missions.json`, and the offline mission catalog is
-`demo_fixtures/missions.json`. The current catalog contains sixteen sourced
+`offline_fixtures/missions.json`. The current catalog contains sixteen sourced
 records: eleven CLPS missions (`category: "clps"`) and five historical and
 international reference anchors (`category: "reference_anchor"`: Apollo 11,
 Apollo 17, Chandrayaan-3, Chang'e 4, SLIM). Coordinates are references with an explicit `coordinate_type`; a
@@ -92,13 +92,18 @@ Dates containing only a year are target years, not exact dates.
 The required SPICE kernels are `data/spice/naif0012.tls` (UTC/leap seconds),
 `pck00010.tpc` (body constants), `moon_080317.tf` (lunar frame definitions),
 `moon_pa_de421_1900-2050.bpc` (Moon PA orientation), and `de430.bsp` (solar
-system ephemerides). The large binary kernels are ignored by Git; obtain the
-same named kernels from NAIF's generic kernels and place them in `data/spice/`.
+system ephemerides). All five are in the repository (the two binary kernels via
+Git LFS) and are byte-identical to NAIF's generic kernels; every external file,
+its source, size, SHA-256 and location is listed in
+[docs/DATA_SETUP.md](docs/DATA_SETUP.md), and `python -m src.acquire.verify_data`
+checks them all.
 SPICE calculations use `MOON_PA`, east-positive
 longitude, planetocentric latitude converted through the Moon radii, and
-geometric (no aberration correction) line of sight. Earth visibility is a
-spherical-horizon test. It does not include terrain masking, lander antenna
-constraints, or relay availability.
+geometric (no aberration correction) line of sight. Sun and Earth visibility
+are tested against the LOLA terrain horizon at the site (`horizon_model:
+"lola_terrain_mask"`), falling back to a spherical horizon only where no terrain
+is installed, and saying so in the output. They do not include lander antenna
+constraints or relay availability.
 
 Terrain analysis uses NASA GSFC PGDA product 90's 80–90°S LOLA DEM at 80 m/pixel,
 which covers the Mons Mouton and Shackleton benchmark coordinates.
@@ -108,8 +113,9 @@ evaluate arbitrary coordinates outside 80–90°S, install the optional 531 MB
 global DEM with `python -m src.acquire.nasa_products lola_gdr_global_64ppd`
 (manual `curl` and checksum steps:
 [docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md#downloading-the-global-lola-dem-ldem_64)). The registry
-downloads it to `cache/nasa/pgda/` and links it at
-`data/lola/LDEM_80S_80MPP_ADJ.TIF`; the raster is ignored by Git. Product 90
+`data/lola/LDEM_80S_80MPP_ADJ.TIF` is in the repository via Git LFS; without
+LFS, `python -m src.acquire.verify_data --fetch` downloads it from NASA PGDA into
+`cache/nasa/pgda/` and links it there. Product 90
 uses south-polar stereographic coordinates in meters referenced to the
 MOON_ME/DE421 realization and a 1,737,400 m reference sphere. Product 81 is a
 finer 5 m/pixel mosaic covering only 87–90°S, so it does not cover Mons Mouton.
@@ -126,16 +132,20 @@ over hourly samples spanning about one 18.6-year lunar nutation cycle. The
 TIFF's scale metadata (0.00004) converts stored int16 values to fraction of
 time illuminated; the API converts that to percent. These are average products,
 not mission-window predictions. Use the broader 75–90°S product for Mons
-Mouton; the higher resolution 85–90°S product covers Shackleton.
+Mouton's annual figure comes from the 60 m product too: its square raster
+footprint reaches north of 85°S. The 120 m product is used where only it covers
+a point.
 
 PSR proximity uses NASA PGDA product 90's full south-polar PSR shapefile. The
-four shapefile components are downloaded to `cache/nasa/pgda/` and linked into
-`data/psr/`; no data binaries are committed. Distances are calculated in meters
+four shapefile components are in `data/psr/` via Git LFS (or fetched from NASA
+PGDA with `verify_data --fetch`). Distances are calculated in meters
 after projection to a south-polar stereographic CRS using the ME reference
 sphere, not from latitude/longitude differences.
 The acquired NASA vector contains 506,349 polygons, including ten invalid
-source geometries; the strict proximity calculation rejects the full source
-and reports no distance until a validity policy is established.
+source geometries. The legacy strict `calculate_psr_distance` rejects the full
+source; the interactive `nearest_psr_within` (used by the API) reads only the
+polygons near the site, reports `inside_psr`, the PSR ID, area, the nearest
+PSR of at least 1 km², and the IAU-named host crater where one exists.
 
 ### Offline operation and reproducibility
 
@@ -218,7 +228,10 @@ git checkout <your-branch>
 git pull origin main
 git lfs pull
 ```
-*(Crucial: Terrain GeoTIFF tiles, PSR vectors, and SPICE kernels are Git LFS objects).*
+*(Crucial: Terrain GeoTIFF tiles, PSR vectors, and SPICE kernels are Git LFS objects.)*
+Then run `python -m src.acquire.verify_data`; it must end with `all required data
+present and verified`. Full file list, sources and the no-LFS fallback:
+[docs/DATA_SETUP.md](docs/DATA_SETUP.md).
 
 #### 2. Backend Team (`feature/backend-systems`) — `@ariful305`, `@Eetherr77`
 * [ ] **Wire Custom Coordinate Route:** Add `GET /api/v1/sites/custom?lat=...&lon=...&utc=...` calling `src.compute.site_evaluation.evaluate_custom_site`.

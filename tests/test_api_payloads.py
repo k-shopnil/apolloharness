@@ -58,6 +58,29 @@ class MissionGeometryTests(unittest.TestCase):
             mission_geometry(griffin)
 
 
+class FixtureSyncTests(unittest.TestCase):
+    def test_offline_fixtures_equal_api_payloads(self) -> None:
+        # The frontend's offline fallback must be byte-for-byte the API's answer.
+        from src.compute.api_payloads import FIXTURE_DIR
+        for record in catalog_records():
+            fixture = FIXTURE_DIR / f"{record['id']}.json"
+            self.assertEqual(fixture.is_file(), record["has_precomputed_track"], record["id"])
+            if fixture.is_file():
+                self.assertEqual(json.loads(fixture.read_text(encoding="utf-8")),
+                                 json.loads(json.dumps(mission_geometry(record["id"]))),
+                                 f"{record['id']}: run `python -m src.compute.api_payloads`")
+        self.assertEqual(json.loads((FIXTURE_DIR / "missions.json").read_text(encoding="utf-8")),
+                         json.loads(json.dumps(catalog_records())))
+
+    def test_polar_tracks_carry_psr_context(self) -> None:
+        for site_id in ("clps-prime-1-im2", "clps-to2-im-im1"):
+            psr = mission_geometry(site_id)["psr"]
+            self.assertEqual(psr["status"], "complete")
+            self.assertTrue(psr["nearest_psr_id"].startswith("HNP_"))
+            self.assertIn(psr["nearest_large_psr"]["status"], ("complete", "none_within_search_radius"))
+        self.assertEqual(mission_geometry("anchor-apollo-11")["psr"]["status"], "outside_product_coverage")
+
+
 @unittest.skipUnless(REAL_DEM, "80 m polar DEM not present (run `git lfs pull`)")
 class SiteGeometryTests(unittest.TestCase):
     def test_engine_payload_matches_track_at_same_epoch(self) -> None:

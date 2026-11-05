@@ -8,6 +8,7 @@ from shapely.geometry import Point
 from .terrain import MOON_GEOGRAPHIC, MOON_SPS, PROJECT_ROOT
 
 import threading
+from functools import lru_cache
 
 DEFAULT_PSR = PROJECT_ROOT / "data" / "psr" / "LPSR_80S_20MPP_ADJ.SHP"
 # PGDA's LPSR product stores its stable identifier in ``name`` (e.g.
@@ -40,13 +41,23 @@ def indexed_psr_path(path: str | Path = DEFAULT_PSR) -> Path:
                 return target
             from pyogrio import read_dataframe, write_dataframe
             DERIVED_DIR.mkdir(parents=True, exist_ok=True)
-            partial = target.with_suffix(".fgb.partial")
+            # Unique per process: several API workers may warm up at once; the
+            # atomic rename below makes whichever finishes first win cleanly.
+            import os
+            partial = target.with_name(f"{target.name}.{os.getpid()}.partial")
             write_dataframe(read_dataframe(source), partial, driver="FlatGeobuf",
                             layer_options={"SPATIAL_INDEX": "YES"})
             partial.replace(target)
             return target
     except Exception:  # read-only checkout, missing driver: stay correct, just slower
         return source
+
+
+def _to_sps(frame: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Frame in MOON_SPS, skipping the transform when the CRS is already equivalent."""
+    if frame.crs is not None and frame.crs.equals(MOON_SPS):
+        return frame.set_crs(MOON_SPS, allow_override=True)
+    return frame.to_crs(MOON_SPS)
 
 
 def _read_bbox(path: Path, bbox: tuple[float, float, float, float]) -> gpd.GeoDataFrame:
@@ -59,13 +70,11 @@ def _id_column(columns) -> str | None:
 
 def _describe_psr(projected: gpd.GeoDataFrame, index) -> dict[str, Any]:
     """Identifier, area and IAU host crater of one PSR polygon."""
-    from .psr_names import host_crater
+    from .psr_names import host_crater_for_polygon
     column = _id_column(projected.columns)
     identifier = projected.loc[index, column] if column else None
     area = projected.loc[index, "area_km2"] if "area_km2" in projected.columns else None
-    anchor = gpd.GeoSeries([projected.geometry.loc[index].representative_point()],
-                           crs=projected.crs).to_crs(MOON_GEOGRAPHIC).iloc[0]
-    host = host_crater(anchor.y, anchor.x)
+    host = host_crater_for_polygon(projected.geometry.loc[index], projected.crs)
     return {"nearest_psr_id": None if identifier is None else str(identifier),
             "nearest_psr_area_km2": None if area is None else float(area),
             "nearest_psr_host": host,
@@ -112,6 +121,47 @@ def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
 nearest_psr = calculate_psr_distance
 
 
+# Display threshold, not a physical one: micro cold traps (Hayne et al. 2021) are
+# real, but a planner also needs the nearest crater-scale PSR.
+LARGE_PSR_KM2 = 1.0
+LARGE_PSR_SEARCH_M = 50_000.0
+
+
+@lru_cache(maxsize=2)
+def _large_psrs(path: str, min_area_km2: float):
+    """PSRs >= ``min_area_km2`` (1,531 of 506,349 at 1 km²) in memory, with an STRtree."""
+    import pandas as pd
+    import pyogrio
+    import shapely
+    source = indexed_psr_path(path)
+    if "area_km2" not in pyogrio.read_info(source)["fields"]:
+        return gpd.GeoDataFrame(), shapely.STRtree([])  # product without areas: nothing to rank
+    areas = pyogrio.read_dataframe(source, columns=["area_km2"], read_geometry=False)
+    fids = np.flatnonzero(pd.to_numeric(areas["area_km2"], errors="coerce") >= min_area_km2)
+    frame = pyogrio.read_dataframe(source, fids=fids) if len(fids) else gpd.GeoDataFrame()
+    if len(frame):
+        frame = _to_sps(frame).reset_index(drop=True)
+    return frame, shapely.STRtree(frame.geometry.values if len(frame) else [])
+
+
+def nearest_large_psr(point, path: Path, *, min_area_km2: float = LARGE_PSR_KM2,
+                      search_radius_m: float = LARGE_PSR_SEARCH_M) -> dict[str, Any]:
+    """Nearest PSR with area >= ``min_area_km2`` (point in MOON_SPS metres)."""
+    base = {"min_area_km2": min_area_km2, "search_radius_m": search_radius_m}
+    frame, tree = _large_psrs(str(path), float(min_area_km2))
+    if "area_km2" not in frame.columns:
+        return {**base, "status": "area_not_in_product"}
+    (_, hits), distances = tree.query_nearest([point], max_distance=search_radius_m,
+                                              return_distance=True, all_matches=False)
+    if len(hits) == 0:
+        return {**base, "status": "none_within_search_radius"}
+    index, distance_m = int(hits[0]), float(distances[0])
+    described = _describe_psr(frame, index)
+    return {**base, "status": "complete", "distance_m": distance_m,
+            "distance_km": distance_m / 1000.0, "inside_psr": distance_m == 0.0,
+            **{k.replace("nearest_psr_", ""): v for k, v in described.items()}}
+
+
 _NO_PSR = {"nearest_psr_id": None, "nearest_psr_area_km2": None, "nearest_psr_host": None,
            "nearest_psr_label": None}
 
@@ -125,6 +175,10 @@ def nearest_psr_within(latitude_deg: float, longitude_deg: float,
     reports ``distance_m == 0`` and ``inside_psr`` when the site lies inside a
     PSR polygon. With no PSR inside the search box, ``distance_m`` is ``None``
     and ``min_distance_m`` states the guaranteed lower bound.
+
+    The nearest PSR is often a micro cold trap of a few 20 m pixels, so
+    ``nearest_large_psr`` also reports the nearest PSR of at least
+    ``LARGE_PSR_KM2`` within ``LARGE_PSR_SEARCH_M``, with its host crater.
     """
     if not np.isfinite(latitude_deg) or not -90 <= latitude_deg <= 90:
         raise ValueError("latitude_deg must be finite and between -90 and 90")
@@ -140,11 +194,12 @@ def nearest_psr_within(latitude_deg: float, longitude_deg: float,
     frame = _read_bbox(path, (point.x - search_radius_m, point.y - search_radius_m,
                               point.x + search_radius_m, point.y + search_radius_m))
     base = {"search_radius_m": search_radius_m, "source_dataset": path.name,
-            "analysis_crs": MOON_SPS.to_string()}
+            "analysis_crs": MOON_SPS.to_string(),
+            "nearest_large_psr": nearest_large_psr(point, path)}
     if frame.empty:
         return {**base, "status": "no_psr_within_search_radius", "distance_m": None,
                 "min_distance_m": search_radius_m, "inside_psr": False, **_NO_PSR}
-    projected = frame.to_crs(MOON_SPS)
+    projected = _to_sps(frame)
     distances = projected.geometry.distance(point)
     index = distances.idxmin()
     distance_m = float(distances.loc[index])
@@ -177,7 +232,7 @@ def psr_distances(latitudes: np.ndarray, longitudes: np.ndarray, *,
     out = np.full(len(points), np.nan)
     if frame.empty:
         return out
-    geometries = frame.to_crs(MOON_SPS).geometry.values
+    geometries = _to_sps(frame).geometry.values
     tree = shapely.STRtree(geometries)
     (point_index, _), distances = tree.query_nearest(points.values, max_distance=search_radius_m,
                                                      return_distance=True, all_matches=False)

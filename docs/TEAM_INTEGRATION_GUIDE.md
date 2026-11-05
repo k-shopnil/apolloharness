@@ -14,6 +14,10 @@ products and SPICE kernels; no network is needed at runtime.
 - [Known issues and open decisions](#known-issues-and-open-decisions)
 - [Regenerating and testing](#regenerating-and-testing)
 
+> **Setting up data?** Every external file, its source, checksum and location,
+> plus the no-LFS fallback, is in [DATA_SETUP.md](DATA_SETUP.md). Check a
+> machine with `python -m src.acquire.verify_data`.
+
 ## What is delivered
 
 | Issue #8 item | Function / file | Notes |
@@ -29,7 +33,7 @@ products and SPICE kernels; no network is needed at runtime.
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
 | PSR names (Issue #7 / #8 §4.1) | `nearest_psr_within(...)["nearest_psr_id", "nearest_psr_host", "nearest_psr_label"]`, `psr_names.host_crater` | PGDA ID plus the IAU-named host crater from the USGS gazetteer; `null` rather than an invented name |
 | Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
-| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
+| Manifest grounding | `data/missions.json`, `offline_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
 | Validation vs NASA (beyond the issue) | `python -m src.ml.validation`, [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md) | Held-out test: R² 0.951, MAE 1.45 pp, bias −0.05 pp |
@@ -240,15 +244,40 @@ product identifies each PSR with a code such as `HNP_874817_0293767`, which
 is now returned as `nearest_psr_id`. Before this fix `nearest_psr_id` was
 always `null`, because the code never looked in the product's `name` column.
 `nearest_psr_host` gives the **smallest IAU-named crater whose rim circle
-contains the PSR**, taken from the USGS Gazetteer of Planetary Nomenclature,
-with its diameter and USGS link. `nearest_psr_label` is the ready string
+holds at least half of the PSR's area**, taken from the USGS Gazetteer of
+Planetary Nomenclature. It includes the crater's diameter, its USGS link, and
+`psr_area_fraction_inside_rim` as evidence. A point-in-circle test was
+rejected: it credited a 242 km² PSR to a 17 km crater because the PSR's
+centre point fell inside that crater. `nearest_psr_label` is the ready string
 `"PSR in Shackleton crater"`. When no named crater contains it, both are
 `null`; the UI should show the distance and area only, and must never
 invent a name like "Faustini Rim".
 
 Also show `nearest_psr_area_km2`. Many nearest PSRs are micro cold traps of
 about 0.001 km² (a few 20 m pixels). These are real, but they are not the
-large crater-floor PSRs a reader would picture.
+large crater-floor PSRs a reader would picture. `psr.nearest_large_psr` therefore
+gives the nearest PSR of at least 1 km² within 50 km, with `id`,
+`area_km2`, `host` and `label`. The 1 km² cut is a display choice, not a
+physical threshold. Suggested HUD lines:
+
+| Site | Line 1 (nearest any) | Line 2 (`nearest_large_psr`) |
+|---|---|---|
+| IM-2 | 474 m to a micro cold trap (0.001 km²) | 9.7 km to a 2.4 km² PSR |
+| IM-1 | 555 m to a micro cold trap (0.045 km²) | 8.4 km to a 14.5 km² PSR |
+| Shackleton floor | Inside a PSR in Shackleton crater (233 km²) | same |
+
+Neither IM-1 nor IM-2 sits next to an IAU-named crater's PSR, so neither
+gets a name. Showing a name there would be invented data.
+
+### Offline fallback for the frontend (gate 7)
+
+`offline_fixtures/site_geometry/<id>.json` is `mission_geometry(id)` for each
+of the 9 tracked sites, and `missions.json` is `catalog_records()`. They have
+exactly the API's shape: the UI fetches `/api/v1/sites/geometry?site_id=`,
+and on failure loads the fixture through the same parser. The tracked PSR
+context (polar sites) is included, so the cold-trap line works with the
+network off. A test fails if fixtures drift from the API; regenerate them
+with `python -m src.compute.api_payloads`.
 
 ### Mission catalog schema mismatch (action needed)
 
@@ -270,6 +299,18 @@ rather than renaming the source:
 
 Do not use the 5 × 2.5 km default ellipse for real missions. It is invented
 data, which the Issue #8 "Zero Invented Data" gate rules out.
+
+### Renamed: `demo_fixtures/` → `offline_fixtures/` (action needed)
+
+The offline data folder is now `offline_fixtures/`, and the per-record field
+`demo_analysis` is now `offline_analysis`. When rebasing, update the 3 places
+on `feature/backend-systems` that hard-code the old path:
+
+| File | Change |
+|---|---|
+| `backend/core/config.py` | `fixtures_dir = ROOT_DIR / "offline_fixtures"` |
+| `Dockerfile` | `COPY offline_fixtures ./offline_fixtures` |
+| `docker-compose.yml` | `./offline_fixtures:/app/offline_fixtures` |
 
 ### Tests to add on the backend branch
 
@@ -301,7 +342,7 @@ Owner: `@ASMFahim71`.
 Fetch `data/precomputed/tracks/index.json` once. Its `missions[]` entries
 carry a `status`, and only `status === "complete"` has a file. Then lazy-load
 `<id>.json`. Each file is 29.5 days at 60-minute steps (709 samples, about
-110 KB) and is safe to bundle for offline demos.
+110 KB) and is safe to bundle for offline deployments.
 
 ```ts
 type Track = {
@@ -593,6 +634,7 @@ python -m src.acquire.nasa_products lola_gdr_global_64ppd   # 531 MB global DEM,
 python -m src.compute.global_terrain                  # rebuild committed site tiles
 python -m src.compute.precompute_tracks               # 29.5-day tracks, ~3 s total
 python -m src.acquire.usgs_nomenclature               # IAU crater subset for PSR names (24 MB, pinned sha256)
+python -m src.compute.api_payloads                    # offline API fixtures (after precompute_tracks)
 python -m src.compute.precompute_tracks --days 14 --step-minutes 30
 python -m pip install -r requirements-dev.txt         # runtime deps + pytest
 python -m pytest -q tests                             # or: python -m unittest discover -s tests

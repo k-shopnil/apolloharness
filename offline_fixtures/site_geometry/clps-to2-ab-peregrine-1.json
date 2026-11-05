@@ -1,0 +1,88 @@
+{
+ "schema": "apolloharness.site_geometry.v1",
+ "source": "precomputed_track",
+ "site_id": "clps-to2-ab-peregrine-1",
+ "mission": "Peregrine Mission 1",
+ "site": {
+  "latitude_deg": 35.07,
+  "longitude_deg": -41.76,
+  "coordinate_type": "target_landing_ellipse_center"
+ },
+ "utc": "2024-02-23T00:00:00Z",
+ "window_start_basis": "target_date",
+ "frame": "MOON_PA; unit vectors point from the site to the body",
+ "sun": {
+  "azimuth_deg": 108.47427926714636,
+  "elevation_deg": 22.535453341410456,
+  "terrain_horizon_deg": 0.9102837073146847,
+  "is_lit": true,
+  "time_to_sunset_hours": 297.4190673828125,
+  "time_to_sunset_formatted": "12d 9h",
+  "time_to_sunrise_hours": null,
+  "time_to_sunrise_formatted": null,
+  "countdown_status": "complete",
+  "fraction_of_window_up": 0.49823819591261453,
+  "angular_radius_deg": 0.2686647155141147,
+  "disk_visible_fraction": 1.0,
+  "unit_vector_moon_pa": [
+   0.9429995155776068,
+   0.3322525156670151,
+   -0.018978394382535655
+  ]
+ },
+ "earth": {
+  "azimuth_deg": 124.94652927711965,
+  "elevation_deg": 31.18861403116657,
+  "terrain_horizon_deg": -0.18757202798093048,
+  "direct_los": true,
+  "time_to_earthset_hours": null,
+  "time_to_earthset_formatted": null,
+  "time_to_earthrise_hours": null,
+  "time_to_earthrise_formatted": null,
+  "countdown_status": "no_earthset_within_window",
+  "fraction_of_window_up": 1.0,
+  "angular_radius_deg": 0.9053016958331334,
+  "disk_visible_fraction": 1.0,
+  "range_km": 403231.9856385755,
+  "round_trip_light_time_s": 2.690074248889714,
+  "unit_vector_moon_pa": [
+   0.993258069406426,
+   0.05293637312214573,
+   -0.10313170201103262
+  ]
+ },
+ "events": [
+  {
+   "body": "sun",
+   "kind": "set",
+   "utc": "2024-03-06T09:25:09Z",
+   "hours_from_start": 297.4191
+  },
+  {
+   "body": "sun",
+   "kind": "rise",
+   "utc": "2024-03-21T05:11:15Z",
+   "hours_from_start": 653.1874
+  }
+ ],
+ "psr": {
+  "status": "outside_product_coverage",
+  "distance_m": null,
+  "inside_psr": null
+ },
+ "horizon_model": "lola_terrain_mask",
+ "terrain": {
+  "elevation_m": -2162.8743896484375,
+  "dem_product": "LOLA GDR LDEM_64",
+  "dem_resolution_m": 473.802,
+  "horizon_model": "lola_terrain_mask",
+  "horizon_incomplete_azimuths": 0,
+  "horizon_azimuths_filled_from_global": 0,
+  "status": "complete"
+ },
+ "track_summary": {
+  "sunlit_percent": 49.79,
+  "earth_los_percent": 100.0,
+  "mean_sun_disk_visible_fraction": 0.4982
+ }
+}
