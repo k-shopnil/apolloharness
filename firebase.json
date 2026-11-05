@@ -17,7 +17,7 @@
     },
     {
       "site": "apolloharness",
-      "public": "dist",
+      "public": "frontend/dist",
       "ignore": [
         "firebase.json",
         "**/.*",
