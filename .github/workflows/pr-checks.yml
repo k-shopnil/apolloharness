@@ -48,7 +48,7 @@ jobs:
           fi
           changed=$(git diff --name-only "$BASE" HEAD)
           echo "Changed files:"; echo "$changed"
-          if echo "$changed" | grep -qE '^(src/|backend/|data/|demo_fixtures/|tests/|requirements[^/]*\.txt$|pytest\.ini$|\.github/workflows/pr-checks\.yml$)'; then
+          if echo "$changed" | grep -qE '^(src/|backend/|data/|demo_fixtures/|offline_fixtures/|tests/|requirements[^/]*\.txt$|pytest\.ini$|\.github/workflows/pr-checks\.yml$)'; then
             echo "science=true" >> "$GITHUB_OUTPUT"
           else
             echo "science=false" >> "$GITHUB_OUTPUT"
@@ -177,7 +177,7 @@ jobs:
       - name: Block known mock missions and invented defaults
         run: |
           paths=""
-          for p in backend frontend/src demo_fixtures data/missions.json; do
+          for p in backend frontend/src demo_fixtures offline_fixtures data/missions.json; do
             [ -e "$p" ] && paths="$paths $p"
           done
           [ -z "$paths" ] && { echo "Nothing to scan."; exit 0; }
@@ -198,9 +198,15 @@ jobs:
               d = json.loads(pathlib.Path(path).read_text(encoding="utf-8"))
               items = d if isinstance(d, list) else d.get("missions", [])
               return {m["id"] for m in items}
-          a, b = ids("data/missions.json"), ids("demo_fixtures/missions.json")
+          fixture = next((p for p in ("offline_fixtures/missions.json", "demo_fixtures/missions.json")
+                          if pathlib.Path(p).is_file()), None)
+          if fixture is None:
+              print("::error::No offline fixture catalog found")
+              sys.exit(1)
+
+          a, b = ids("data/missions.json"), ids(fixture)
           if a != b:
-              print("::error::demo_fixtures/missions.json IDs differ from data/missions.json")
+              print(f"::error::{fixture} IDs differ from data/missions.json")
               print("only in catalog:", sorted(a - b))
               print("only in fixture:", sorted(b - a))
               sys.exit(1)

@@ -1,5 +1,10 @@
 {
   "schema": "apolloharness.earth_visibility_validation.v1",
+  "source": {
+    "authority": "NASA GSFC Planetary Geology, Geophysics, and Geochemistry Analysis Tool (PGDA), product 69",
+    "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+    "reference_data": "Committed truth raster named by truth.product."
+  },
   "truth": {
     "product": "AVGVISIB_85S_060M_201608_EARTH.TIF",
     "publisher": "NASA GSFC PGDA product 69",
@@ -146,5 +151,11 @@
       "within_5pct": 0.9032258064516129
     }
   },
-  "runtime_s": 13.7
+  "runtime_s": 15.5,
+  "automated_comparison": {
+    "status": "computed",
+    "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
+    "human_review_status": "pending",
+    "human_reviewer": "@Thirtha17"
+  }
 }

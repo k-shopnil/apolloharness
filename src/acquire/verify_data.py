@@ -105,6 +105,8 @@ MANIFEST: tuple[DataFile, ...] = (
 TEXT_FILES = ("data/missions.json", "data/lola/tiles/index.json", "data/psr/iau_south_polar_craters.csv",
               "data/precomputed/tracks/index.json", "offline_fixtures/missions.json",
               "data/artemis_iii_regions.json")
+CATALOG = "data/missions.json"
+OFFLINE_CATALOG_CANDIDATES = ("offline_fixtures/missions.json", "demo_fixtures/missions.json")
 
 # Fetch plan: registry product per group (tiles are rebuilt, not downloaded).
 _PRODUCT_FOR = {
@@ -156,6 +158,25 @@ def check_text(relative: str) -> str:
     return "OK"
 
 
+def catalog_ids(relative: str) -> set[str]:
+    """Return mission IDs from a catalog JSON file."""
+    data = json.loads((PROJECT_ROOT / relative).read_text(encoding="utf-8"))
+    items = data if isinstance(data, list) else data.get("missions", [])
+    return {item["id"] for item in items}
+
+
+def check_catalog_alignment() -> tuple[str, str | None]:
+    """Check that the canonical catalog and the available offline fixture agree on IDs."""
+    fixture = next((path for path in OFFLINE_CATALOG_CANDIDATES
+                    if (PROJECT_ROOT / path).is_file()), None)
+    if fixture is None:
+        return "MISSING", None
+    try:
+        return ("OK" if catalog_ids(CATALOG) == catalog_ids(fixture) else "ID_MISMATCH"), fixture
+    except (OSError, KeyError, TypeError, ValueError):
+        return "UNREADABLE", fixture
+
+
 def _fetch(entries: list[DataFile]) -> None:
     from .nasa_products import acquire_product
     products = []
@@ -194,17 +215,20 @@ def main(argv: list[str] | None = None) -> int:
             _fetch(wanted)
             results = [(entry, check(entry, quick=args.quick)) for entry in MANIFEST]
     texts = [(relative, check_text(relative)) for relative in TEXT_FILES]
+    catalog_status, catalog_fixture = check_catalog_alignment()
 
     failed_required = [e for e, s in results if e.required and s not in ("OK", "REBUILT")]
     failed_required += [r for r, s in texts if s != "OK"]
     if args.json:
-        print(json.dumps({"ok": not failed_required,
+        print(json.dumps({"ok": not failed_required and catalog_status == "OK",
                           "files": [{"path": e.path, "group": e.group, "required": e.required,
                                      "status": s, "size_bytes": e.size, "sha256": e.sha256,
                                      "source": e.source, "fix": e.fix} for e, s in results]
                           + [{"path": r, "group": "Committed text", "required": True, "status": s}
-                             for r, s in texts]}, indent=2))
-        return 0 if not failed_required else 1
+                             for r, s in texts],
+                          "catalog_alignment": {"canonical": CATALOG, "fixture": catalog_fixture,
+                                                "status": catalog_status}}, indent=2))
+        return 0 if not failed_required and catalog_status == "OK" else 1
 
     group = None
     for entry, status in results:
@@ -218,6 +242,9 @@ def main(argv: list[str] | None = None) -> int:
     for relative, status in texts:
         print(f"  {'ok ' if status == 'OK' else 'XX '}{relative}"
               + ("" if status == "OK" else f"  [{status}]  fix: git checkout -- {relative}"))
+    print("\nOffline catalog alignment")
+    print(f"  {'ok ' if catalog_status == 'OK' else 'XX '}canonical IDs vs "
+          f"{catalog_fixture or 'offline_fixtures/missions.json'} [{catalog_status}]")
     if any(s == "LFS_POINTER" for _, s in results):
         print("\nLFS pointer files found: install Git LFS (https://git-lfs.com), then run "
               "`git lfs install && git lfs pull`. If LFS bandwidth is exhausted, run "
@@ -226,9 +253,10 @@ def main(argv: list[str] | None = None) -> int:
     if optional_missing:
         print("\nOptional files missing: terrain outside 80-90 S falls back to committed site tiles,"
               " then to a smooth-sphere horizon (flagged in every result as horizon_model).")
-    print("\nRESULT:", "all required data present and verified" if not failed_required
-          else f"{len(failed_required)} required file(s) need attention")
-    return 0 if not failed_required else 1
+    failed_checks = len(failed_required) + (catalog_status != "OK")
+    print("\nRESULT:", "all required data present and verified" if not failed_checks
+          else f"{failed_checks} required check(s) need attention")
+    return 0 if not failed_checks else 1
 
 
 if __name__ == "__main__":

@@ -93,6 +93,12 @@ def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
         strata[label] = {"n": int(member.sum()), **_metrics(pred[member], ref[member])}
     report = {
         "schema": "apolloharness.earth_visibility_validation.v1",
+        "source": {
+            "authority": "NASA GSFC Planetary Geology, Geophysics, and Geochemistry "
+                         "Analysis Tool (PGDA), product 69",
+            "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+            "reference_data": "Committed truth raster named by truth.product.",
+        },
         "truth": {"product": Path(product).name, "publisher": "NASA GSFC PGDA product 69",
                   "quantity": "fraction of time any part of Earth's disc is above the terrain"},
         "engine": {"horizon_max_distance_m": terrain.HORIZON_MAX_DISTANCE_M,
@@ -104,6 +110,12 @@ def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
         "dev": evaluate(dev), "test": result_test, "test_no_skill_baseline": baseline,
         "test_strata_by_local_truth_range": strata,
         "runtime_s": round(time.perf_counter() - started, 1),
+        "automated_comparison": {
+            "status": "computed",
+            "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
+            "human_review_status": "pending",
+            "human_reviewer": "@Thirtha17",
+        },
     }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")

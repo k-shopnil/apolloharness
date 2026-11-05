@@ -57,6 +57,20 @@ class InventoryTests(unittest.TestCase):
                                   text=True).stdout
             self.assertNotIn("filter: lfs", attr, relative)
 
+    def test_offline_catalog_matches_canonical_ids(self) -> None:
+        status, fixture = verify_data.check_catalog_alignment()
+        self.assertEqual(status, "OK")
+        self.assertEqual(fixture, "offline_fixtures/missions.json")
+
+    def test_provenance_inventory_is_citation_complete(self) -> None:
+        report = json.loads(Path("data/validation/data_provenance.json").read_text(encoding="utf-8"))
+        self.assertEqual(report["schema"], "apolloharness.data_provenance.v1")
+        self.assertTrue(report["entries"])
+        self.assertTrue(all(entry["citation_status"] in {"present", "present_as_derived"}
+                            for entry in report["entries"]))
+        self.assertTrue(all(entry["human_review_status"] == "pending"
+                            for entry in report["entries"]))
+
 
 class PointerHandlingTests(unittest.TestCase):
     """A clone without `git lfs pull` must fail clearly or degrade, never cryptically."""

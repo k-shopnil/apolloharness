@@ -169,7 +169,13 @@ python -m src.ml.earth_validation   # -> data/validation/earth_visibility_valida
 ## Independent check of Sun and Earth positions: JPL Horizons
 
 The challenge names JPL Horizons as the reference ephemeris tool, so the
-engine's sky positions were checked against it directly. The comparison
+engine's sky positions were compared against it directly. The authoritative
+source is the [NASA/JPL Horizons API](https://ssd.jpl.nasa.gov/api/horizons.api)
+([API documentation](https://ssd.jpl.nasa.gov/api/horizons.api-doc.html)).
+The exact query configuration, object IDs, cached reference responses, and
+representative reference/engine values are recorded in
+`data/validation/horizons_crosscheck.json`; the reproducible implementation is
+`src/ml/horizons_crosscheck.py`. The comparison
 covers every catalog site with a published coordinate (13 sites, near side
 and far side), the Sun and Earth, and one synodic month from
 2026-11-15 at 6-hour steps, giving 1,547 samples per body. Horizons
@@ -181,8 +187,9 @@ and far side), the Sun and Earth, and one synodic month from
 | Production engine (geometric) vs Horizons (apparent) | 0.0060° (21.5″) | 0.0002° | 100% / 100% |
 | Same light-time and aberration corrections in SPICE vs Horizons | 0.000014° (0.05″) | 0.000012° | 100% / 100% |
 
-With Horizons' corrections reproduced, the two agree to 0.05 arcseconds, so
-frames, time scales and site geometry are correct. The production residual
+With Horizons' corrections reproduced, the two agree to 0.05 arcseconds in
+this automated comparison, supporting consistency of the frames, time scale
+and site geometry. The production residual
 is entirely **stellar aberration** (≤ 20.6″), which Horizons includes and the
 engine, like the NASA illumination products it was validated against,
 omits. Its operational effect, measured by re-running the event finder
@@ -200,6 +207,16 @@ python -m src.ml.horizons_crosscheck --refresh   # re-query Horizons (~1 min)
 
 `tests/test_regional_and_ml.py::HorizonsCrossCheckTests` fails if either
 bound regresses.
+
+This is a computational reproducibility result, not scientific approval.
+Human review of the cited reference data, query parameters, coordinate
+assumptions, methodology and residuals is pending with `@Thirtha17`.
+
+The NASA PGDA solar and Earth visibility comparisons in the preceding
+sections likewise record the cited raster products, generated values and
+automated metrics in their validation JSON files. Their
+`automated_comparison.human_review_status` remains `pending`; passing tests
+must not be read as scientific sign-off.
 
 ## Limitations
 

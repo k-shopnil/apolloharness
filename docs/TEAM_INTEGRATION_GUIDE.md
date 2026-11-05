@@ -240,7 +240,7 @@ Payload (`schema: "apolloharness.site_geometry.v1"`):
   #7 example invented them. Use `sun.fraction_of_window_up`,
   `sun.disk_visible_fraction` and `earth.fraction_of_window_up` instead.
 
-### `GET /api/v1/sites/sensitivity?lat=&lon=&utc=` ("small changes, big effects")
+### Optional, after the core routes: `GET /api/v1/sites/sensitivity?lat=&lon=&utc=` ("small changes, big effects")
 
 ```python
 from src.compute.api_payloads import site_sensitivity
@@ -283,7 +283,7 @@ Rules the UI must keep:
   each tracked polar site (currently IM-2), with `site_id` and `mission`
   added. A test fails if it drifts from the live API.
 
-### `GET /api/v1/artemis-regions` (Artemis III context layer)
+### Optional, after the core routes: `GET /api/v1/artemis-regions` (Artemis III context layer)
 
 `artemis_regions()` returns NASA's nine Artemis III candidate landing
 **regions** (release 24-136, 2024-10-28, "in no priority order"): Peak near
@@ -533,7 +533,27 @@ How to compare with JPL Horizons (https://ssd.jpl.nasa.gov/horizons/app.html):
    while the pipeline is geometric (`"NONE"`). Expect differences of about
    0.005° for the Sun (aberration ~20″) and smaller for Earth. Differences
    above 0.1° indicate a frame or longitude-sign error.
-5. Record version, settings and deltas in `docs/SCIENTIFIC_VALIDATION_REPORT.md`.
+5. Record version, settings and deltas in
+   `data/validation/horizons_crosscheck.json`.
+
+The reproducible batch comparison is implemented in
+`src/ml/horizons_crosscheck.py`. Its official API source, exact query
+parameters, cached reference responses, representative expected/reference
+values, generated engine values, differences, and automated criteria are in
+`data/validation/horizons_crosscheck.json`. The automated result supports
+reproducibility only; it is not scientific approval.
+
+### Human science handoff
+
+`@Thirtha17`, the Horizons cross-check for this PR has been performed. The
+real external reference data and citation are provided in
+`data/validation/horizons_crosscheck.json`, with the reproducible comparison
+implemented in `src/ml/horizons_crosscheck.py`. Please review the cited
+Horizons data, query configuration, coordinate/reference assumptions,
+methodology, and resulting comparison manually. The automated agreement is
+intended to support reproducibility and does not constitute scientific
+sign-off. The NASA PGDA solar and Earth visibility comparisons have the same
+pending human-review status in their validation artifacts.
 
 A historical sanity check already passes: Apollo 11 landed with a planned
 low morning Sun (about 10–11°), and the pipeline gives 10.69°.

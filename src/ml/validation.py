@@ -279,6 +279,12 @@ def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 2026103
     return {
         "schema": "apolloharness.validation.annual_illumination.v2",
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": {
+            "authority": "NASA GSFC Planetary Geology, Geophysics, and Geochemistry "
+                         "Analysis Tool (PGDA), product 69",
+            "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608.TIF",
+            "reference_data": "Committed truth raster named by truth.product.",
+        },
         "truth": {"product": Path(product).name, "quantity": "mean visible solar-disc fraction",
                   "sampling": "nearest pixel (60 m)", "source_dem_epoch": "LOLA 2009-2013"},
         "physics": {"dem": "LDEM_80S_80MPP_ADJ (PGDA product 90, 80 m)",
@@ -302,6 +308,12 @@ def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 2026103
         "test_residual_analysis": residual_analysis,
         "reference_points": references,
         "runtime_s": round(time.perf_counter() - started, 1),
+        "automated_comparison": {
+            "status": "computed",
+            "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
+            "human_review_status": "pending",
+            "human_reviewer": "@Thirtha17",
+        },
     }
 
 

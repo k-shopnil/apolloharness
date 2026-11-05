@@ -26,6 +26,7 @@ import json
 import time
 import urllib.parse
 import urllib.request
+from datetime import datetime, timezone
 from pathlib import Path
 
 import numpy as np
@@ -33,6 +34,8 @@ import numpy as np
 from src.compute.terrain import DATA_DIR
 
 API = "https://ssd.jpl.nasa.gov/api/horizons.api"
+API_DOCUMENTATION = "https://ssd.jpl.nasa.gov/api/horizons.api-doc.html"
+INTERACTIVE_DOCUMENTATION = "https://ssd.jpl.nasa.gov/horizons/app.html"
 CACHE_DIR = DATA_DIR / "validation" / "horizons"
 REPORT = DATA_DIR / "validation" / "horizons_crosscheck.json"
 START_UTC = "2026-11-15T00:00:00Z"
@@ -155,13 +158,43 @@ def run(*, refresh: bool = False) -> dict:
         row = {"site_id": site["id"], "latitude_deg": site["latitude_deg"],
                "longitude_deg": site["longitude_deg"], "samples": len(utc)}
         for body in BODIES:
-            _, az, el, _ = horizons[body]
+            body_utc, az, el, _ = horizons[body]
             reference = _unit(az, el)
             for kind in ("geometric", "apparent"):
                 mine = ours[kind][body]
                 sep = _separation_deg(_unit(mine[:, 0], mine[:, 1]), reference)
                 pooled[kind][body].append(sep)
                 row[f"{body}_{kind}_max_sep_deg"] = float(sep.max())
+            sample_indices = sorted({0, len(body_utc) // 2, len(body_utc) - 1})
+            row.setdefault("sample_comparisons", {})[body] = [
+                {
+                    "utc": body_utc[i],
+                    "reference": {"azimuth_deg": float(az[i]), "elevation_deg": float(el[i])},
+                    "engine_geometric": {
+                        "azimuth_deg": float(ours["geometric"][body][i, 0]),
+                        "elevation_deg": float(ours["geometric"][body][i, 1]),
+                        "angular_separation_deg": float(
+                            _separation_deg(
+                                _unit(ours["geometric"][body][i:i + 1, 0],
+                                      ours["geometric"][body][i:i + 1, 1]),
+                                reference[i:i + 1],
+                            )[0]
+                        ),
+                    },
+                    "engine_apparent": {
+                        "azimuth_deg": float(ours["apparent"][body][i, 0]),
+                        "elevation_deg": float(ours["apparent"][body][i, 1]),
+                        "angular_separation_deg": float(
+                            _separation_deg(
+                                _unit(ours["apparent"][body][i:i + 1, 0],
+                                      ours["apparent"][body][i:i + 1, 1]),
+                                reference[i:i + 1],
+                            )[0]
+                        ),
+                    },
+                }
+                for i in sample_indices
+            ]
             geometric_el = ours["geometric"][body][:, 1]
             elevation_error[body].append(np.abs(geometric_el - el))
             clear = np.abs(el) > 0.05  # skip samples grazing the spherical horizon
@@ -170,9 +203,59 @@ def run(*, refresh: bool = False) -> dict:
         rows.append(row)
     result = {
         "schema": "apolloharness.horizons_crosscheck.v1",
-        "reference": "JPL Horizons API, observer table, QUANTITIES=4, APPARENT=AIRLESS",
+        "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "source": {
+            "authority": "NASA/JPL Solar System Dynamics Group",
+            "api_url": API,
+            "api_documentation": API_DOCUMENTATION,
+            "interactive_documentation": INTERACTIVE_DOCUMENTATION,
+            "method": "Cached text responses retrieved from the official Horizons API; "
+                       "the cache files under data/validation/horizons/ are the reference data.",
+        },
+        "query": {
+            "target_objects": {"sun": "10", "earth": "399"},
+            "center": "coord@301",
+            "observer_coordinate_type": "GEODETIC",
+            "site_coordinates": "east_longitude_deg,latitude_deg,altitude_km",
+            "altitude_km": 0.0,
+            "start_utc": START_UTC,
+            "stop_utc": STOP_UTC,
+            "step": STEP,
+            "ephemeris_type": "OBSERVER",
+            "quantities": "4 (apparent azimuth/elevation)",
+            "apparent": "AIRLESS",
+            "angle_format": "DEG",
+            "csv_format": True,
+            "extra_precision": True,
+            "time_digits": "SECONDS",
+            "center_frame": "MEAN_ME, east-longitude positive",
+            "center_radii_km": [1737.4, 1737.4, 1737.4],
+        },
+        "reference": "JPL Horizons API observer-table output; DE441",
         "reference_metadata": meta,
-        "engine": "spice_engine._topocentric_state: DE430 + moon_pa_de421, geometric (abcorr NONE)",
+        "engine": {
+            "implementation": "spice_engine._topocentric_state",
+            "ephemeris": "NAIF DE430 + moon_pa_de421",
+            "production_comparison": "geometric (abcorr NONE)",
+            "apparent_reproduction": "SPICE spkcpo CN+S",
+            "coordinate_system": "MOON_ME, east/north/up, azimuth clockwise from north",
+            "units": "degrees",
+        },
+        "methodology": {
+            "reference_values": "Cached Horizons azimuth/elevation for each site/body/time.",
+            "generated_values": "Production geometric positions and a separate SPICE apparent reproduction.",
+            "difference": "Angular separation of unit vectors; geometric elevation absolute error "
+                          "and above-horizon sign agreement are also reported.",
+            "human_review_status": "pending",
+            "human_reviewer": "@Thirtha17",
+        },
+        "automated_criteria": {
+            "geometric_sun_max_separation_deg": 0.007,
+            "geometric_earth_max_separation_deg": 0.001,
+            "apparent_reproduction_max_separation_deg": 5e-5,
+            "visibility_agreement_fraction": 1.0,
+            "purpose": "Computational consistency check only; not scientific approval.",
+        },
         "window_utc": [START_UTC, STOP_UTC], "step": STEP, "sites": len(sites),
         "samples_per_body": int(sum(r["samples"] for r in rows)),
         "angular_separation_deg": {

@@ -1,5 +1,13 @@
 {
   "schema": "apolloharness.track_index.v1",
+  "provenance": {
+    "source_catalog": "../../missions.json",
+    "source_catalog_citations": "Per-record sources and coordinate_provenance in data/missions.json",
+    "ephemeris": "NASA/JPL NAIF kernels listed in src/acquire/verify_data.py",
+    "terrain": "NASA LRO LOLA products listed in data/validation/data_provenance.json",
+    "processing": "src/compute/precompute_tracks.py; locally generated Sun/Earth geometry and terrain horizons",
+    "scientific_status": "derived output; human scientific review pending"
+  },
   "duration_days": 29.530589,
   "step_minutes": 60.0,
   "missions": [

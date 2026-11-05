@@ -97,6 +97,9 @@ Git LFS) and are byte-identical to NAIF's generic kernels; every external file,
 its source, size, SHA-256 and location is listed in
 [docs/DATA_SETUP.md](docs/DATA_SETUP.md), and `python -m src.acquire.verify_data`
 checks them all.
+The complete source inventory and citation audit is in
+[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md), with structured provenance in
+[`data/validation/data_provenance.json`](data/validation/data_provenance.json).
 SPICE calculations use `MOON_PA`, east-positive
 longitude, planetocentric latitude converted through the Moon radii, and
 geometric (no aberration correction) line of sight. Sun and Earth visibility

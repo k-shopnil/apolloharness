@@ -8,6 +8,10 @@ how to get it. One command checks all of it:
 python -m src.acquire.verify_data
 ```
 
+The complete scientific source inventory, processing lineage and human-review
+status are maintained in [DATA_SOURCES.md](DATA_SOURCES.md) and
+[`data/validation/data_provenance.json`](../data/validation/data_provenance.json).
+
 It exits `0` when every required file is present and byte-exact, and `1`
 otherwise, printing the fix command next to each problem. Use it after
 cloning, before deploying, and in CI.
@@ -36,6 +40,25 @@ python -m pytest -q tests
 
 Steps 1–4 give you everything except the optional 531 MB global DEM
 (see [Optional: global terrain](#optional-global-terrain-531-mb)).
+
+## Resolution and identity rules
+
+`data/missions.json` is the canonical mission catalog used by compute modules.
+`offline_fixtures/missions.json` is the canonical offline fixture location;
+it may add explicit offline-analysis fields, but its mission IDs must match the
+canonical catalog. The CI `data-guard` job and
+`python -m src.acquire.verify_data` enforce that ID identity. The old
+`demo_fixtures/missions.json` path is accepted only as a compatibility fallback
+when the new fixture path is absent.
+
+Large scientific products resolve to the committed paths listed in the
+manifest in `src/acquire/verify_data.py`. A real Git LFS object, or a verified
+download from its authoritative NASA/NAIF URL, is required; an LFS pointer is
+reported as unavailable. Local development uses `git lfs pull` or
+`verify_data --fetch`, while CI disables automatic LFS checkout, restores the
+cached LFS objects, and runs `git lfs pull` before tests. The manifest's
+expected size and SHA-256 establish dataset identity; derived tiles are
+validated by their recorded metadata and may be rebuilt.
 
 ### No Git LFS, or LFS quota exhausted
 
