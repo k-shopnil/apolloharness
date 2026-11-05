@@ -113,3 +113,25 @@ class CheckTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class IdentifyResourcesTests(unittest.TestCase):
+    def test_classifies_by_content_not_name(self) -> None:
+        from src.acquire.identify_resources import run
+        with tempfile.TemporaryDirectory() as tmp:
+            folder = Path(tmp)
+            (folder / "naif0012.tls").write_bytes(Path("data/spice/naif0012.tls").read_bytes())
+            (folder / "renamed_catalog.json").write_bytes(Path("data/missions.json").read_bytes())
+            (folder / "pck00010.tpc").write_text("a different release\n", encoding="utf-8")
+            (folder / "challenge_sites.csv").write_text("name,lat,lon\nA,-89,0\n", encoding="utf-8")
+            (folder / ".hidden").write_text("ignored", encoding="utf-8")
+            found = {Path(f.path).name: f for f in run([folder])}
+        self.assertEqual(set(found), {"naif0012.tls", "renamed_catalog.json", "pck00010.tpc",
+                                      "challenge_sites.csv"})
+        self.assertEqual(found["naif0012.tls"].status, "KNOWN")
+        self.assertEqual(found["renamed_catalog.json"].status, "KNOWN")  # matched by SHA-256
+        self.assertEqual(found["renamed_catalog.json"].matches, "data/missions.json")
+        self.assertEqual(found["pck00010.tpc"].status, "NEW_VERSION")
+        self.assertEqual(found["challenge_sites.csv"].status, "NEW")
+        self.assertEqual(found["challenge_sites.csv"].details,
+                         {"kind": "table", "columns": ["name", "lat", "lon"], "rows": 1})

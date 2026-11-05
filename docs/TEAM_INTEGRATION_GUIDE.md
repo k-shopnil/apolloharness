@@ -35,6 +35,7 @@ products and SPICE kernels; no network is needed at runtime.
 | Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
 | "Small changes, big effects" (beyond the issue) | `api_payloads.site_sensitivity` → `GET /api/v1/sites/sensitivity` | How much sunlight / Earth LOS change if the lander moves a few hundred metres, arrives a few days later, or raises its antenna |
 | Artemis III candidate regions (beyond the issue) | `api_payloads.artemis_regions` → `GET /api/v1/artemis-regions`, `data/artemis_iii_regions.json` | NASA's nine regions (Oct 2024), labelled as regions, anchored to IAU features |
+| Event-day resource check (beyond the issue) | `python -m src.acquire.identify_resources`, [EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md) | Classifies released files as KNOWN / NEW_VERSION / NEW by SHA-256 and describes new rasters and vectors; per-team plan for 13–15 Nov |
 | Manifest grounding | `data/missions.json`, `offline_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |

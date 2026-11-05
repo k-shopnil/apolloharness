@@ -163,7 +163,8 @@ duration with each result.
 Install pinned dependencies with `python -m pip install -r requirements.txt`.
 For tests, install `requirements-dev.txt` (adds pytest) and run `python -m pytest -q tests`.
 The engine is validated against NASA's independent illumination map (held-out
-test R² 0.951, MAE 1.45 pp): see [docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md).
+test R² 0.951, MAE 1.45 pp), NASA's Earth visibility map (R² 0.953, MAE 1.40 pp)
+and JPL Horizons sky positions (≤ 0.006°): see [docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md).
 Run an offline geometry example from the repository root with:
 
 ```sh
@@ -233,10 +234,16 @@ Then run `python -m src.acquire.verify_data`; it must end with `all required dat
 present and verified`. Full file list, sources and the no-LFS fallback:
 [docs/DATA_SETUP.md](docs/DATA_SETUP.md).
 
+Event days (13–15 November): follow [docs/EVENT_DAY_PLAN.md](docs/EVENT_DAY_PLAN.md).
+On day one, check the newly released resources against our data with
+`python -m src.acquire.identify_resources <download folder>`.
+
 #### 2. Backend Team (`feature/backend-systems`) — `@ariful305`, `@Eetherr77`
 * [ ] **Wire Custom Coordinate Route:** Add `GET /api/v1/sites/custom?lat=...&lon=...&utc=...` calling `src.compute.site_evaluation.evaluate_custom_site`.
 * [ ] **Wire Launch-Slip Route:** Add `GET /api/v1/sites/compare-dates?site_id=...&date_a=...&date_b=...` calling `src.compute.site_evaluation.compare_launch_dates`.
 * [ ] **Expand Geometry Schema:** Update `/api/v1/sites/geometry` to return the new operational countdown fields (`time_to_sunset_hours`, `time_to_sunset_formatted`, etc.).
+* [ ] **Wire Sensitivity Route:** Add `GET /api/v1/sites/sensitivity?lat=...&lon=...&utc=...` calling `src.compute.api_payloads.site_sensitivity` (cache responses; ~3–5 s; 422 north of ~83.5°S).
+* [ ] **Wire Artemis III Regions Route:** Add `GET /api/v1/artemis-regions` returning `src.compute.api_payloads.artemis_regions()` (static; regions, not landing points).
 * [ ] **Ingest Nested Mission Models:** Adapt backend `Mission` schema to ingest the nested structure in `data/missions.json` (see [docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md#backend-endpoint-wiring)).
 * [ ] **Regression & PR:** Verify `pytest tests/` passes, push to `feature/backend-systems`, and open a PR targeting `main`. In your PR description, tag `@ASMFahim71` with the finalized response payloads.
 

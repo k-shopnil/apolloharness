@@ -166,12 +166,22 @@ failure falls back to the slower path.
 ## Updating a dataset
 
 Upstream products are versioned by filename (`..._201608.TIF`, `de430`), so
-a new release is a new file, never a silent change. To adopt one:
+a new release is a new file, never a silent change. To check a batch of
+downloaded files against everything the pipeline already pins (by SHA-256,
+so renamed copies are still recognised):
+
+```sh
+python -m src.acquire.identify_resources FOLDER_OR_FILES   # KNOWN / NEW_VERSION / NEW
+```
+
+The event-day procedure built on it is in [EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md).
+To adopt one:
 
 1. Add the product and its checksums to `src/acquire/nasa_products.py` and
    `src/acquire/verify_data.py`.
 2. Regenerate the derived outputs listed above.
-3. Re-run the validation (`python -m src.ml.validation`) and the tests.
+3. Re-run the validations (`python -m src.ml.validation --product NEW.TIF`,
+   `python -m src.ml.earth_validation --product NEW.TIF`) and the tests.
 4. Record the change in [SCIENTIFIC_BASIS.md](SCIENTIFIC_BASIS.md).
 
 The gazetteer is the exception: USGS updates it in place, so its SHA-256 is

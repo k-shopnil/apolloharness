@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import time
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -54,15 +55,16 @@ def physics_earth(latitudes: np.ndarray, longitudes: np.ndarray, dem: DemArray, 
 
 
 def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
-        block_m: float = 15_000.0, replicates: int = 1000) -> dict[str, Any]:
+        block_m: float = 15_000.0, replicates: int = 1000, product: Path = PRODUCT,
+        output: Path = REPORT_PATH) -> dict[str, Any]:
     started = time.perf_counter()
     dem = DemArray()
-    with rasterio.open(PRODUCT) as ds:
+    with rasterio.open(product) as ds:
         product_radius = 0.98 * min(abs(ds.bounds.left), abs(ds.bounds.right))
     lat, lon = sample_points(points, seed, product_radius, dem.to_map)
     x, y = (np.asarray(v) for v in dem.to_map.transform(lon, lat))
     split = wedge_split(lat, lon, x, y)
-    truth = nasa_illumination(lat, lon, PRODUCT)
+    truth = nasa_illumination(lat, lon, product)
     tracks = body_tracks(stratified_epochs(epochs, seed))
     blocks = np.floor(x / block_m).astype(int) * 100_000 + np.floor(y / block_m).astype(int)
     physics = physics_earth(lat, lon, dem, tracks)
@@ -91,7 +93,7 @@ def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
         strata[label] = {"n": int(member.sum()), **_metrics(pred[member], ref[member])}
     report = {
         "schema": "apolloharness.earth_visibility_validation.v1",
-        "truth": {"product": PRODUCT.name, "publisher": "NASA GSFC PGDA product 69",
+        "truth": {"product": Path(product).name, "publisher": "NASA GSFC PGDA product 69",
                   "quantity": "fraction of time any part of Earth's disc is above the terrain"},
         "engine": {"horizon_max_distance_m": terrain.HORIZON_MAX_DISTANCE_M,
                    "near_field_m": terrain.NEAR_FIELD_M,
@@ -103,8 +105,8 @@ def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
         "test_strata_by_local_truth_range": strata,
         "runtime_s": round(time.perf_counter() - started, 1),
     }
-    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REPORT_PATH.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     return report
 
 
@@ -112,8 +114,11 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--points", type=int, default=800)
     parser.add_argument("--epochs", type=int, default=2000)
+    parser.add_argument("--product", type=Path, default=PRODUCT,
+                        help="truth raster (Earth visibility fraction), e.g. a new PGDA release")
+    parser.add_argument("--output", type=Path, default=REPORT_PATH)
     args = parser.parse_args(argv)
-    report = run(points=args.points, epochs=args.epochs)
+    report = run(points=args.points, epochs=args.epochs, product=args.product, output=args.output)
     test = report["test"]
     print(json.dumps({"test_n": test["n"], "any_part": test["any_part"],
                       "ci95": test["any_part_ci95"], "within_5pp_pct": test["within_5pp_pct"],

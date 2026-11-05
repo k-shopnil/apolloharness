@@ -198,15 +198,16 @@ def _evaluate(physics: dict[str, np.ndarray], truth: np.ndarray, blocks: np.ndar
 
 
 def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
-                   block_m: float = 15_000.0, replicates: int = 1000) -> dict[str, Any]:
+                   block_m: float = 15_000.0, replicates: int = 1000,
+                   product: Path = PRODUCT_85S) -> dict[str, Any]:
     started = time.perf_counter()
     dem = DemArray()
-    with rasterio.open(PRODUCT_85S) as ds:
+    with rasterio.open(product) as ds:
         product_radius = 0.98 * min(abs(ds.bounds.left), abs(ds.bounds.right))
     lat, lon = sample_points(points, seed, product_radius, dem.to_map)
     x, y = (np.asarray(v) for v in dem.to_map.transform(lon, lat))
     split = wedge_split(lat, lon, x, y)
-    truth = nasa_illumination(lat, lon)
+    truth = nasa_illumination(lat, lon, product)
     tracks = body_tracks(stratified_epochs(epochs, seed))
     blocks = (np.floor(x / block_m).astype(int) * 100_000 + np.floor(y / block_m).astype(int))
 
@@ -240,7 +241,7 @@ def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 2026103
     t_lat, t_lon, t_truth = lat[test][valid], lon[test][valid], truth[test][valid]
     pred = selected_physics["disk_fraction"][valid]
     baseline = _metrics(np.full(len(t_truth), truth[dev][np.isfinite(truth[dev])].mean()), t_truth)
-    gradient = local_truth_range(t_lat, t_lon)
+    gradient = local_truth_range(t_lat, t_lon, product=product)
     edges = np.nanpercentile(gradient, [0, 50, 90, 100])
     strata = {}
     for label, lo, hi in (("smooth_lower_50pct", edges[0], edges[1]),
@@ -278,7 +279,7 @@ def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 2026103
     return {
         "schema": "apolloharness.validation.annual_illumination.v2",
         "generated_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "truth": {"product": PRODUCT_85S.name, "quantity": "mean visible solar-disc fraction",
+        "truth": {"product": Path(product).name, "quantity": "mean visible solar-disc fraction",
                   "sampling": "nearest pixel (60 m)", "source_dem_epoch": "LOLA 2009-2013"},
         "physics": {"dem": "LDEM_80S_80MPP_ADJ (PGDA product 90, 80 m)",
                     "ephemeris": "NAIF DE430 + moon_pa_de421, geometric",
@@ -310,8 +311,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--epochs", type=int, default=2000)
     parser.add_argument("--seed", type=int, default=20261031)
     parser.add_argument("--output", type=Path, default=REPORT_PATH)
+    parser.add_argument("--product", type=Path, default=PRODUCT_85S,
+                        help="truth raster (mean solar-disc fraction), e.g. a new PGDA release")
     args = parser.parse_args(argv)
-    report = run_validation(points=args.points, epochs=args.epochs, seed=args.seed)
+    report = run_validation(points=args.points, epochs=args.epochs, seed=args.seed,
+                            product=args.product)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(json.dumps({k: report[k] for k in ("selected", "test", "test_no_skill_baseline",
