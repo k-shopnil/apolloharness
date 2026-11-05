@@ -99,6 +99,7 @@ Exact sizes and SHA-256 values for every file are in
 | Path | What it is | Regenerate with |
 |---|---|---|
 | `data/missions.json` | Sourced mission catalog (16 records) | hand-curated, each fact has a source |
+| `data/artemis_iii_regions.json` | NASA's nine Artemis III candidate regions, anchored to IAU features | `python -m src.acquire.artemis_regions` |
 | `data/psr/iau_south_polar_craters.csv` | 176 IAU craters south of 70°S, used to name PSR host craters | `python -m src.acquire.usgs_nomenclature` |
 | `data/lola/tiles/index.json` | Tile centres and extents | `python -m src.compute.global_terrain` |
 | `data/precomputed/tracks/*.json` | 29.5-day Sun/Earth tracks for 9 sites | `python -m src.compute.precompute_tracks` |

@@ -34,6 +34,7 @@ products and SPICE kernels; no network is needed at runtime.
 | PSR names (Issue #7 / #8 §4.1) | `nearest_psr_within(...)["nearest_psr_id", "nearest_psr_host", "nearest_psr_label"]`, `psr_names.host_crater` | PGDA ID plus the IAU-named host crater from the USGS gazetteer; `null` rather than an invented name |
 | Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
 | "Small changes, big effects" (beyond the issue) | `api_payloads.site_sensitivity` → `GET /api/v1/sites/sensitivity` | How much sunlight / Earth LOS change if the lander moves a few hundred metres, arrives a few days later, or raises its antenna |
+| Artemis III candidate regions (beyond the issue) | `api_payloads.artemis_regions` → `GET /api/v1/artemis-regions`, `data/artemis_iii_regions.json` | NASA's nine regions (Oct 2024), labelled as regions, anchored to IAU features |
 | Manifest grounding | `data/missions.json`, `offline_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
@@ -280,6 +281,38 @@ Rules the UI must keep:
 - Offline: `offline_fixtures/site_sensitivity/<id>.json` is the payload for
   each tracked polar site (currently IM-2), with `site_id` and `mission`
   added. A test fails if it drifts from the live API.
+
+### `GET /api/v1/artemis-regions` (Artemis III context layer)
+
+`artemis_regions()` returns NASA's nine Artemis III candidate landing
+**regions** (release 24-136, 2024-10-28, "in no priority order"): Peak near
+Cabeus B, Haworth, Malapert Massif, Mons Mouton Plateau, Mons Mouton, Nobile
+Rim 1, Nobile Rim 2, de Gerlache Rim 2 and Slater Plain.
+
+NASA published the regions as an image only, with no coordinates. We
+therefore do not invent centres. Each record carries the IAU feature that
+names it (`anchor`: official centre, diameter, USGS link) and an
+`anchor_relation`. For example, Nobile Rim 1 *"is on the rim of this
+crater, not at its centre"*, so it lies about one crater radius (~40 km)
+from the anchor. `catalog_sites_near_anchor` links regions to our missions:
+IM-2 landed 7.7 km from the IAU centre of Mons Mouton.
+
+UI rules:
+
+- Label: "Artemis III candidate region near Nobile crater". Never "landing
+  site", never a lander icon, never a pin with a precise coordinate.
+  Every record has `kind: "candidate_region"` and `is_landing_point: false`.
+- Draw a soft label or halo at the anchor, not a box. A box would imply a
+  boundary we do not have.
+- Do not run "evaluate this site" on an anchor. A crater centre is the
+  crater floor, often a PSR, not the region. Users can click the terrain
+  near the label to evaluate real points.
+- Cite the sources in `sources` (NASA release, NASA NTRS 20250011660, USGS
+  gazetteer).
+
+Rebuild with `python -m src.acquire.artemis_regions`, which reads the pinned
+USGS gazetteer. Re-check NASA's list on event day (see
+[EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md)).
 
 ### PSR names: what the UI may say
 

@@ -160,3 +160,43 @@ class SiteSensitivityTests(unittest.TestCase):
         live = json.loads(json.dumps(live))
         self.assertEqual({k: v for k, v in fixture.items() if k not in ("site_id", "mission")},
                          live)
+
+
+class ArtemisRegionTests(unittest.TestCase):
+    NASA_2024_REGIONS = ["Peak near Cabeus B", "Haworth", "Malapert Massif", "Mons Mouton Plateau",
+                         "Mons Mouton", "Nobile Rim 1", "Nobile Rim 2", "de Gerlache Rim 2",
+                         "Slater Plain"]
+
+    def test_regions_are_labelled_as_regions_not_points(self) -> None:
+        from src.compute.api_payloads import artemis_regions
+        payload = artemis_regions()
+        self.assertEqual(payload["schema"], "apolloharness.artemis_iii_regions.v1")
+        self.assertEqual([r["name"] for r in payload["regions"]], self.NASA_2024_REGIONS)
+        ids = [r["id"] for r in payload["regions"]]
+        self.assertEqual(len(ids), len(set(ids)))
+        for region in payload["regions"]:
+            self.assertEqual(region["kind"], "candidate_region")
+            self.assertIs(region["is_landing_point"], False)
+            self.assertEqual(region["coordinate_basis"], "iau_feature_centre")
+            self.assertLess(region["anchor"]["center_lat_deg"], -80.0)
+            self.assertTrue(region["anchor"]["usgs_url"].startswith(
+                "https://planetarynames.wr.usgs.gov/Feature/"))
+        rims = [r for r in payload["regions"] if "Rim" in r["name"]]
+        self.assertTrue(all("not at its centre" in r["anchor_relation"] for r in rims))
+
+    def test_anchor_matches_committed_gazetteer_subset(self) -> None:
+        import csv
+        from src.compute.api_payloads import artemis_regions
+        craters = {row["name"]: row for row in csv.DictReader(
+            open("data/psr/iau_south_polar_craters.csv", encoding="utf-8"))}
+        for region in artemis_regions()["regions"]:
+            anchor = region["anchor"]
+            if anchor["iau_name"] in craters:  # mountains are not in the crater subset
+                row = craters[anchor["iau_name"]]
+                self.assertAlmostEqual(float(row["center_lat_deg"]), anchor["center_lat_deg"], 3)
+                self.assertAlmostEqual(float(row["center_lon_deg"]), anchor["center_lon_deg"], 3)
+
+    def test_im2_is_linked_to_mons_mouton(self) -> None:
+        from src.compute.api_payloads import artemis_regions
+        mouton = next(r for r in artemis_regions()["regions"] if r["name"] == "Mons Mouton")
+        self.assertIn("clps-prime-1-im2", [s["id"] for s in mouton["catalog_sites_near_anchor"]])

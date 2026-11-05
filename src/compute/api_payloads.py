@@ -10,6 +10,7 @@ rasters or the nested catalog schema:
     GET /api/v1/sites/geometry?lat&lon&utc  -> site_geometry(lat, lon, utc)
     GET /api/v1/sites/geometry?site_id=     -> mission_geometry(site_id)
     GET /api/v1/sites/sensitivity?lat&lon&utc -> site_sensitivity(lat, lon, utc)
+    GET /api/v1/artemis-regions             -> artemis_regions()
 
 Errors: ``ValueError`` for bad input (map to HTTP 422), ``LookupError`` for an
 unknown site or a site without a published coordinate/date (map to 404).
@@ -27,6 +28,7 @@ from typing import Any
 from .terrain import DATA_DIR
 
 CATALOG = DATA_DIR / "missions.json"
+ARTEMIS_REGIONS = DATA_DIR / "artemis_iii_regions.json"
 TRACK_DIR = DATA_DIR / "precomputed" / "tracks"
 SCHEMA = "apolloharness.site_geometry.v1"
 
@@ -71,6 +73,17 @@ def _catalog(path: str) -> tuple[dict[str, Any], ...]:
 def catalog_records(path: str | Path = CATALOG) -> list[dict[str, Any]]:
     """All catalog missions, flattened, with canonical ``data/missions.json`` IDs."""
     return [flatten_mission(r) for r in _catalog(str(path))]
+
+
+def artemis_regions(path: str | Path = ARTEMIS_REGIONS) -> dict[str, Any]:
+    """NASA's nine Artemis III candidate **regions**, anchored to IAU features.
+
+    Regions, not landing points: every record has ``kind: "candidate_region"``
+    and ``is_landing_point: false``. Coordinates are the IAU centre of the
+    feature that names the region (NASA published no coordinates); see
+    ``anchor_relation``. Static file, safe to serve offline.
+    """
+    return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
 def _clean(value: Any) -> Any:
