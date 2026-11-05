@@ -104,6 +104,7 @@ Exact sizes and SHA-256 values for every file are in
 | `data/precomputed/tracks/*.json` | 29.5-day Sun/Earth tracks for 9 sites | `python -m src.compute.precompute_tracks` |
 | `offline_fixtures/` | API-identical payloads for offline use | `python -m src.compute.api_payloads` |
 | `data/validation/annual_illumination_validation.json` | Validation results vs NASA | `python -m src.ml.validation` |
+| `data/validation/earth_visibility_validation.json` | Earth line-of-sight validation vs NASA's Earth visibility map | `python -m src.ml.earth_validation` |
 | `data/validation/horizons/*.txt`, `horizons_crosscheck.json` | Cached JPL Horizons responses and the cross-check result (13 sites × Sun/Earth) | `python -m src.ml.horizons_crosscheck --refresh` |
 
 ### Optional: global terrain (531 MB)
@@ -120,6 +121,18 @@ reported as `horizon_model: "spherical_horizon"` in every result, never
 silently. Install it on the machine that serves the API. Manual `curl`
 steps are in the
 [integration guide](TEAM_INTEGRATION_GUIDE.md#downloading-the-global-lola-dem-ldem_64).
+
+### Optional: Earth visibility truth map (25 MB, validation only)
+
+| Path | Size | Source | Get it |
+|---|---|---|---|
+| `data/illumination/AVGVISIB_85S_060M_201608_EARTH.TIF` | 24.9 MB | [NASA PGDA product 69](https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF) | `python -m src.acquire.nasa_products earth_visibility_85s_60m` |
+
+Not in Git and not read by the API. It is the independent truth for the
+Earth line-of-sight validation (`python -m src.ml.earth_validation`). The
+committed result, `data/validation/earth_visibility_validation.json`, is
+what the tests read, so you only need this file to re-run the validation.
+`verify_data --include-optional` checks it.
 
 ### Rebuild-only source (not needed to run)
 

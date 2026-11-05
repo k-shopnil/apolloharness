@@ -86,6 +86,11 @@ MANIFEST: tuple[DataFile, ...] = (
           ("clps-to19d-blue-ghost-1", 1_088_619, "dc079d002715a07cc811f16f03bc7ffd7568591ba5c8cef08f0cdc397c3544a2"),
           ("clps-to2-ab-peregrine-1", 1_134_754, "846adc428ebabcb740fbd93b530cb32ad56524d92f3842f1959ebcc33480f11c"),
           ("clps-to2-im-im1", 1_347_527, "f7841300eadce277b576febbf931a11dc67bb947a56140021229b017b11e3b66"))),
+    DataFile("data/illumination/AVGVISIB_85S_060M_201608_EARTH.TIF", 24_862_958,
+             "d71dc5adfff653e0e924e0a4cbf03795b996caa30b4ace3d5843a70a5ab2f3d2",
+             "Validation truth (optional)", False,
+             _PGDA + "MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+             "python -m src.acquire.nasa_products earth_visibility_85s_60m"),
     DataFile("cache/nasa/pds/ldem_64.img", 530_841_600,
              "1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6", "Global terrain (optional)", False,
              "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img",
@@ -105,6 +110,7 @@ _PRODUCT_FOR = {
     "data/spice/": "spice_kernels", "data/lola/LDEM_80S": "lola_dem_80s_80m",
     "data/illumination/AVGVISIB_85S": "annual_illumination_85s_60m",
     "data/illumination/AVGVISIB_75S": "annual_illumination_75s_120m",
+    "data/illumination/AVGVISIB_85S_060M_201608_EARTH": "earth_visibility_85s_60m",
     "data/psr/LPSR": "psr_shapefile", "cache/nasa/pds/ldem_64": "lola_gdr_global_64ppd",
 }
 
@@ -153,7 +159,8 @@ def _fetch(entries: list[DataFile]) -> None:
     from .nasa_products import acquire_product
     products = []
     for entry in entries:
-        product = next((p for prefix, p in _PRODUCT_FOR.items() if entry.path.startswith(prefix)), None)
+        product = next((p for prefix, p in sorted(_PRODUCT_FOR.items(), key=lambda kv: -len(kv[0]))
+                        if entry.path.startswith(prefix)), None)
         if product and product not in products:
             products.append(product)
     for product in products:

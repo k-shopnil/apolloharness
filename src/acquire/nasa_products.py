@@ -41,6 +41,14 @@ PRODUCTS: dict[str, dict[str, object]] = {
         "sha256": "d539467f16ccc5f51b6a904af6be5d16c9b2f194afe619b9f1f81841d9fec0bb",
         "product": "NASA PGDA product 69 average solar illumination, 75–90°S, 120 m/pixel, 201608 release; TIFF scale 0.00004 converts int16 to fraction",
     },
+    "earth_visibility_85s_60m": {
+        "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "filename": "AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "destination": PROJECT_ROOT / "data/illumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "size_bytes": 24_862_958,
+        "sha256": "d71dc5adfff653e0e924e0a4cbf03795b996caa30b4ace3d5843a70a5ab2f3d2",
+        "product": "NASA PGDA product 69 average Earth visibility (any part of the disc), 85–90°S, 60 m/pixel, 201608 release; validation truth for Earth line of sight, not a runtime input",
+    },
     "psr_shapefile": {
         "files": {
             "LPSR_80S_20MPP_ADJ.SHP": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.SHP", 161_396_036, "fe11dbc98b4054ff2f72510955b33f775f6f5b8e0a6f5ac4a03dfd8de5625606"),

@@ -44,3 +44,6 @@ artifacts/
 .agent/
 .agents/
 .ai/
+
+# Optional validation-truth downloads (registry: earth_visibility_85s_60m), not committed
+data/illumination/*_EARTH.TIF

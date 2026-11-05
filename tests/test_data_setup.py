@@ -27,7 +27,7 @@ class InventoryTests(unittest.TestCase):
                 entry = manifest[name]
                 self.assertEqual((entry.size, entry.sha256, entry.source), (size, sha, url), name)
                 checked += 1
-        self.assertEqual(checked, 14)  # 5 kernels, DEM, 2 illumination, 4 PSR, 2 global DEM
+        self.assertEqual(checked, 15)  # 5 kernels, DEM, 3 illumination, 4 PSR, 2 global DEM
 
     def test_tiles_in_manifest_match_tile_index(self) -> None:
         index = json.loads(Path("data/lola/tiles/index.json").read_text(encoding="utf-8"))

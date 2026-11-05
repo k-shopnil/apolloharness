@@ -5,7 +5,10 @@ independent long-term solar illumination map of the lunar south pole?
 
 **Answer.** Yes. On a held-out test set it explains 95% of the variance
 (R² = 0.951), with a mean absolute error of 1.45 percentage points and no
-measurable bias (−0.05 pp, 95% CI [−0.34, +0.29]). 97% of test points
+measurable bias (−0.05 pp, 95% CI [−0.34, +0.29]). The same engine, unchanged,
+reproduces NASA's independent **Earth visibility** map out-of-sample (R² 0.953,
+MAE 1.40 pp), and its Sun/Earth sky positions match **JPL Horizons** to
+0.006° (sections below). 97% of test points
 fall within ±5 pp. The validation also showed that the previous 50 km horizon
 default over-predicted polar sunlight by about 1.6 pp. Production now uses
 the configuration this protocol selected.
@@ -112,6 +115,56 @@ Our independent physics gives **10.2%** there. Two independent methods
 agree, so the coordinate is not the highly illuminated rim; the 89.4%
 figure belongs to a different point. No code or data should be changed
 to match it.
+
+## Earth line of sight against NASA's Earth visibility map
+
+The same protocol was applied to Earth, against PGDA product 69's
+`AVGVISIB_85S_060M_201608_EARTH`: the fraction of 18.6 years in which **any
+part of Earth's disc** is above the terrain (NASA's definition). It used the
+same 800 points, seed, wedge split, bootstrap and baseline. The horizon
+configuration is the production one, selected on solar dev data and frozen,
+so nothing was tuned to Earth data and the test result is fully
+out-of-sample.
+
+| Test set (n = 305) | R² [95% CI] | MAE (pp) [95% CI] | Bias (pp) [95% CI] | Within ±5 pp |
+|---|---|---|---|---|
+| Engine, NASA's "any part visible" rule | **0.953** [0.899, 0.987] | **1.40** [0.95, 1.95] | +1.29 [+0.83, +1.82] | **93.4%** |
+| Engine, Earth centre visible (`direct_los`) | 0.911 | 4.31 | −3.45 | 58.0% |
+| No-skill baseline (dev mean) | 0 | 17.82 | — | — |
+
+| Local terrain steepness | n | MAE (pp) | Within ±5 pp |
+|---|---|---|---|
+| Smooth (lower 50%) | 152 | 1.16 | 92.8% |
+| Moderate (50–90%) | 122 | 1.03 | 95.1% |
+| Steep (top 10%) | 31 | 4.09 | 90.3% |
+
+**What this means for the API.** `earth.direct_los` tests Earth's *centre*.
+That is about 3.5 pp more conservative than NASA's any-part rule, which is
+the right side to err on for a radio link (NASA itself notes the any-part
+rule "may be very slightly optimistic" for DSN links). `earth.disk_visible_fraction > 0`
+is the any-part quantity, if a UI needs NASA's definition.
+
+**The +1.3 pp bias, investigated on dev data only:**
+
+| Dev-set experiment | Bias (pp) | MAE (pp) |
+|---|---|---|
+| Production (100 km rays, observer 1.5 m) | +1.23 | 1.37 |
+| Rays to 150 km / 200 km | +1.20 / +1.26 | 1.35 / 1.41 |
+| Observer 0.5 m | +0.85 | 1.14 |
+| Observer 0.0 m (on the surface) | +0.62 | 1.08 |
+
+Distant terrain is not the cause. Observer height explains half of it:
+the engine evaluates at 1.5 m (instrument height), while NASA's maps appear
+to be for the surface (the product page does not state a height). This is
+a modelling difference, not an error, and it is itself a planning fact:
+**raising an antenna by 1.5 m adds about 0.6 pp of Earth visibility** at
+polar sites. Production was not re-tuned to the test data.
+
+Reproduce (needs `python -m src.acquire.nasa_products earth_visibility_85s_60m`, 25 MB):
+
+```sh
+python -m src.ml.earth_validation   # -> data/validation/earth_visibility_validation.json, ~15 s
+```
 
 ## Independent check of Sun and Earth positions: JPL Horizons
 
