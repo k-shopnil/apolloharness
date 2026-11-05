@@ -104,6 +104,7 @@ Exact sizes and SHA-256 values for every file are in
 | `data/precomputed/tracks/*.json` | 29.5-day Sun/Earth tracks for 9 sites | `python -m src.compute.precompute_tracks` |
 | `offline_fixtures/` | API-identical payloads for offline use | `python -m src.compute.api_payloads` |
 | `data/validation/annual_illumination_validation.json` | Validation results vs NASA | `python -m src.ml.validation` |
+| `data/validation/horizons/*.txt`, `horizons_crosscheck.json` | Cached JPL Horizons responses and the cross-check result (13 sites × Sun/Earth) | `python -m src.ml.horizons_crosscheck --refresh` |
 
 ### Optional: global terrain (531 MB)
 

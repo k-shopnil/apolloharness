@@ -113,6 +113,41 @@ agree, so the coordinate is not the highly illuminated rim; the 89.4%
 figure belongs to a different point. No code or data should be changed
 to match it.
 
+## Independent check of Sun and Earth positions: JPL Horizons
+
+The challenge names JPL Horizons as the reference ephemeris tool, so the
+engine's sky positions were checked against it directly. The comparison
+covers every catalog site with a published coordinate (13 sites, near side
+and far side), the Sun and Earth, and one synodic month from
+2026-11-15 at 6-hour steps, giving 1,547 samples per body. Horizons
+(DE441, `MEAN_ME` site frame, airless) and the engine (NAIF DE430 +
+`moon_pa_de421` via spiceypy) share no code.
+
+| Comparison | Sun: max angular error | Earth: max angular error | Visible/not visible agreement |
+|---|---|---|---|
+| Production engine (geometric) vs Horizons (apparent) | 0.0060° (21.5″) | 0.0002° | 100% / 100% |
+| Same light-time and aberration corrections in SPICE vs Horizons | 0.000014° (0.05″) | 0.000012° | 100% / 100% |
+
+With Horizons' corrections reproduced, the two agree to 0.05 arcseconds, so
+frames, time scales and site geometry are correct. The production residual
+is entirely **stellar aberration** (≤ 20.6″), which Horizons includes and the
+engine, like the NASA illumination products it was validated against,
+omits. Its operational effect, measured by re-running the event finder
+with aberration on: Sun rise/set times move by about **40 s**, and Earth
+rise/set by under 5 s. Countdowns are displayed in minutes, so event times
+should be read as accurate to about ±1 minute; `tolerance_seconds=1` is
+the root-finder's numerical precision, not a physical accuracy.
+
+Reproduce (cached responses in `data/validation/horizons/`, so it runs offline):
+
+```sh
+python -m src.ml.horizons_crosscheck             # -> data/validation/horizons_crosscheck.json
+python -m src.ml.horizons_crosscheck --refresh   # re-query Horizons (~1 min)
+```
+
+`tests/test_regional_and_ml.py::HorizonsCrossCheckTests` fails if either
+bound regresses.
+
 ## Limitations
 
 - The truth is a model too (NASA's), not an in-situ measurement. Agreement

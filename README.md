@@ -4,7 +4,7 @@
 
   <br /><br />
 
-  <a href="https://www.spaceappschallenge.org/2026/challenges/clps-lunar-mission-browser/">
+  <a href="https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/">
     <img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" />
   </a>
 
@@ -40,7 +40,7 @@
 
 ## The Mission
 
-**HarnessApollo** is an environmental intelligence initiative developed for the **NASA Space Apps Challenge 2026** (Challenge #4: *Commercial Lunar Payload Services (CLPS) Lunar Mission Browser*).
+**HarnessApollo** is an environmental intelligence initiative developed for the **NASA Space Apps Challenge 2026** (*[Lunar Landing Site Navigator](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/)*).
 
 As commercial missions venture into uncharted lunar territories, navigating extreme polar environments demands transforming raw planetary science into intuitive, high-fidelity mission intelligence.
 

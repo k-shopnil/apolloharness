@@ -1,0 +1,200 @@
+{
+  "schema": "apolloharness.horizons_crosscheck.v1",
+  "reference": "JPL Horizons API, observer table, QUANTITIES=4, APPARENT=AIRLESS",
+  "reference_metadata": {
+    "Target body name": "Sun (10)                        {source: DE441}",
+    "Center pole/equ": "MEAN_ME (high precision)        {East-longitude positive}",
+    "Center radii": "1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}",
+    "Atmos refraction": "NO (AIRLESS)"
+  },
+  "engine": "spice_engine._topocentric_state: DE430 + moon_pa_de421, geometric (abcorr NONE)",
+  "window_utc": [
+    "2026-11-15T00:00:00Z",
+    "2026-12-14T12:00:00Z"
+  ],
+  "step": "6 h",
+  "sites": 13,
+  "samples_per_body": 1547,
+  "angular_separation_deg": {
+    "geometric": {
+      "sun": {
+        "median": 0.005747977158796111,
+        "p95": 0.005964250618036661,
+        "max": 0.005968543207737304
+      },
+      "earth": {
+        "median": 0.00018716027270506658,
+        "p95": 0.00020466931776700923,
+        "max": 0.0002061522859589101
+      }
+    },
+    "apparent": {
+      "sun": {
+        "median": 8.305321408867912e-06,
+        "p95": 1.3413504560388537e-05,
+        "max": 1.3538193413841812e-05
+      },
+      "earth": {
+        "median": 9.540631387965252e-06,
+        "p95": 1.1943436679701048e-05,
+        "max": 1.2025318259361848e-05
+      }
+    }
+  },
+  "geometric_elevation_abs_error_deg": {
+    "sun": {
+      "median": 0.003280558542265055,
+      "p95": 0.0057689214270158825,
+      "max": 0.00595525515056039
+    },
+    "earth": {
+      "median": 6.318828937068588e-05,
+      "p95": 0.00019373112292910826,
+      "max": 0.00020096061680519028
+    }
+  },
+  "spherical_horizon_visibility_agreement": {
+    "sun": {
+      "agree": 1542,
+      "compared": 1542,
+      "fraction": 1.0
+    },
+    "earth": {
+      "agree": 1545,
+      "compared": 1545,
+      "fraction": 1.0
+    }
+  },
+  "per_site": [
+    {
+      "site_id": "clps-to2-ab-peregrine-1",
+      "latitude_deg": 35.07,
+      "longitude_deg": -41.76,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967169211104134,
+      "sun_apparent_max_sep_deg": 1.3538076818270213e-05,
+      "earth_geometric_max_sep_deg": 0.00020478453709121355,
+      "earth_apparent_max_sep_deg": 1.2002597315636766e-05
+    },
+    {
+      "site_id": "clps-to2-im-im1",
+      "latitude_deg": -80.13,
+      "longitude_deg": 1.44,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967591667245196,
+      "sun_apparent_max_sep_deg": 1.353782971630728e-05,
+      "earth_geometric_max_sep_deg": 0.00020518062649941112,
+      "earth_apparent_max_sep_deg": 1.1985571846060755e-05
+    },
+    {
+      "site_id": "clps-to19d-blue-ghost-1",
+      "latitude_deg": 18.56,
+      "longitude_deg": 61.81,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967396036975845,
+      "sun_apparent_max_sep_deg": 1.3537680286823067e-05,
+      "earth_geometric_max_sep_deg": 0.0002049405539071653,
+      "earth_apparent_max_sep_deg": 1.1996688333225789e-05
+    },
+    {
+      "site_id": "clps-prime-1-im2",
+      "latitude_deg": -84.79,
+      "longitude_deg": 29.2,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967675433158248,
+      "sun_apparent_max_sep_deg": 1.3537119679092836e-05,
+      "earth_geometric_max_sep_deg": 0.00020526396030336584,
+      "earth_apparent_max_sep_deg": 1.1980297548280782e-05
+    },
+    {
+      "site_id": "clps-cp11-im3",
+      "latitude_deg": 7.5,
+      "longitude_deg": -59.0,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967239810337961,
+      "sun_apparent_max_sep_deg": 1.3537907658325574e-05,
+      "earth_geometric_max_sep_deg": 0.00020487207037414291,
+      "earth_apparent_max_sep_deg": 1.1998232471858987e-05
+    },
+    {
+      "site_id": "clps-cp12-draper",
+      "latitude_deg": -75.0,
+      "longitude_deg": 132.0,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967907106326377,
+      "sun_apparent_max_sep_deg": 1.353742088823849e-05,
+      "earth_geometric_max_sep_deg": 0.00020549235222181488,
+      "earth_apparent_max_sep_deg": 1.1965869996948264e-05
+    },
+    {
+      "site_id": "clps-cp22-im4",
+      "latitude_deg": -84.79,
+      "longitude_deg": 29.2,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967675433158248,
+      "sun_apparent_max_sep_deg": 1.3537119679092836e-05,
+      "earth_geometric_max_sep_deg": 0.00020526396030336584,
+      "earth_apparent_max_sep_deg": 1.1980297548280782e-05
+    },
+    {
+      "site_id": "clps-cs3-blue-ghost-2",
+      "latitude_deg": -24.91,
+      "longitude_deg": 177.34,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005968543207737304,
+      "sun_apparent_max_sep_deg": 1.3537943039102103e-05,
+      "earth_geometric_max_sep_deg": 0.0002061522859589101,
+      "earth_apparent_max_sep_deg": 1.1921781432324762e-05
+    },
+    {
+      "site_id": "anchor-apollo-11",
+      "latitude_deg": 0.67416,
+      "longitude_deg": 23.47314,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005966956584958243,
+      "sun_apparent_max_sep_deg": 1.3538193413841812e-05,
+      "earth_geometric_max_sep_deg": 0.00020451342251210798,
+      "earth_apparent_max_sep_deg": 1.2025318259361848e-05
+    },
+    {
+      "site_id": "anchor-apollo-17",
+      "latitude_deg": 20.1911,
+      "longitude_deg": 30.7723,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005967058612326338,
+      "sun_apparent_max_sep_deg": 1.3537396793966517e-05,
+      "earth_geometric_max_sep_deg": 0.0002046145896783268,
+      "earth_apparent_max_sep_deg": 1.201727429405706e-05
+    },
+    {
+      "site_id": "anchor-chandrayaan-3",
+      "latitude_deg": -69.3741,
+      "longitude_deg": 32.32,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.0059674918287056814,
+      "sun_apparent_max_sep_deg": 1.3537224909920192e-05,
+      "earth_geometric_max_sep_deg": 0.0002050679560701008,
+      "earth_apparent_max_sep_deg": 1.1993998783473857e-05
+    },
+    {
+      "site_id": "anchor-change-4",
+      "latitude_deg": -45.457,
+      "longitude_deg": 177.589,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.005968361902780538,
+      "sun_apparent_max_sep_deg": 1.3537780027306592e-05,
+      "earth_geometric_max_sep_deg": 0.00020596685623538766,
+      "earth_apparent_max_sep_deg": 1.1934863095958466e-05
+    },
+    {
+      "site_id": "anchor-slim",
+      "latitude_deg": -13.316,
+      "longitude_deg": 25.251,
+      "samples": 119,
+      "sun_geometric_max_sep_deg": 0.00596699091377259,
+      "sun_apparent_max_sep_deg": 1.3537500141043443e-05,
+      "earth_geometric_max_sep_deg": 0.000204546233503056,
+      "earth_apparent_max_sep_deg": 1.202430267369029e-05
+    }
+  ]
+}
