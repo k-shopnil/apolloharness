@@ -1,0 +1,265 @@
+API VERSION: 1.2
+API SOURCE: NASA/JPL Horizons API
+
+*******************************************************************************
+ Revised: July 31, 2013                  Sun                                 10
+
+ PHYSICAL PROPERTIES (updated 2024-Oct-30):
+  GM, km^3/s^2          = 132712440041.93938  Mass, 10^24 kg        = ~1988410
+  Vol. mean radius, km  = 695700              Volume, 10^12 km^3    = 1412000
+  Solar radius (IAU2015)= 695700 km           Mean density, g/cm^3  = 1.408
+  Radius (photosphere)  = 696500 km           Angular diam at 1 AU  = 1919.3"
+  Photosphere temp., K  = 6600 (bottom)       Photosphere temp., K  = 4400(top)
+  Photospheric depth    = ~500 km             Chromospheric depth   = ~2500 km
+  Flatness, f           = 0.00005             Adopted sid. rot. per.= 25.38 d
+  Surface gravity       =  274.0 m/s^2        Escape speed, km/s    =  617.7
+  Pole (RA,DEC), deg.   = (286.13, 63.87)     Obliquity to ecliptic = 7.25 deg.
+  Solar constant (1 AU) = 1367.6 W/m^2        Luminosity, 10^24 J/s = 382.8
+  Mass-energy conv rate = 4.260 x 10^9 kg/s   Effective temp, K     = 5772
+  Sunspot cycle         = 11.4 yr             Cycle 24 sunspot min. = 2008 A.D.
+
+  Motion relative to nearby stars = apex : R.A.= 271 deg.; DEC.= +30 deg.
+                                    speed: 19.4 km/s (0.0112 au/day)
+  Motion relative to 2.73K BB/CBR = apex : l= 264.7 +- 0.8; b= 48.2 +- 0.5 deg.
+                                    speed: 369 +-11 km/s
+*******************************************************************************
+
+
+*******************************************************************************
+Ephemeris / API_USER Thu Nov  5 11:05:17 2026 Pasadena, USA      / Horizons    
+*******************************************************************************
+Target body name: Sun (10)                        {source: DE441}
+Center body name: Moon (301)                      {source: DE441}
+Center-site name: (user defined site below)
+*******************************************************************************
+Start time      : A.D. 2026-Nov-15 00:00:00.0000 UT      
+Stop  time      : A.D. 2026-Dec-14 12:00:00.0000 UT      
+Step-size       : 360 minutes
+*******************************************************************************
+Target pole/equ : IAU_SUN                         {East-longitude positive}
+Target radii    : 695700.0, 695700.0, 695700.0 km {Equator_a, b, pole_c}       
+Center geodetic : 318.24, 35.07, 0.0              {E-lon(deg),Lat(deg),Alt(km)}
+Center cylindric: 318.24, 1421.97621, 998.26972   {E-lon(deg),Dxy(km),Dz(km)}
+Center pole/equ : MEAN_ME (high precision)        {East-longitude positive}
+Center radii    : 1737.4, 1737.4, 1737.4 km       {Equator_a, b, pole_c}       
+Target primary  : Sun
+Vis. interferer : EARTH (R_eq= 6378.137) km       {source: DE441}
+Rel. light bend : Sun, EARTH                      {source: DE441}
+Rel. lght bnd GM: 1.3271E+11, 3.9860E+05 km^3/s^2                              
+Atmos refraction: NO (AIRLESS)
+RA format       : DEG
+Time format     : CAL 
+Calendar mode   : Mixed Julian/Gregorian
+EOP file        : eop.261104.p270131                                           
+EOP coverage    : DATA-BASED 1962-JAN-20 TO 2026-NOV-04. PREDICTS-> 2027-JAN-30
+Units conversion: 1 au= 149597870.700 km, c= 299792.458 km/s, 1 day= 86400.0 s 
+Table cut-offs 1: Elevation (-90.0deg=NO ),Airmass     n.a.    , Daylight (NO )
+Table cut-offs 2: Solar elongation (  0.0,180.0=NO ),Local Hour Angle( 0.0=NO )
+Table cut-offs 3: RA/DEC angular rate (     0.0=NO )                           
+Table format    : Comma Separated Values (spreadsheet)
+*******************************************************************************
+ Date__(UT)__HR:MN:SS, , ,Azimuth_(a-app), Elevation_(a-app),
+*************************************************************
+$$SOE
+ 2026-Nov-15 00:00:00, ,i,   38.724861449,     -49.830542799,
+ 2026-Nov-15 06:00:00, ,i,   42.650997852,     -48.204905813,
+ 2026-Nov-15 12:00:00, ,i,   46.329978142,     -46.457731749,
+ 2026-Nov-15 18:00:00, ,i,   49.776676560,     -44.603704534,
+ 2026-Nov-16 00:00:00, ,i,   53.008280699,     -42.656077255,
+ 2026-Nov-16 06:00:00, ,i,   56.042974808,     -40.626674224,
+ 2026-Nov-16 12:00:00, ,i,   58.899014163,     -38.525963047,
+ 2026-Nov-16 18:00:00, ,i,   61.594117739,     -36.363165905,
+ 2026-Nov-17 00:00:00, ,i,   64.145102879,     -34.146388458,
+ 2026-Nov-17 06:00:00, ,i,   66.567694388,     -31.882752299,
+ 2026-Nov-17 12:00:00, ,i,   68.876453623,     -29.578522498,
+ 2026-Nov-17 18:00:00, ,i,   71.084786418,     -27.239225698,
+ 2026-Nov-18 00:00:00, ,i,   73.205000101,     -24.869756794,
+ 2026-Nov-18 06:00:00, ,i,   75.248388936,     -22.474473776,
+ 2026-Nov-18 12:00:00, ,i,   77.225334148,     -20.057281296,
+ 2026-Nov-18 18:00:00, ,i,   79.145409561,     -17.621703959,
+ 2026-Nov-19 00:00:00, ,i,   81.017487379,     -15.170950576,
+ 2026-Nov-19 06:00:00, ,i,   82.849840959,     -12.707970668,
+ 2026-Nov-19 12:00:00, ,i,   84.650243007,     -10.235504467,
+ 2026-Nov-19 18:00:00, ,i,   86.426058685,      -7.756127600,
+ 2026-Nov-20 00:00:00, ,i,   88.184333736,      -5.272291525,
+ 2026-Nov-20 06:00:00, ,i,   89.931878156,      -2.786360723,
+ 2026-Nov-20 12:00:00, ,i,   91.675346176,      -0.300647558,
+ 2026-Nov-20 18:00:00,*,i,   93.421313422,       2.182554361,
+ 2026-Nov-21 00:00:00,*,i,   95.176352171,       4.660937494,
+ 2026-Nov-21 06:00:00,*,i,   96.947105602,       7.132147611,
+ 2026-Nov-21 12:00:00,*,i,   98.740361850,       9.593750177,
+ 2026-Nov-21 18:00:00,*,i,  100.563128565,      12.043195143,
+ 2026-Nov-22 00:00:00,*,i,  102.422708470,      14.477779344,
+ 2026-Nov-22 06:00:00,*,i,  104.326776098,      16.894605713,
+ 2026-Nov-22 12:00:00,*,i,  106.283455462,      19.290538470,
+ 2026-Nov-22 18:00:00,*,i,  108.301397784,      21.662153453,
+ 2026-Nov-23 00:00:00,*,i,  110.389857453,      24.005682730,
+ 2026-Nov-23 06:00:00,*,i,  112.558763123,      26.316952720,
+ 2026-Nov-23 12:00:00,*,i,  114.818778988,      28.591315173,
+ 2026-Nov-23 18:00:00,*,i,  117.181348769,      30.823570645,
+ 2026-Nov-24 00:00:00,*,i,  119.658711551,      33.007884607,
+ 2026-Nov-24 06:00:00,*,i,  122.263874165,      35.137697153,
+ 2026-Nov-24 12:00:00,*,i,  125.010519370,      37.205628479,
+ 2026-Nov-24 18:00:00,*,i,  127.912822344,      39.203384373,
+ 2026-Nov-25 00:00:00,*,i,  130.985141327,      41.121668569,
+ 2026-Nov-25 06:00:00,*,i,  134.241542540,      42.950112457,
+ 2026-Nov-25 12:00:00,*,i,  137.695116802,      44.677237215,
+ 2026-Nov-25 18:00:00,*,i,  141.357050946,      46.290468908,
+ 2026-Nov-26 00:00:00,*,i,  145.235436303,      47.776232038,
+ 2026-Nov-26 06:00:00,*,i,  149.333835758,      49.120150369,
+ 2026-Nov-26 12:00:00,*,i,  153.649695469,      50.307382823,
+ 2026-Nov-26 18:00:00,*,i,  158.172774898,      51.323113545,
+ 2026-Nov-27 00:00:00,*,i,  162.883864041,      52.153195917,
+ 2026-Nov-27 06:00:00,*,i,  167.754126185,      52.784919713,
+ 2026-Nov-27 12:00:00,*,i,  172.745401264,      53.207832768,
+ 2026-Nov-27 18:00:00,*,i,  177.811687829,      53.414513661,
+ 2026-Nov-28 00:00:00,*,i,  182.901786894,      53.401174542,
+ 2026-Nov-28 06:00:00,*,i,  187.962795944,      53.167985855,
+ 2026-Nov-28 12:00:00,*,i,  192.943894949,      52.719060064,
+ 2026-Nov-28 18:00:00,*,i,  197.799776491,      52.062097746,
+ 2026-Nov-29 00:00:00,*,i,  202.493181175,      51.207764505,
+ 2026-Nov-29 06:00:00,*,i,  206.996256283,      50.168909596,
+ 2026-Nov-29 12:00:00,*,i,  211.290748956,      48.959746530,
+ 2026-Nov-29 18:00:00,*,i,  215.367269495,      47.595096232,
+ 2026-Nov-30 00:00:00,*,i,  219.223964864,      46.089757583,
+ 2026-Nov-30 06:00:00,*,i,  222.864936167,      44.458032782,
+ 2026-Nov-30 12:00:00,*,i,  226.298659812,      42.713405398,
+ 2026-Nov-30 18:00:00,*,i,  229.536576408,      40.868350811,
+ 2026-Dec-01 00:00:00,*,i,  232.591925764,      38.934250957,
+ 2026-Dec-01 06:00:00,*,i,  235.478844460,      36.921384760,
+ 2026-Dec-01 12:00:00,*,i,  238.211705450,      34.838969257,
+ 2026-Dec-01 18:00:00,*,i,  240.804661691,      32.695231531,
+ 2026-Dec-02 00:00:00,*,i,  243.271351431,      30.497496847,
+ 2026-Dec-02 06:00:00,*,i,  245.624725508,      28.252282842,
+ 2026-Dec-02 12:00:00,*,i,  247.876963188,      25.965393238,
+ 2026-Dec-02 18:00:00,*,i,  250.039449965,      23.642007228,
+ 2026-Dec-03 00:00:00,*,i,  252.122796992,      21.286762316,
+ 2026-Dec-03 06:00:00,*,i,  254.136887418,      18.903829842,
+ 2026-Dec-03 12:00:00,*,i,  256.090939145,      16.496983086,
+ 2026-Dec-03 18:00:00,*,i,  257.993576839,      14.069658342,
+ 2026-Dec-04 00:00:00,*,i,  259.852908445,      11.625009652,
+ 2026-Dec-04 06:00:00,*,i,  261.676603280,       9.165957951,
+ 2026-Dec-04 12:00:00,*,i,  263.471969981,       6.695235513,
+ 2026-Dec-04 18:00:00,*,i,  265.246033518,       4.215426502,
+ 2026-Dec-05 00:00:00,*,i,  267.005611071,       1.729004491,
+ 2026-Dec-05 06:00:00, ,i,  268.757386995,      -0.761632275,
+ 2026-Dec-05 12:00:00, ,i,  270.507987398,      -3.254127067,
+ 2026-Dec-05 18:00:00, ,i,  272.264055022,      -5.746131571,
+ 2026-Dec-06 00:00:00, ,i,  274.032325263,      -8.235272706,
+ 2026-Dec-06 06:00:00, ,i,  275.819704195,     -10.719118606,
+ 2026-Dec-06 12:00:00, ,i,  277.633349508,     -13.195142930,
+ 2026-Dec-06 18:00:00, ,i,  279.480755155,     -15.660686663,
+ 2026-Dec-07 00:00:00, ,i,  281.369840407,     -18.112916451,
+ 2026-Dec-07 06:00:00, ,i,  283.309043692,     -20.548778494,
+ 2026-Dec-07 12:00:00, ,i,  285.307421150,     -22.964946874,
+ 2026-Dec-07 18:00:00, ,i,  287.374749063,     -25.357765162,
+ 2026-Dec-08 00:00:00, ,i,  289.521628161,     -27.723180049,
+ 2026-Dec-08 06:00:00, ,i,  291.759586037,     -30.056665765,
+ 2026-Dec-08 12:00:00, ,i,  294.101171272,     -32.353138147,
+ 2026-Dec-08 18:00:00, ,i,  296.560029098,     -34.606857489,
+ 2026-Dec-09 00:00:00, ,i,  299.150943071,     -36.811319948,
+ 2026-Dec-09 06:00:00, ,i,  301.889819973,     -38.959138336,
+ 2026-Dec-09 12:00:00, ,i,  304.793585590,     -41.041914973,
+ 2026-Dec-09 18:00:00, ,i,  307.879947336,     -43.050112180,
+ 2026-Dec-10 00:00:00, ,i,  311.166966676,     -44.972930247,
+ 2026-Dec-10 06:00:00, ,i,  314.672372485,     -46.798208813,
+ 2026-Dec-10 12:00:00, ,i,  318.412540975,     -48.512375387,
+ 2026-Dec-10 18:00:00, ,i,  322.401077466,     -50.100473976,
+ 2026-Dec-11 00:00:00, ,i,  326.646972950,     -51.546315531,
+ 2026-Dec-11 06:00:00, ,i,  331.152388678,     -52.832797007,
+ 2026-Dec-11 12:00:00, ,i,  335.910254026,     -53.942431568,
+ 2026-Dec-11 18:00:00, ,i,  340.902036645,     -54.858112286,
+ 2026-Dec-12 00:00:00, ,i,  346.096213774,     -55.564090450,
+ 2026-Dec-12 06:00:00, ,i,  351.448052395,     -56.047089291,
+ 2026-Dec-12 12:00:00, ,i,  356.901190418,     -56.297408363,
+ 2026-Dec-12 18:00:00, ,i,    2.391148236,     -56.309829388,
+ 2026-Dec-13 00:00:00, ,i,    7.850362737,     -56.084139396,
+ 2026-Dec-13 06:00:00, ,i,   13.213835333,     -55.625154048,
+ 2026-Dec-13 12:00:00, ,i,   18.424267778,     -54.942235640,
+ 2026-Dec-13 18:00:00, ,i,   23.435741821,     -54.048414099,
+ 2026-Dec-14 00:00:00, ,i,   28.215482493,     -52.959291627,
+ 2026-Dec-14 06:00:00, ,i,   32.743789237,     -51.691922199,
+ 2026-Dec-14 12:00:00, ,i,   37.012603666,     -50.263816108,
+$$EOE
+*******************************************************************************
+Column meaning:
+ 
+TIME
+
+  Times PRIOR to 1962 are UT1, a mean-solar time closely related to the
+prior but now-deprecated GMT. Times AFTER 1962 are in UTC, the current
+civil or "wall-clock" time-scale. UTC is kept within 0.9 seconds of UT1
+using integer leap-seconds for 1972 and later years.
+
+  Conversion from the internal Barycentric Dynamical Time (TDB) of solar
+system dynamics to the non-uniform civil UT time-scale requested for output
+has not been determined for UTC times after the next July or January 1st.
+Therefore, the last known leap-second is used as a constant over future
+intervals.
+
+  Time tags refer to the UT time-scale conversion from TDB on Earth
+regardless of observer location within the solar system, although clock
+rates may differ due to the local gravity field and no analog to "UT"
+may be defined for that location.
+
+  Any 'b' symbol in the 1st-column denotes a B.C. date. First-column blank
+(" ") denotes an A.D. date.
+ 
+CALENDAR SYSTEM
+
+  Mixed calendar mode was active such that calendar dates after AD 1582-Oct-15
+(if any) are in the modern Gregorian system. Dates prior to 1582-Oct-5 (if any)
+are in the Julian calendar system, which is automatically extended for dates
+prior to its adoption on 45-Jan-1 BC.  The Julian calendar is useful for
+matching historical dates. The Gregorian calendar more accurately corresponds
+to the Earth's orbital motion and seasons. A "Gregorian-only" calendar mode is
+available if such physical events are the primary interest.
+
+  NOTE: "n.a." in output means quantity "not available" at the print-time.
+ 
+SOLAR PRESENCE (OBSERVING SITE)
+  Time tag is followed by a blank, then a solar-presence symbol:
+
+       '*'  Daylight (solar upper-limb on or above apparent horizon)
+       ' '  Night OR body-centered ephemeris
+
+INTERFERING BODY PRESENCE (OBSERVING SITE)
+  The solar-presence symbol is immediately followed by an "interfering body"
+presence symbol.
+
+       'i'  Upper-limb of interfering body on or above apparent horizon
+       ' '  Upper-limb of interfering body below apparent horizon OR body
+              centered ephemeris.
+
+  An "interfering body" is the largest other body in the immediate
+planet/satellite system, potentially compromising visual observations due to
+its brightness. Any such body is identified in the print-out header.
+ 
+ 'Azimuth_(a-app), Elevation_(a-app),' =
+  Airless apparent azimuth and elevation of target center. Compensated
+for light-time, the gravitational deflection of light, stellar aberration,
+precession and nutation. Azimuth is measured clockwise from north:
+
+  North(0) -> East(90) -> South(180) -> West(270) -> North (360)
+
+Elevation angle is with respect to a plane perpendicular to the reference
+surface local zenith direction. TOPOCENTRIC ONLY.  Units: DEGREES
+
+Computations by ...
+
+    Solar System Dynamics Group, Horizons On-Line Ephemeris System
+    4800 Oak Grove Drive, Jet Propulsion Laboratory
+    Pasadena, CA  91109   USA
+
+    General site: https://ssd.jpl.nasa.gov/
+    Mailing list: https://ssd.jpl.nasa.gov/email_list.html
+    System news : https://ssd.jpl.nasa.gov/horizons/news.html
+    User Guide  : https://ssd.jpl.nasa.gov/horizons/manual.html
+    Connect     : browser        https://ssd.jpl.nasa.gov/horizons/app.html#/x
+                  API            https://ssd-api.jpl.nasa.gov/doc/horizons.html
+                  command-line   telnet ssd.jpl.nasa.gov 6775
+                  e-mail/batch   https://ssd.jpl.nasa.gov/ftp/ssd/horizons_batch.txt
+                  scripts        https://ssd.jpl.nasa.gov/ftp/ssd/SCRIPTS
+    Inquiries   : Jon.D.Giorgini@jpl.nasa.gov
+
+*******************************************************************************

@@ -41,15 +41,36 @@ PRODUCTS: dict[str, dict[str, object]] = {
         "sha256": "d539467f16ccc5f51b6a904af6be5d16c9b2f194afe619b9f1f81841d9fec0bb",
         "product": "NASA PGDA product 69 average solar illumination, 75–90°S, 120 m/pixel, 201608 release; TIFF scale 0.00004 converts int16 to fraction",
     },
+    "earth_visibility_85s_60m": {
+        "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "filename": "AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "destination": PROJECT_ROOT / "data/illumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "size_bytes": 24_862_958,
+        "sha256": "d71dc5adfff653e0e924e0a4cbf03795b996caa30b4ace3d5843a70a5ab2f3d2",
+        "product": "NASA PGDA product 69 average Earth visibility (any part of the disc), 85–90°S, 60 m/pixel, 201608 release; validation truth for Earth line of sight, not a runtime input",
+    },
     "psr_shapefile": {
         "files": {
             "LPSR_80S_20MPP_ADJ.SHP": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.SHP", 161_396_036, "fe11dbc98b4054ff2f72510955b33f775f6f5b8e0a6f5ac4a03dfd8de5625606"),
             "LPSR_80S_20MPP_ADJ.SHX": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.SHX", 4_050_892, "dc9e84bb280793c69ed5e4fca7422f798111efb3d629a2430804e2559aba73af"),
-            "LPSR_80S_20MPP_ADJ.DBF": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.DBF", 122_030_239, ""),
-            "LPSR_80S_20MPP_ADJ.PRJ": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.PRJ", 368, ""),
+            "LPSR_80S_20MPP_ADJ.DBF": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.DBF", 122_030_239, "e0a2304ab2f02b63fbd9c6019643b93ddc9c2826619d1518521a104d47a7aa00"),
+            "LPSR_80S_20MPP_ADJ.PRJ": ("https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LPSR_80S_20MPP_ADJ.PRJ", 368, "793b80952f23fbff90f48f9e13868b6b7fc5dc07ba0b1633b124c3db52462854"),
         },
         "destination": PROJECT_ROOT / "data/psr/LPSR_80S_20MPP_ADJ.SHP",
         "product": "NASA GSFC PGDA product 90 full south-polar PSR vector, 506,349 features, 20 m map grid",
+    },
+    "spice_kernels": {
+        "files": {
+            "naif0012.tls": ("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/lsk/naif0012.tls", 5_257, "678e32bdb5a744117a467cd9601cd6b373f0e9bc9bbde1371d5eee39600a039b"),
+            "pck00010.tpc": ("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/pck00010.tpc", 126_143, "59468328349aa730d18bf1f8d7e86efe6e40b75dfb921908f99321b3a7a701d2"),
+            "moon_080317.tf": ("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/fk/satellites/moon_080317.tf", 21_437, "78732477b96f9863e7b0d65bcee3c22b8707ca5ed0db56d1173319cb2e8c7993"),
+            "moon_pa_de421_1900-2050.bpc": ("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/pck/moon_pa_de421_1900-2050.bpc", 1_770_496, "656f90616403d75a75f0cd6c8830fc5b44f8cb4facb5ccb8915e752b397520cf"),
+            "de430.bsp": ("https://naif.jpl.nasa.gov/pub/naif/generic_kernels/spk/planets/de430.bsp", 119_741_440, "6e1b277c5f07135a84950604b83e56b736be696a7f3560bcddb1d4aeb944fca1"),
+        },
+        "cache_subdir": "naif",
+        "publisher": "NASA JPL NAIF (generic kernels)",
+        "destination": PROJECT_ROOT / "data/spice/de430.bsp",
+        "product": "NAIF generic SPICE kernels: leap seconds, planetary constants, lunar frames, DE421 lunar orientation, DE430 ephemeris",
     },
     "lola_gdr_global_64ppd": {
         "files": {
@@ -191,7 +212,7 @@ def get_product_status(name: str) -> dict[str, object]:
 def acquire_product(name: str) -> Path:
     """Fetch or reuse one registered product via online → cache → fixture logic.
 
-    Product binaries are never placed in the mission demo fixture directory.
+    Product binaries are never placed in the offline fixture directory.
     A missing network resource and missing cache raises ``SafeFetchError``.
     """
     if name not in PRODUCTS:

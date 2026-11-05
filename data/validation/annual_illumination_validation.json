@@ -1,6 +1,11 @@
 {
   "schema": "apolloharness.validation.annual_illumination.v2",
-  "generated_utc": "2026-10-30T20:48:15Z",
+  "generated_utc": "2026-11-05T20:16:54Z",
+  "source": {
+    "authority": "NASA GSFC Planetary Geology, Geophysics, and Geochemistry Analysis Tool (PGDA), product 69",
+    "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608.TIF",
+    "reference_data": "Committed truth raster named by truth.product."
+  },
   "truth": {
     "product": "AVGVISIB_85S_060M_201608.TIF",
     "quantity": "mean visible solar-disc fraction",
@@ -93,7 +98,7 @@
           0.89234219269103
         ]
       },
-      "single_site_latency_s": 0.111,
+      "single_site_latency_s": 0.11,
       "within_latency_budget": true
     },
     "rays_100km_multires": {
@@ -189,7 +194,7 @@
           0.9870591519588077
         ]
       },
-      "single_site_latency_s": 0.057,
+      "single_site_latency_s": 0.055,
       "within_latency_budget": true
     },
     "rays_150km_single_res": {
@@ -237,7 +242,7 @@
           0.9870591519588077
         ]
       },
-      "single_site_latency_s": 0.506,
+      "single_site_latency_s": 0.486,
       "within_latency_budget": false
     }
   },
@@ -404,5 +409,11 @@
       "physics_centre_pct": 10.299999999999999
     }
   },
-  "runtime_s": 51.7
+  "runtime_s": 53.0,
+  "automated_comparison": {
+    "status": "computed",
+    "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
+    "human_review_status": "pending",
+    "human_reviewer": "@Thirtha17"
+  }
 }

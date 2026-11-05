@@ -8,8 +8,8 @@ backend routes, application scoring, or UI behavior.
 
 - `data/missions.json`: source-curated catalog of eleven CLPS missions and five
   reference anchors (see `category`).
-- `demo_fixtures/missions.json`: deterministic offline mission catalog. It has
-  mission metadata and provenance. Each fixture record includes a `demo_analysis`
+- `offline_fixtures/missions.json`: deterministic offline mission catalog. It has
+  mission metadata and provenance. Each fixture record includes a `offline_analysis`
   object with stable metric keys set to `null` and an explicit status explaining
   the missing scientific products; these are unavailable values, not zeroes or
   fabricated analysis results.
@@ -449,9 +449,11 @@ Outside 80–90°S, terrain uses the optional global LOLA GDR `LDEM_64` (531 MB,
 the one-command install is
 `python -m src.acquire.nasa_products lola_gdr_global_64ppd`.
 
-The large binary kernels are Git-ignored. Obtain the matching kernels from the
-NAIF generic-kernel archive; do not silently substitute different kernel
-versions. Small text kernels are source inputs. The engine uses `MOON_PA`,
+The kernels are in the repository (binary kernels via Git LFS) and match the
+NAIF generic-kernel archive byte for byte; `python -m src.acquire.nasa_products
+spice_kernels` re-downloads them from NAIF with checksum verification. Do not
+substitute different kernel versions. Every external file is listed in
+[DATA_SETUP.md](DATA_SETUP.md). Small text kernels are source inputs. The engine uses `MOON_PA`,
 east-positive longitude, and a planetocentric coordinate direction intersected
 with the reference ellipsoid. Mission map coordinates use MOON_ME for PGDA
 product-90 DEM/PSR and are transformed to MOON_PA at the requested SPICE epoch.
@@ -464,7 +466,7 @@ spherical horizon; it omits the finite Earth disc and terrain mask.
 
 `safe.fetch_json(url, cache_name=..., fixture_name=..., timeout=...)` and
 `safe.fetch_file(...)` use the configured `cache/` directory and fall back to
-`demo_fixtures/`. Fixtures contain mission metadata and explicit null analysis
+`offline_fixtures/`. Fixtures contain mission metadata and explicit null analysis
 fields, not sourced scientific raster/vector products. If every tier fails, `SafeFetchError` is raised. Cache
 contents and large datasets are local and ignored by Git.
 
@@ -487,7 +489,7 @@ Run checks from the repository root:
 ```sh
 python -m compileall src tests
 python -m json.tool data/missions.json >/dev/null
-python -m json.tool demo_fixtures/missions.json >/dev/null
+python -m json.tool offline_fixtures/missions.json >/dev/null
 python -m unittest discover -s tests -v
 python -m pip install -r requirements-dev.txt && python -m pytest -q tests
 ```

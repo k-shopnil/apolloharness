@@ -71,7 +71,7 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -177,7 +177,7 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -290,7 +290,7 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -375,7 +375,7 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -481,7 +481,7 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -580,7 +580,7 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -661,7 +661,7 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -776,7 +776,7 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -850,7 +850,7 @@
       }
     ],
     "category": "clps",
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -922,7 +922,7 @@
       }
     ],
     "category": "clps",
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1041,7 +1041,7 @@
       }
     ],
     "category": "clps",
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1109,7 +1109,7 @@
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1185,7 +1185,7 @@
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1287,7 +1287,7 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1366,7 +1366,7 @@
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,
@@ -1439,7 +1439,7 @@
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
     ],
-    "demo_analysis": {
+    "offline_analysis": {
       "analysis_status": "not_computed_missing_scientific_products",
       "tactical_sunlight_percent": null,
       "annual_sunlight_percent": null,

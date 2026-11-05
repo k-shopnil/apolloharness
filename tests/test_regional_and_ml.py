@@ -137,6 +137,56 @@ class ValidationProtocolTests(unittest.TestCase):
         self.assertLess(abs(test["bias_pct"]), 1.0)
 
 
+EARTH_REPORT = Path("data/validation/earth_visibility_validation.json")
+
+
+@unittest.skipUnless(EARTH_REPORT.is_file(), "Earth validation report not generated")
+class EarthVisibilityValidationTests(unittest.TestCase):
+    def test_out_of_sample_earth_metrics(self) -> None:
+        report = json.loads(EARTH_REPORT.read_text(encoding="utf-8"))
+        # The configuration under test must be the production one (frozen, solar-selected).
+        self.assertEqual(report["engine"]["horizon_max_distance_m"], terrain.HORIZON_MAX_DISTANCE_M)
+        self.assertEqual(report["engine"]["near_field_m"], terrain.NEAR_FIELD_M)
+        test = report["test"]
+        self.assertGreater(test["any_part"]["r2"], 0.9)
+        self.assertLess(abs(test["any_part"]["bias_pct"]), 2.0)
+        self.assertLess(test["any_part"]["mae_pct"], report["test_no_skill_baseline"]["mae_pct"] / 5)
+        # NASA counts Earth visible if any part of the disc shows; centre-only must score worse.
+        self.assertGreater(test["centre_only"]["mae_pct"], test["any_part"]["mae_pct"])
+
+
+HORIZONS_CACHE = Path("data/validation/horizons")
+
+
+@unittest.skipUnless(HORIZONS_CACHE.is_dir() and any(HORIZONS_CACHE.glob("*.txt")),
+                     "Horizons responses not cached (python -m src.ml.horizons_crosscheck --refresh)")
+class HorizonsCrossCheckTests(unittest.TestCase):
+    """Independent JPL Horizons (DE441) check of the engine's Sun/Earth directions."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        from src.ml import horizons_crosscheck
+        cls.result = horizons_crosscheck.run()
+
+    def test_every_catalog_site_was_checked(self) -> None:
+        from src.ml.horizons_crosscheck import catalog_sites
+        self.assertEqual(self.result["sites"], len(catalog_sites()))
+        self.assertGreater(self.result["samples_per_body"], 1000)
+
+    def test_engine_matches_horizons_within_aberration(self) -> None:
+        geometric = self.result["angular_separation_deg"]["geometric"]
+        # Geometric vs apparent differ by stellar aberration: <= 20.6" (0.0057 deg) + DE430/DE441.
+        self.assertLess(geometric["sun"]["max"], 0.007)
+        self.assertLess(geometric["earth"]["max"], 0.001)
+
+    def test_residual_is_fully_explained_by_light_corrections(self) -> None:
+        apparent = self.result["angular_separation_deg"]["apparent"]
+        # Same corrections in SPICE reproduce Horizons to < 0.2 arcsec: frames and time are right.
+        for body in ("sun", "earth"):
+            self.assertLess(apparent[body]["max"], 5e-5)
+            self.assertEqual(self.result["spherical_horizon_visibility_agreement"][body]["fraction"], 1.0)
+
+
 class RecommenderTests(unittest.TestCase):
     @staticmethod
     def _screen(**columns: list) -> dict:

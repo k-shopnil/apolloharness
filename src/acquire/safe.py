@@ -10,7 +10,7 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 CACHE_DIR = PROJECT_ROOT / "cache"
-FIXTURE_DIR = PROJECT_ROOT / "demo_fixtures"
+FIXTURE_DIR = PROJECT_ROOT / "offline_fixtures"
 
 
 class SafeFetchError(RuntimeError):
@@ -23,7 +23,7 @@ def _cache_path(cache_name: str) -> Path:
 
 
 def _fixture_path(fixture_name: str) -> Path:
-    """Return the committed demo fixture path."""
+    """Return the committed offline fixture path."""
     return FIXTURE_DIR / fixture_name
 
 
@@ -63,7 +63,7 @@ def fetch_json(
         If the online request fails, read the existing cache.
 
     Tier 3:
-        If no cache exists, read the committed demo fixture.
+        If no cache exists, read the committed offline fixture.
 
     The function never propagates normal network failures from Tier 1.
     """
@@ -112,7 +112,7 @@ def fetch_json(
             return _read_json(fixture_path)
         except (OSError, json.JSONDecodeError) as exc:
             raise SafeFetchError(
-                f"Demo fixture could not be read: {fixture_path}"
+                f"Offline fixture could not be read: {fixture_path}"
             ) from exc
 
     raise SafeFetchError(
@@ -191,7 +191,7 @@ def copy_fixture_to_cache(
     """
     Copy a committed fixture into the runtime cache.
 
-    Useful for preparing an offline demo environment.
+    Prepares an offline deployment (no network access at runtime).
     """
     fixture_path = _fixture_path(fixture_name)
     cache_path = _cache_path(cache_name)

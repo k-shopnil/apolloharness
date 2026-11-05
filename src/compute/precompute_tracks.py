@@ -52,6 +52,11 @@ def precompute_mission(mission: dict[str, Any], *, duration_days: float,
     track = calculate_geometry_track(lat, lon, start, duration_days,
                                      step_minutes=step_minutes, horizon_mask=mask)
     events = find_horizon_events(lat, lon, start, duration_days, horizon_mask=mask)
+    from .proximity import DEFAULT_PSR
+    from .site_evaluation import _psr
+    # Static per site, so offline UIs can show the cold-trap line without the 160 MB product.
+    psr = _psr(lat, lon, DEFAULT_PSR)
+    psr.pop("analysis_crs", None)
     return {
         "mission_id": mission["id"],
         "mission": mission["mission"],
@@ -59,6 +64,7 @@ def precompute_mission(mission: dict[str, Any], *, duration_days: float,
         "window_start_basis": "touchdown_utc" if mission.get("touchdown_utc") else "target_date",
         "terrain": {**terrain, "horizon_mask": None if mask is None else mask.to_dict()},
         "countdowns_at_start": {"sun": events["sun"], "earth": events["earth"]},
+        "psr": psr,
         "events": events["events"],
         "track": track,
     }

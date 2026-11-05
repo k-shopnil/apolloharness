@@ -10,6 +10,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+from .datafiles import FIX_HINT, is_installed
 from .illumination_annual import calculate_annual_illumination
 from .proximity import DEFAULT_PSR, nearest_psr_within
 from .spice_engine import (
@@ -41,7 +42,7 @@ def _covers(product: Path, latitude_deg: float, longitude_deg: float) -> bool:
 def _annual_illumination(latitude_deg: float, longitude_deg: float) -> dict[str, Any]:
     # Finest product first; skip opening rasters whose footprint excludes the point.
     for product in ANNUAL_PRODUCTS:
-        if not product.is_file() or not _covers(product, latitude_deg, longitude_deg):
+        if not is_installed(product) or not _covers(product, latitude_deg, longitude_deg):
             continue
         try:
             result = calculate_annual_illumination(latitude_deg, longitude_deg, product)
@@ -49,6 +50,9 @@ def _annual_illumination(latitude_deg: float, longitude_deg: float) -> dict[str,
             continue
         return {"status": "complete", "annual_sunlight_percent": result["annual_sunlight_percent"],
                 "source_dataset": product.name}
+    if not any(is_installed(product) for product in ANNUAL_PRODUCTS):
+        return {"status": "product_not_installed", "annual_sunlight_percent": None,
+                "source_dataset": None, "fix": FIX_HINT}
     return {"status": "outside_product_coverage", "annual_sunlight_percent": None,
             "source_dataset": None}
 
@@ -56,8 +60,9 @@ def _annual_illumination(latitude_deg: float, longitude_deg: float) -> dict[str,
 def _psr(latitude_deg: float, longitude_deg: float, psr_path: Path) -> dict[str, Any]:
     if latitude_deg > -79.0:  # PGDA PSR product covers 80-90S only
         return {"status": "outside_product_coverage", "distance_m": None, "inside_psr": None}
-    if not psr_path.is_file():
-        return {"status": "product_not_installed", "distance_m": None, "inside_psr": None}
+    if not is_installed(psr_path):
+        return {"status": "product_not_installed", "distance_m": None, "inside_psr": None,
+                "fix": FIX_HINT}
     return nearest_psr_within(latitude_deg, longitude_deg, dataset_path=psr_path)
 
 
@@ -69,7 +74,12 @@ def warm_up() -> None:
     """
     from .terrain import coarse_grid
     load_kernels()
-    if Path(DEFAULT_DEM).is_file():
+    if is_installed(DEFAULT_PSR):
+        from .proximity import indexed_psr_path
+        from .proximity import LARGE_PSR_KM2, _large_psrs
+        indexed_psr_path(DEFAULT_PSR)  # one-time ~5 s build of the spatially indexed copy
+        _large_psrs(str(DEFAULT_PSR), LARGE_PSR_KM2)  # ~0.6 s; then large-PSR queries are ~0 ms
+    if is_installed(DEFAULT_DEM):
         coarse_grid(DEFAULT_DEM)
         evaluate_custom_site(-85.0, 0.0, "2026-01-01T00:00:00Z", duration_days=1.0)
 

@@ -16,6 +16,7 @@ Results agree with the single-site functions to floating-point precision
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -24,6 +25,8 @@ import rasterio
 import spiceypy as spice
 from pyproj import Transformer
 from rasterio.windows import Window
+
+from .datafiles import is_installed
 
 from .spice_engine import (
     EARTH_RADIUS_KM, SPICE_LOCK, SUN_RADIUS_KM, _parse_utc, _site_frame_me, load_kernels,
@@ -192,7 +195,10 @@ def visibility_statistics(latitudes: np.ndarray, longitudes: np.ndarray, masks: 
         up_fraction = np.where(known, np.nanmean(margin > 0, axis=1), np.nan)
         disc = disk_fraction(margin, np.degrees(np.arcsin(radius / ranges)))
         result[f"{name}_up_fraction"] = up_fraction
-        result[f"{name}_mean_disk_fraction"] = np.where(known, np.nanmean(disc, axis=1), np.nan)
+        with np.errstate(invalid="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)  # all-NaN rows are masked below
+            mean_disc = np.nanmean(disc, axis=1)
+        result[f"{name}_mean_disk_fraction"] = np.where(known, mean_disc, np.nan)
         result[f"{name}_mean_elevation_deg"] = elevation.mean(axis=1)
         # Longest continuous run without the body (in samples) — darkness/blackout.
         down = ~(margin > 0)
@@ -251,7 +257,7 @@ def screen_region(center_lat: float, center_lon: float, start_utc: str, *,
     psr_status = "not_requested"
     if include_psr:
         from .proximity import DEFAULT_PSR, psr_distances
-        if lat.size and lat.max() <= -79.0 and DEFAULT_PSR.is_file():
+        if lat.size and lat.max() <= -79.0 and is_installed(DEFAULT_PSR):
             psr_m = psr_distances(lat, lon, search_radius_m=psr_search_radius_m)
             psr_status = "complete"
         else:

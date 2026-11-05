@@ -110,7 +110,7 @@ class AcquisitionTests(unittest.TestCase):
         self.assertEqual(len(missions), 16)
         self.assertEqual(missions[0]["mission"], "Peregrine Mission 1")
         self.assertTrue(all(record["sources"] for record in missions))
-        self.assertTrue(all(record["demo_analysis"]["analysis_status"] ==
+        self.assertTrue(all(record["offline_analysis"]["analysis_status"] ==
                             "not_computed_missing_scientific_products" for record in missions))
 
 
@@ -314,7 +314,7 @@ class ComputeContractTests(unittest.TestCase):
 
     def test_manifest_schema_and_fixture_have_no_science_numbers(self) -> None:
         manifest = json.loads(Path("data/missions.json").read_text(encoding="utf-8"))
-        fixtures = json.loads(Path("demo_fixtures/missions.json").read_text(encoding="utf-8"))
+        fixtures = json.loads(Path("offline_fixtures/missions.json").read_text(encoding="utf-8"))
         self.assertEqual(len(manifest), 16)
         self.assertEqual([m["id"] for m in manifest], [m["id"] for m in fixtures])
         required = {"id", "task_order", "provider", "mission", "target_site", "region",
@@ -323,9 +323,9 @@ class ComputeContractTests(unittest.TestCase):
             self.assertTrue(required.issubset(mission))
             self.assertTrue({"latitude_deg", "longitude_deg", "coordinate_type"}.issubset(mission["landing_site"]))
             self.assertTrue(mission["sources"])
-            self.assertEqual(fixture["demo_analysis"]["analysis_status"], "not_computed_missing_scientific_products")
+            self.assertEqual(fixture["offline_analysis"]["analysis_status"], "not_computed_missing_scientific_products")
             for key in ("tactical_sunlight_percent", "annual_sunlight_percent", "communications_uptime_percent", "psr_distance_m"):
-                self.assertIsNone(fixture["demo_analysis"][key])
+                self.assertIsNone(fixture["offline_analysis"][key])
 
 
 if __name__ == "__main__":

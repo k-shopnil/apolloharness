@@ -14,6 +14,10 @@ products and SPICE kernels; no network is needed at runtime.
 - [Known issues and open decisions](#known-issues-and-open-decisions)
 - [Regenerating and testing](#regenerating-and-testing)
 
+> **Setting up data?** Every external file, its source, checksum and location,
+> plus the no-LFS fallback, is in [DATA_SETUP.md](DATA_SETUP.md). Check a
+> machine with `python -m src.acquire.verify_data`.
+
 ## What is delivered
 
 | Issue #8 item | Function / file | Notes |
@@ -27,7 +31,12 @@ products and SPICE kernels; no network is needed at runtime.
 | Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.12–0.30 s per click when warm; call `warm_up()` at startup |
 | Launch-slip Date A vs Date B | `site_evaluation.compare_launch_dates` | Shared relative clock, delta summary |
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
-| Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
+| PSR names (Issue #7 / #8 §4.1) | `nearest_psr_within(...)["nearest_psr_id", "nearest_psr_host", "nearest_psr_label"]`, `psr_names.host_crater` | PGDA ID plus the IAU-named host crater from the USGS gazetteer; `null` rather than an invented name |
+| Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
+| "Small changes, big effects" (beyond the issue) | `api_payloads.site_sensitivity` → `GET /api/v1/sites/sensitivity` | How much sunlight / Earth LOS change if the lander moves a few hundred metres, arrives a few days later, or raises its antenna |
+| Artemis III candidate regions (beyond the issue) | `api_payloads.artemis_regions` → `GET /api/v1/artemis-regions`, `data/artemis_iii_regions.json` | NASA's nine regions (Oct 2024), labelled as regions, anchored to IAU features |
+| Event-day resource check (beyond the issue) | `python -m src.acquire.identify_resources`, [EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md) | Classifies released files as KNOWN / NEW_VERSION / NEW by SHA-256 and describes new rasters and vectors; per-team plan for 13–15 Nov |
+| Manifest grounding | `data/missions.json`, `offline_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
 | Validation vs NASA (beyond the issue) | `python -m src.ml.validation`, [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md) | Held-out test: R² 0.951, MAE 1.45 pp, bias −0.05 pp |
@@ -138,9 +147,9 @@ launch-slip view exists for. Scientific Mode should show the margin
 
 Latency: about 0.12–0.30 s per warm call (call `site_evaluation.warm_up()`
 once at startup; the first cold call is about 0.5 s). `include_psr=true`
-adds about 0.5 s because it reads the vector dataset, so request it after
-the click (lazy load), not
-on it.
+adds about 0.05 s: `warm_up()` builds a spatially indexed FlatGeobuf copy of
+the PSR product once (`cache/derived/LPSR_80S_20MPP_ADJ.fgb`, about 5 s,
+236 MB). Without it, every lookup scans all 506,349 polygons (about 0.3 s).
 
 ### `GET /api/v1/sites/compare-dates?site_id=&date_a=&date_b=`
 
@@ -189,13 +198,164 @@ metric. `ranking_mode` says whether planner weights were used. Without
 weights the ranking is parameter-free: Pareto front, then crowding
 distance, then gentler slope.
 
-### Extending `/api/v1/sites/geometry`
+### `GET /api/v1/sites/geometry` (ready-made payloads)
 
-Merge `find_horizon_events(lat, lon, utc)["sun"|"earth"]` (the default
-`horizon_mask="auto"` loads the LOLA mask itself; pass `horizon_mask=mask` to
-reuse one you already have)
-into the Issue #7 payload. For mission sites, prefer reading the countdown at
-mission start from `data/precomputed/tracks/<id>.json → countdowns_at_start`.
+`src/compute/api_payloads.py` builds the whole Issue #7/#8 payload, so each
+route is one call. Every value comes from the engine or a precomputed track.
+
+```python
+from src.compute.api_payloads import catalog_records, mission_geometry, site_geometry
+
+@router.get("/missions")
+def missions():
+    return catalog_records()        # flat Mission shape, canonical IDs, 16 records
+
+@router.get("/sites/geometry")
+def geometry(site_id: str | None = None, lat: float | None = Query(None, ge=-90, le=90),
+             lon: float | None = Query(None, ge=-180, le=180), utc: str | None = None):
+    try:
+        if site_id:
+            return mission_geometry(site_id)   # reads the track file, no SPICE call
+        if lat is None or lon is None:
+            raise ValueError("give site_id, or lat and lon")
+        utc = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return site_geometry(lat, lon, utc)    # ~0.2-0.35 s warm, PSR included
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except LookupError as exc:                 # unknown id, or no coordinate/date (Griffin)
+        raise HTTPException(404, str(exc))
+```
+
+Payload (`schema: "apolloharness.site_geometry.v1"`):
+
+- `sun` / `earth`: the `find_horizon_events` blocks (elevation, azimuth,
+  terrain horizon, `is_lit` / `direct_los`, countdowns, disc fraction), plus
+  `unit_vector_moon_pa`. That vector points from the site to the body in
+  `MOON_PA`, which is what the virtual Earth/Sun and the DTE beam need.
+- `psr`: `distance_m`, `inside_psr`, `nearest_psr_id`, `nearest_psr_area_km2`,
+  and `nearest_psr_host` / `nearest_psr_label` (see
+  [PSR names](#psr-names-what-the-ui-may-say) below).
+- `source`: `"engine"` or `"precomputed_track"`, so the UI can show which.
+- No `tactical_pct`, `solar_power_status` or `uptime_pct` fields, because the
+  #7 example invented them. Use `sun.fraction_of_window_up`,
+  `sun.disk_visible_fraction` and `earth.fraction_of_window_up` instead.
+
+### Optional, after the core routes: `GET /api/v1/sites/sensitivity?lat=&lon=&utc=` ("small changes, big effects")
+
+```python
+from src.compute.api_payloads import site_sensitivity
+payload = site_sensitivity(lat, lon, utc)        # ValueError -> HTTP 422
+```
+
+The polar landing problem is grazing geometry: a few hundred metres or a
+few days can turn a good site into a dark one. One call answers three
+questions with the engine's exact physics (no surrogate):
+
+| Block | Question | Shape |
+|---|---|---|
+| `position.<metric>` | What changes if the lander lands a little elsewhere? | `centre`, `neighbours` (min/p10/median/p90/max over the grid), `best_neighbour` (lat/lon, `distance_m`, `bearing_deg`, `direction`, `value`, `improvement`, `regional_slope_deg`), `best_by_distance.within_250_m` … , `headline` |
+| `arrival_date[]` | What if arrival slips ±1…7 days? | per slip: `start_utc`, `lit_at_arrival`, `earth_visible_at_arrival`, `sunlit_percent`, `earth_los_percent` |
+| `observer_height[]` | What does a 5 m mast buy? | 0 m, 1.5 m (engine default), 5 m: `sunlit_percent`, `earth_los_percent` |
+
+Metrics in `position`: `sunlit_percent`, `earth_los_percent` (higher is
+better), `longest_darkness_hours`, `longest_earth_blackout_hours` (lower is
+better). `headline` is a ready sentence, e.g. for IM-2 at its track start:
+*"Moving 599 m NW raises sunlight from 98.2% to 100.0%."* It is `null`
+when no neighbour improves the metric (`centre_is_best: true`); the UI then
+says the chosen spot is already the best within the radius.
+
+Example (IM-2, `offline_fixtures/site_sensitivity/clps-prime-1-im2.json`):
+arriving 7 days earlier gives 49.9% sunlight over the 14-day mission
+window, on time 98.2%, 7 days later 48.7%. That is the launch-slip story
+in one array.
+
+Rules the UI must keep:
+
+- Defaults: 1 km radius, 100 m spacing (~316 points), 14-day window,
+  ±7-day slips. Latency is about 3–5 s, so **cache by request** and show a
+  spinner; do not call it on every mouse move.
+- Proposed moves never exceed `max_regional_slope_deg` (default 15°). That
+  is the **80 m regional slope**, a screen, not a landing-safety check.
+- Sites north of about **83.5°S** are refused (HTTP 422): their 100 km
+  horizon runs off the polar DEM, so the comparison would be incomplete.
+  Show the message; do not substitute numbers.
+- Offline: `offline_fixtures/site_sensitivity/<id>.json` is the payload for
+  each tracked polar site (currently IM-2), with `site_id` and `mission`
+  added. A test fails if it drifts from the live API.
+
+### Optional, after the core routes: `GET /api/v1/artemis-regions` (Artemis III context layer)
+
+`artemis_regions()` returns NASA's nine Artemis III candidate landing
+**regions** (release 24-136, 2024-10-28, "in no priority order"): Peak near
+Cabeus B, Haworth, Malapert Massif, Mons Mouton Plateau, Mons Mouton, Nobile
+Rim 1, Nobile Rim 2, de Gerlache Rim 2 and Slater Plain.
+
+NASA published the regions as an image only, with no coordinates. We
+therefore do not invent centres. Each record carries the IAU feature that
+names it (`anchor`: official centre, diameter, USGS link) and an
+`anchor_relation`. For example, Nobile Rim 1 *"is on the rim of this
+crater, not at its centre"*, so it lies about one crater radius (~40 km)
+from the anchor. `catalog_sites_near_anchor` links regions to our missions:
+IM-2 landed 7.7 km from the IAU centre of Mons Mouton.
+
+UI rules:
+
+- Label: "Artemis III candidate region near Nobile crater". Never "landing
+  site", never a lander icon, never a pin with a precise coordinate.
+  Every record has `kind: "candidate_region"` and `is_landing_point: false`.
+- Draw a soft label or halo at the anchor, not a box. A box would imply a
+  boundary we do not have.
+- Do not run "evaluate this site" on an anchor. A crater centre is the
+  crater floor, often a PSR, not the region. Users can click the terrain
+  near the label to evaluate real points.
+- Cite the sources in `sources` (NASA release, NASA NTRS 20250011660, USGS
+  gazetteer).
+
+Rebuild with `python -m src.acquire.artemis_regions`, which reads the pinned
+USGS gazetteer. Re-check NASA's list on event day (see
+[EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md)).
+
+### PSR names: what the UI may say
+
+PSRs have no official names; the IAU names craters, not shadows. NASA's
+product identifies each PSR with a code such as `HNP_874817_0293767`, which
+is now returned as `nearest_psr_id`. Before this fix `nearest_psr_id` was
+always `null`, because the code never looked in the product's `name` column.
+`nearest_psr_host` gives the **smallest IAU-named crater whose rim circle
+holds at least half of the PSR's area**, taken from the USGS Gazetteer of
+Planetary Nomenclature. It includes the crater's diameter, its USGS link, and
+`psr_area_fraction_inside_rim` as evidence. A point-in-circle test was
+rejected: it credited a 242 km² PSR to a 17 km crater because the PSR's
+centre point fell inside that crater. `nearest_psr_label` is the ready string
+`"PSR in Shackleton crater"`. When no named crater contains it, both are
+`null`; the UI should show the distance and area only, and must never
+invent a name like "Faustini Rim".
+
+Also show `nearest_psr_area_km2`. Many nearest PSRs are micro cold traps of
+about 0.001 km² (a few 20 m pixels). These are real, but they are not the
+large crater-floor PSRs a reader would picture. `psr.nearest_large_psr` therefore
+gives the nearest PSR of at least 1 km² within 50 km, with `id`,
+`area_km2`, `host` and `label`. The 1 km² cut is a display choice, not a
+physical threshold. Suggested HUD lines:
+
+| Site | Line 1 (nearest any) | Line 2 (`nearest_large_psr`) |
+|---|---|---|
+| IM-2 | 474 m to a micro cold trap (0.001 km²) | 9.7 km to a 2.4 km² PSR |
+| IM-1 | 555 m to a micro cold trap (0.045 km²) | 8.4 km to a 14.5 km² PSR |
+| Shackleton floor | Inside a PSR in Shackleton crater (233 km²) | same |
+
+Neither IM-1 nor IM-2 sits next to an IAU-named crater's PSR, so neither
+gets a name. Showing a name there would be invented data.
+
+### Offline fallback for the frontend (gate 7)
+
+`offline_fixtures/site_geometry/<id>.json` is `mission_geometry(id)` for each
+of the 9 tracked sites, and `missions.json` is `catalog_records()`. They have
+exactly the API's shape: the UI fetches `/api/v1/sites/geometry?site_id=`,
+and on failure loads the fixture through the same parser. The tracked PSR
+context (polar sites) is included, so the cold-trap line works with the
+network off. A test fails if fixtures drift from the API; regenerate them
+with `python -m src.compute.api_payloads`.
 
 ### Mission catalog schema mismatch (action needed)
 
@@ -217,6 +377,18 @@ rather than renaming the source:
 
 Do not use the 5 × 2.5 km default ellipse for real missions. It is invented
 data, which the Issue #8 "Zero Invented Data" gate rules out.
+
+### Renamed: `demo_fixtures/` → `offline_fixtures/` (action needed)
+
+The offline data folder is now `offline_fixtures/`, and the per-record field
+`demo_analysis` is now `offline_analysis`. When rebasing, update the 3 places
+on `feature/backend-systems` that hard-code the old path:
+
+| File | Change |
+|---|---|
+| `backend/core/config.py` | `fixtures_dir = ROOT_DIR / "offline_fixtures"` |
+| `Dockerfile` | `COPY offline_fixtures ./offline_fixtures` |
+| `docker-compose.yml` | `./offline_fixtures:/app/offline_fixtures` |
 
 ### Tests to add on the backend branch
 
@@ -248,7 +420,7 @@ Owner: `@ASMFahim71`.
 Fetch `data/precomputed/tracks/index.json` once. Its `missions[]` entries
 carry a `status`, and only `status === "complete"` has a file. Then lazy-load
 `<id>.json`. Each file is 29.5 days at 60-minute steps (709 samples, about
-110 KB) and is safe to bundle for offline demos.
+110 KB) and is safe to bundle for offline deployments.
 
 ```ts
 type Track = {
@@ -361,7 +533,27 @@ How to compare with JPL Horizons (https://ssd.jpl.nasa.gov/horizons/app.html):
    while the pipeline is geometric (`"NONE"`). Expect differences of about
    0.005° for the Sun (aberration ~20″) and smaller for Earth. Differences
    above 0.1° indicate a frame or longitude-sign error.
-5. Record version, settings and deltas in `docs/SCIENTIFIC_VALIDATION_REPORT.md`.
+5. Record version, settings and deltas in
+   `data/validation/horizons_crosscheck.json`.
+
+The reproducible batch comparison is implemented in
+`src/ml/horizons_crosscheck.py`. Its official API source, exact query
+parameters, cached reference responses, representative expected/reference
+values, generated engine values, differences, and automated criteria are in
+`data/validation/horizons_crosscheck.json`. The automated result supports
+reproducibility only; it is not scientific approval.
+
+### Human science handoff
+
+`@Thirtha17`, the Horizons cross-check for this PR has been performed. The
+real external reference data and citation are provided in
+`data/validation/horizons_crosscheck.json`, with the reproducible comparison
+implemented in `src/ml/horizons_crosscheck.py`. Please review the cited
+Horizons data, query configuration, coordinate/reference assumptions,
+methodology, and resulting comparison manually. The automated agreement is
+intended to support reproducibility and does not constitute scientific
+sign-off. The NASA PGDA solar and Earth visibility comparisons have the same
+pending human-review status in their validation artifacts.
 
 A historical sanity check already passes: Apollo 11 landed with a planned
 low morning Sun (about 10–11°), and the pipeline gives 10.69°.
@@ -539,6 +731,8 @@ Pipeline limitations:
 python -m src.acquire.nasa_products lola_gdr_global_64ppd   # 531 MB global DEM, verified
 python -m src.compute.global_terrain                  # rebuild committed site tiles
 python -m src.compute.precompute_tracks               # 29.5-day tracks, ~3 s total
+python -m src.acquire.usgs_nomenclature               # IAU crater subset for PSR names (24 MB, pinned sha256)
+python -m src.compute.api_payloads                    # offline API fixtures (after precompute_tracks)
 python -m src.compute.precompute_tracks --days 14 --step-minutes 30
 python -m pip install -r requirements-dev.txt         # runtime deps + pytest
 python -m pytest -q tests                             # or: python -m unittest discover -s tests

@@ -44,3 +44,9 @@ artifacts/
 .agent/
 .agents/
 .ai/
+
+# Optional validation-truth downloads (registry: earth_visibility_85s_60m), not committed
+data/illumination/*_EARTH.TIF
+
+# Event-day downloads of third-party challenge resources (docs/EVENT_DAY_PLAN.md)
+event_resources/
