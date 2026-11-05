@@ -58,6 +58,34 @@ class InventoryTests(unittest.TestCase):
             self.assertNotIn("filter: lfs", attr, relative)
 
 
+class PointerHandlingTests(unittest.TestCase):
+    """A clone without `git lfs pull` must fail clearly or degrade, never cryptically."""
+
+    def test_required_files_raise_with_the_fix(self) -> None:
+        from src.compute.datafiles import DataNotInstalledError, require
+        with tempfile.TemporaryDirectory() as tmp:
+            pointer = Path(tmp) / "de430.bsp"
+            pointer.write_bytes(POINTER)
+            with self.assertRaisesRegex(DataNotInstalledError, "Git LFS pointer.*git lfs pull"):
+                require(pointer, "Required SPICE kernel")
+            with self.assertRaisesRegex(DataNotInstalledError, "not found"):
+                require(Path(tmp) / "missing.tif", "LOLA DEM")
+            self.assertTrue(issubclass(DataNotInstalledError, FileNotFoundError))
+
+    def test_optional_products_degrade_to_not_installed(self) -> None:
+        from src.compute import site_evaluation
+        with tempfile.TemporaryDirectory() as tmp:
+            pointers = []
+            for name in ("a.TIF", "b.TIF", "psr.SHP"):
+                (Path(tmp) / name).write_bytes(POINTER)
+                pointers.append(Path(tmp) / name)
+            with mock.patch.object(site_evaluation, "ANNUAL_PRODUCTS", tuple(pointers[:2])):
+                self.assertEqual(site_evaluation._annual_illumination(-85.0, 0.0)["status"],
+                                 "product_not_installed")
+            self.assertEqual(site_evaluation._psr(-85.0, 0.0, pointers[2])["status"],
+                             "product_not_installed")
+
+
 class CheckTests(unittest.TestCase):
     def _entry(self, **overrides) -> verify_data.DataFile:
         base = dict(path="x.bin", size=5, sha256="2cf24dba5fb0a30e26e83b2ac5b9e29e"

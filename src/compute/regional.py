@@ -25,6 +25,8 @@ import spiceypy as spice
 from pyproj import Transformer
 from rasterio.windows import Window
 
+from .datafiles import is_installed
+
 from .spice_engine import (
     EARTH_RADIUS_KM, SPICE_LOCK, SUN_RADIUS_KM, _parse_utc, _site_frame_me, load_kernels,
 )
@@ -251,7 +253,7 @@ def screen_region(center_lat: float, center_lon: float, start_utc: str, *,
     psr_status = "not_requested"
     if include_psr:
         from .proximity import DEFAULT_PSR, psr_distances
-        if lat.size and lat.max() <= -79.0 and DEFAULT_PSR.is_file():
+        if lat.size and lat.max() <= -79.0 and is_installed(DEFAULT_PSR):
             psr_m = psr_distances(lat, lon, search_radius_m=psr_search_radius_m)
             psr_status = "complete"
         else:

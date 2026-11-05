@@ -29,6 +29,7 @@ from typing import Any
 
 import numpy as np
 
+from .datafiles import is_installed
 from .terrain import DATA_DIR, MOON_RADIUS_M
 
 GAZETTEER_SUBSET = DATA_DIR / "psr" / "iau_south_polar_craters.csv"
@@ -50,7 +51,7 @@ def host_crater(latitude_deg: float, longitude_deg: float, *,
                 gazetteer: str | Path = GAZETTEER_SUBSET) -> dict[str, Any] | None:
     """Smallest IAU-named crater whose rim circle contains the point, or None."""
     path = Path(gazetteer)
-    if not path.is_file():
+    if not is_installed(path):
         return None
     rows, unit, radius, diameter = _craters(str(path))
     lat, lon = np.radians(latitude_deg), np.radians(longitude_deg)
@@ -82,7 +83,7 @@ def host_crater_for_polygon(polygon, crs, *, gazetteer: str | Path = GAZETTEER_S
     from shapely.geometry import Point
     from .terrain import MOON_GEOGRAPHIC
     path = Path(gazetteer)
-    if not path.is_file() or polygon.is_empty or polygon.area <= 0:
+    if not is_installed(path) or polygon.is_empty or polygon.area <= 0:
         return None
     rows, unit, radius, diameter = _craters(str(path))
     anchor = gpd.GeoSeries([polygon.centroid], crs=crs).to_crs(MOON_GEOGRAPHIC).iloc[0]

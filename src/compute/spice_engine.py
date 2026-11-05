@@ -10,6 +10,8 @@ from typing import Callable, Protocol, TypeVar
 import numpy as np
 import spiceypy as spice
 
+from .datafiles import require
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 SPICE_DIR = PROJECT_ROOT / "data" / "spice"
@@ -94,10 +96,7 @@ def load_kernels() -> None:
         for i in range(spice.ktotal("ALL"))
     }
     for kernel in KERNELS:
-        if not kernel.exists():
-            raise FileNotFoundError(
-                f"Required SPICE kernel not found: {kernel}"
-            )
+        require(kernel, "Required SPICE kernel")
         if kernel.resolve() not in loaded:
             spice.furnsh(str(kernel))
             _ENGINE_KERNELS_LOADED.add(kernel.resolve())

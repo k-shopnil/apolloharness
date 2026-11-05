@@ -27,6 +27,7 @@ from rasterio.transform import from_origin
 from rasterio.warp import Resampling, reproject
 from rasterio.windows import Window
 
+from .datafiles import is_installed, require
 from .terrain import DATA_DIR, MOON_GEOGRAPHIC, MOON_RADIUS_M, PROJECT_ROOT, cached_transformer
 
 GLOBAL_DEM = PROJECT_ROOT / "cache" / "nasa" / "pds" / "ldem_64.lbl"
@@ -88,11 +89,8 @@ def build_site_tile(latitude_deg: float, longitude_deg: float, output: str | Pat
     """
     if not (-90 <= latitude_deg <= 90) or not (-180 <= longitude_deg <= 180):
         raise ValueError("Latitude/longitude out of range")
-    path = Path(global_dem)
-    if not path.is_file():
-        raise FileNotFoundError(
-            f"Global LOLA DEM not found: {path}. Run "
-            "`python -m src.acquire.nasa_products lola_gdr_global_64ppd`.")
+    path = require(global_dem, "Global LOLA DEM (optional; "
+                   "`python -m src.acquire.nasa_products lola_gdr_global_64ppd`)")
     with rasterio.open(path) as src:
         scale = float(src.scales[0]) if src.scales else 1.0
         offset = float(src.offsets[0]) if src.offsets else 0.0
@@ -153,7 +151,7 @@ def find_committed_tile(latitude_deg: float, longitude_deg: float, *,
         offset = _angular_distance_m(latitude_deg, longitude_deg, tile["center_lat_deg"],
                                      tile["center_lon_deg"])
         # The inscribed circle of the square tile must contain point + ray length.
-        if path.is_file() and offset + max_ray_m <= tile["half_width_m"] * 0.98:
+        if is_installed(path) and offset + max_ray_m <= tile["half_width_m"] * 0.98:
             return path
     return None
 

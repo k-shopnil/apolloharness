@@ -5,6 +5,7 @@ from typing import Any
 import geopandas as gpd
 import numpy as np
 from shapely.geometry import Point
+from .datafiles import require
 from .terrain import MOON_GEOGRAPHIC, MOON_SPS, PROJECT_ROOT
 
 import threading
@@ -93,9 +94,7 @@ def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
     if not np.isfinite(longitude_deg) or not -180 <= longitude_deg <= 180:
         raise ValueError("longitude_deg must be finite and between -180 and 180")
     path = Path(dataset_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"PSR dataset not found: {path}. Install an authoritative "
-                                "NASA/USGS/PDS PSR boundary dataset at this path.")
+    require(path, "PSR dataset (NASA PGDA product 90)")
     frame = gpd.read_file(path)
     if frame.empty:
         raise ValueError("PSR dataset contains no features")
@@ -187,8 +186,7 @@ def nearest_psr_within(latitude_deg: float, longitude_deg: float,
     if not np.isfinite(search_radius_m) or search_radius_m <= 0:
         raise ValueError("search_radius_m must be positive")
     path = Path(dataset_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"PSR dataset not found: {path}")
+    require(path, "PSR dataset (NASA PGDA product 90)")
     point = gpd.GeoSeries([Point(longitude_deg, latitude_deg)], crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS).iloc[0]
     # The bbox is expressed in the dataset CRS (PGDA PSRs: south-polar stereographic).
     frame = _read_bbox(path, (point.x - search_radius_m, point.y - search_radius_m,
@@ -222,8 +220,7 @@ def psr_distances(latitudes: np.ndarray, longitudes: np.ndarray, *,
     """
     import shapely
     path = Path(dataset_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"PSR dataset not found: {path}")
+    require(path, "PSR dataset (NASA PGDA product 90)")
     points = gpd.GeoSeries(gpd.points_from_xy(longitudes, latitudes),
                            crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS)
     xmin, ymin, xmax, ymax = points.total_bounds

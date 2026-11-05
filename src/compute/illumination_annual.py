@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Any
 import numpy as np
 import rasterio
+from .datafiles import require
 from .terrain import MOON_ME_GEOGRAPHIC, PROJECT_ROOT, cached_transformer
 
 DEFAULT_PRODUCT = PROJECT_ROOT / "data" / "illumination" / "annual_south_pole.tif"
@@ -30,10 +31,7 @@ def calculate_annual_illumination(latitude_deg: float, longitude_deg: float,
         raise ValueError("latitude_deg must be finite and between -90 and 90")
     if not np.isfinite(longitude_deg) or not -180 <= longitude_deg <= 180:
         raise ValueError("longitude_deg must be finite and between -180 and 180")
-    path = Path(raster_path)
-    if not path.is_file():
-        raise FileNotFoundError(f"Annual illumination product not found: {path}. "
-                                "Place the NASA/LOLA or LROC annual product here.")
+    path = require(raster_path, "Annual illumination product (NASA PGDA product 69)")
     with rasterio.open(path) as ds:
         if ds.crs is None:
             raise ValueError("Annual illumination raster has no CRS")

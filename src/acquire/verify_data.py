@@ -20,8 +20,9 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 
+from src.compute.datafiles import is_lfs_pointer
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
-LFS_POINTER_PREFIX = b"version https://git-lfs.github.com/spec/v1"
 
 
 @dataclass(frozen=True)
@@ -114,14 +115,6 @@ def _sha256(path: Path) -> str:
         for block in iter(lambda: handle.read(1 << 20), b""):
             digest.update(block)
     return digest.hexdigest()
-
-
-def is_lfs_pointer(path: Path) -> bool:
-    try:
-        with path.open("rb") as handle:
-            return handle.read(len(LFS_POINTER_PREFIX)) == LFS_POINTER_PREFIX
-    except OSError:
-        return False
 
 
 def check(entry: DataFile, *, quick: bool = False) -> str:

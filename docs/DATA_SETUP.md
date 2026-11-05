@@ -57,11 +57,17 @@ copy the files from `cache/` to the paths below.
 ## What a file that "didn't download" looks like
 
 Without `git lfs pull`, each large file is a ~130-byte text **pointer**
-starting with `version https://git-lfs.github.com/spec/v1`. Code that opens
-it fails with errors such as `not recognized as a supported file format`
-(rasterio), `SPICE(INVALIDARCHTYPE)`/`SPICE(NOSUCHFILE)` (SPICE), or
-skipped tests saying "run `git lfs pull`". `verify_data` reports these as
-`LFS_POINTER`.
+starting with `version https://git-lfs.github.com/spec/v1`. The code
+recognizes pointers (`src/compute/datafiles.py`) and treats them as missing:
+
+| Product | Behaviour without the real file |
+|---|---|
+| SPICE kernels, polar DEM | `DataNotInstalledError: ... is a Git LFS pointer, not the data ... run git lfs pull` |
+| Annual illumination, PSR polygons | API field `status: "product_not_installed"` with a `fix` hint; the rest of the response is still served |
+| Site tiles, global DEM | Terrain falls back to the next source; `horizon_model` says which was used |
+
+`verify_data` reports these files as `LFS_POINTER`. Tests that need the
+real data are skipped ("run `git lfs pull`") or fail with the message above.
 
 ## File inventory
 

@@ -13,6 +13,8 @@ import rasterio
 from rasterio.windows import Window
 from pyproj import CRS, Transformer
 
+from .datafiles import is_installed, require
+
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = PROJECT_ROOT / "data"
 DEFAULT_DEM = DATA_DIR / "lola" / "LDEM_80S_80MPP_ADJ.TIF"
@@ -236,8 +238,7 @@ def interpolate_elevation(latitude_deg: float, longitude_deg: float,
     _validate_sampling(latitude_deg, longitude_deg, 1.0, 1.0, 1.0)
     path = Path(dem_path)
     # GDAL virtual paths (e.g. /vsimem/ in-memory tiles) are not on disk.
-    if not str(dem_path).startswith("/vsi") and not path.is_file():
-        raise FileNotFoundError(f"LOLA DEM not found: {path}")
+    require(dem_path, "LOLA DEM")
     with rasterio.open(dem_path) as ds:
         _validate_dem_crs(ds)
         tx = cached_transformer(MOON_GEOGRAPHIC, ds.crs)
@@ -451,7 +452,7 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
         tile: str | Path | None = gt.find_committed_tile(latitude_deg, longitude_deg,
                                                          max_ray_m=max_ray)
         on_the_fly = False
-        if tile is None and gt.GLOBAL_DEM.is_file():
+        if tile is None and is_installed(gt.GLOBAL_DEM):
             tile = gt.cached_site_tile(latitude_deg, longitude_deg, max_ray_m=max_ray,
                                        global_dem=gt.GLOBAL_DEM)
             on_the_fly = True
