@@ -33,6 +33,7 @@ products and SPICE kernels; no network is needed at runtime.
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
 | PSR names (Issue #7 / #8 §4.1) | `nearest_psr_within(...)["nearest_psr_id", "nearest_psr_host", "nearest_psr_label"]`, `psr_names.host_crater` | PGDA ID plus the IAU-named host crater from the USGS gazetteer; `null` rather than an invented name |
 | Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
+| "Small changes, big effects" (beyond the issue) | `api_payloads.site_sensitivity` → `GET /api/v1/sites/sensitivity` | How much sunlight / Earth LOS change if the lander moves a few hundred metres, arrives a few days later, or raises its antenna |
 | Manifest grounding | `data/missions.json`, `offline_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
@@ -236,6 +237,49 @@ Payload (`schema: "apolloharness.site_geometry.v1"`):
 - No `tactical_pct`, `solar_power_status` or `uptime_pct` fields, because the
   #7 example invented them. Use `sun.fraction_of_window_up`,
   `sun.disk_visible_fraction` and `earth.fraction_of_window_up` instead.
+
+### `GET /api/v1/sites/sensitivity?lat=&lon=&utc=` ("small changes, big effects")
+
+```python
+from src.compute.api_payloads import site_sensitivity
+payload = site_sensitivity(lat, lon, utc)        # ValueError -> HTTP 422
+```
+
+The polar landing problem is grazing geometry: a few hundred metres or a
+few days can turn a good site into a dark one. One call answers three
+questions with the engine's exact physics (no surrogate):
+
+| Block | Question | Shape |
+|---|---|---|
+| `position.<metric>` | What changes if the lander lands a little elsewhere? | `centre`, `neighbours` (min/p10/median/p90/max over the grid), `best_neighbour` (lat/lon, `distance_m`, `bearing_deg`, `direction`, `value`, `improvement`, `regional_slope_deg`), `best_by_distance.within_250_m` … , `headline` |
+| `arrival_date[]` | What if arrival slips ±1…7 days? | per slip: `start_utc`, `lit_at_arrival`, `earth_visible_at_arrival`, `sunlit_percent`, `earth_los_percent` |
+| `observer_height[]` | What does a 5 m mast buy? | 0 m, 1.5 m (engine default), 5 m: `sunlit_percent`, `earth_los_percent` |
+
+Metrics in `position`: `sunlit_percent`, `earth_los_percent` (higher is
+better), `longest_darkness_hours`, `longest_earth_blackout_hours` (lower is
+better). `headline` is a ready sentence, e.g. for IM-2 at its track start:
+*"Moving 599 m NW raises sunlight from 98.2% to 100.0%."* It is `null`
+when no neighbour improves the metric (`centre_is_best: true`); the UI then
+says the chosen spot is already the best within the radius.
+
+Example (IM-2, `offline_fixtures/site_sensitivity/clps-prime-1-im2.json`):
+arriving 7 days earlier gives 49.9% sunlight over the 14-day mission
+window, on time 98.2%, 7 days later 48.7%. That is the launch-slip story
+in one array.
+
+Rules the UI must keep:
+
+- Defaults: 1 km radius, 100 m spacing (~316 points), 14-day window,
+  ±7-day slips. Latency is about 3–5 s, so **cache by request** and show a
+  spinner; do not call it on every mouse move.
+- Proposed moves never exceed `max_regional_slope_deg` (default 15°). That
+  is the **80 m regional slope**, a screen, not a landing-safety check.
+- Sites north of about **83.5°S** are refused (HTTP 422): their 100 km
+  horizon runs off the polar DEM, so the comparison would be incomplete.
+  Show the message; do not substitute numbers.
+- Offline: `offline_fixtures/site_sensitivity/<id>.json` is the payload for
+  each tracked polar site (currently IM-2), with `site_id` and `mission`
+  added. A test fails if it drifts from the live API.
 
 ### PSR names: what the UI may say
 

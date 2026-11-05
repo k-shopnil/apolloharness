@@ -98,3 +98,65 @@ class SiteGeometryTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SensitivityHelperTests(unittest.TestCase):
+    def test_distance_and_bearing(self) -> None:
+        from src.compute.sensitivity import _compass, _distance_bearing
+        # 0.01 deg of latitude northward on a 1737.4 km sphere ~ 303.2 m, bearing 0.
+        d, b = _distance_bearing(-85.0, 30.0, np.array([-84.99]), np.array([30.0]))
+        self.assertAlmostEqual(float(d[0]), 1_737_400 * np.radians(0.01), places=3)
+        self.assertAlmostEqual(float(b[0]) % 360.0, 0.0, places=6)
+        self.assertEqual([_compass(x) for x in (0, 44, 46, 180, 337.6)], ["N", "NE", "NE", "S", "N"])
+
+    def test_bad_input_is_value_error(self) -> None:
+        from src.compute.sensitivity import site_sensitivity
+        for kwargs in ({"radius_m": 0}, {"radius_m": 6000}, {"spacing_m": 10},
+                       {"slip_days": 30}, {"duration_days": 0.5}):
+            with self.assertRaises(ValueError):
+                site_sensitivity(-85.0, 30.0, "2026-12-01T00:00:00Z", **kwargs)
+
+
+SENSITIVITY_FIXTURES = Path("offline_fixtures/site_sensitivity")
+
+
+@unittest.skipUnless(REAL_DEM, "80 m polar DEM not present (run `git lfs pull`)")
+class SiteSensitivityTests(unittest.TestCase):
+    def test_small_grid_invariants(self) -> None:
+        from src.compute.api_payloads import site_sensitivity
+        r = site_sensitivity(-89.45, -137.31, "2026-12-01T00:00:00Z", radius_m=300,
+                             spacing_m=100, duration_days=3, slip_days=1)
+        self.assertEqual(r["schema"], "apolloharness.site_sensitivity.v1")
+        json.dumps(r, allow_nan=False)
+        self.assertEqual([row["slip_days"] for row in r["arrival_date"]], [-1, 0, 1])
+        for key, block in r["position"].items():
+            best = block["best_neighbour"]
+            self.assertEqual(block["centre_is_best"], best is None, key)
+            if best:
+                self.assertGreater(best["improvement"], 0, key)
+                self.assertLessEqual(best["distance_m"], 300 * 1.01, key)
+                self.assertLessEqual(best["regional_slope_deg"], 15.0, key)
+                self.assertIn(best["direction"], block["headline"])
+        # Raising the observer can only lower the horizon: visibility never decreases.
+        heights = r["observer_height"]
+        for body in ("sunlit_percent", "earth_los_percent"):
+            values = [row[body] for row in heights]
+            self.assertEqual(values, sorted(values), body)
+
+    def test_refuses_sites_whose_horizon_leaves_the_polar_dem(self) -> None:
+        from src.compute.api_payloads import site_sensitivity
+        with self.assertRaisesRegex(ValueError, "83.5"):
+            site_sensitivity(-80.13, 1.44, "2026-12-01T00:00:00Z", radius_m=200, spacing_m=100,
+                             duration_days=2, slip_days=0)
+
+    def test_offline_fixture_equals_live_payload(self) -> None:
+        from src.compute.api_payloads import mission_geometry, site_sensitivity
+        files = sorted(SENSITIVITY_FIXTURES.glob("*.json"))
+        self.assertTrue(files, "run python -m src.compute.api_payloads")
+        fixture = json.loads(files[0].read_text(encoding="utf-8"))
+        geometry = mission_geometry(fixture["site_id"])
+        live = site_sensitivity(geometry["site"]["latitude_deg"],
+                                geometry["site"]["longitude_deg"], geometry["utc"])
+        live = json.loads(json.dumps(live))
+        self.assertEqual({k: v for k, v in fixture.items() if k not in ("site_id", "mission")},
+                         live)

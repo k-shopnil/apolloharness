@@ -102,7 +102,7 @@ Exact sizes and SHA-256 values for every file are in
 | `data/psr/iau_south_polar_craters.csv` | 176 IAU craters south of 70°S, used to name PSR host craters | `python -m src.acquire.usgs_nomenclature` |
 | `data/lola/tiles/index.json` | Tile centres and extents | `python -m src.compute.global_terrain` |
 | `data/precomputed/tracks/*.json` | 29.5-day Sun/Earth tracks for 9 sites | `python -m src.compute.precompute_tracks` |
-| `offline_fixtures/` | API-identical payloads for offline use | `python -m src.compute.api_payloads` |
+| `offline_fixtures/` | API-identical payloads for offline use (`site_geometry/`, `site_sensitivity/`, `missions.json`) | `python -m src.compute.api_payloads` |
 | `data/validation/annual_illumination_validation.json` | Validation results vs NASA | `python -m src.ml.validation` |
 | `data/validation/earth_visibility_validation.json` | Earth line-of-sight validation vs NASA's Earth visibility map | `python -m src.ml.earth_validation` |
 | `data/validation/horizons/*.txt`, `horizons_crosscheck.json` | Cached JPL Horizons responses and the cross-check result (13 sites × Sun/Earth) | `python -m src.ml.horizons_crosscheck --refresh` |

@@ -1,0 +1,337 @@
+{
+ "site_id": "clps-prime-1-im2",
+ "mission": "IM-2 Athena",
+ "schema": "apolloharness.site_sensitivity.v1",
+ "site": {
+  "latitude_deg": -84.79,
+  "longitude_deg": 29.2,
+  "elevation_m": 5320.8,
+  "regional_slope_deg": 2.04
+ },
+ "utc": "2025-03-06T00:00:00Z",
+ "window": {
+  "duration_days": 14.0,
+  "step_hours": 1.0
+ },
+ "grid": {
+  "radius_m": 1000.0,
+  "spacing_m": 100.0,
+  "points": 316,
+  "dem_resolution_m": 80.0,
+  "max_regional_slope_deg": 15.0,
+  "eligible_points": 316
+ },
+ "observer_height_m": 1.5,
+ "position": {
+  "sunlit_percent": {
+   "unit": "%",
+   "higher_is_better": true,
+   "centre": 98.22,
+   "neighbours": {
+    "min": 4.45,
+    "p10": 78.64,
+    "median": 95.99,
+    "p90": 99.41,
+    "max": 100.0
+   },
+   "centre_is_best": false,
+   "best_neighbour": {
+    "latitude_deg": -84.772755,
+    "longitude_deg": 29.094265,
+    "distance_m": 598.8,
+    "bearing_deg": 330.8,
+    "direction": "NW",
+    "value": 100.0,
+    "improvement": 1.78,
+    "regional_slope_deg": 2.6
+   },
+   "best_by_distance": {
+    "within_250_m": {
+     "latitude_deg": -84.785856,
+     "longitude_deg": 29.133055,
+     "distance_m": 223.1,
+     "bearing_deg": 304.2,
+     "direction": "NW",
+     "value": 98.81,
+     "improvement": 0.59,
+     "regional_slope_deg": 1.26
+    },
+    "within_500_m": {
+     "latitude_deg": -84.802161,
+     "longitude_deg": 29.108603,
+     "distance_m": 446.3,
+     "bearing_deg": 214.2,
+     "direction": "SW",
+     "value": 99.7,
+     "improvement": 1.48,
+     "regional_slope_deg": 3.42
+    }
+   },
+   "headline": "Moving 599 m NW raises sunlight from 98.2% to 100.0%."
+  },
+  "earth_los_percent": {
+   "unit": "%",
+   "higher_is_better": true,
+   "centre": 94.07,
+   "neighbours": {
+    "min": 55.79,
+    "p10": 76.56,
+    "median": 92.58,
+    "p90": 94.07,
+    "max": 94.36
+   },
+   "centre_is_best": false,
+   "best_neighbour": {
+    "latitude_deg": -84.803095,
+    "longitude_deg": 29.239186,
+    "distance_m": 411.5,
+    "bearing_deg": 164.8,
+    "direction": "S",
+    "value": 94.36,
+    "improvement": 0.3,
+    "regional_slope_deg": 3.81
+   },
+   "best_by_distance": {
+    "within_250_m": null,
+    "within_500_m": {
+     "latitude_deg": -84.803095,
+     "longitude_deg": 29.239186,
+     "distance_m": 411.5,
+     "bearing_deg": 164.8,
+     "direction": "S",
+     "value": 94.36,
+     "improvement": 0.3,
+     "regional_slope_deg": 3.81
+    }
+   },
+   "headline": "Moving 412 m S raises Earth line of sight from 94.1% to 94.4%."
+  },
+  "longest_darkness_hours": {
+   "unit": "h",
+   "higher_is_better": false,
+   "centre": 5.0,
+   "neighbours": {
+    "min": 0.0,
+    "p10": 2.0,
+    "median": 13.0,
+    "p90": 68.5,
+    "max": 200.0
+   },
+   "centre_is_best": false,
+   "best_neighbour": {
+    "latitude_deg": -84.772755,
+    "longitude_deg": 29.094265,
+    "distance_m": 598.8,
+    "bearing_deg": 330.8,
+    "direction": "NW",
+    "value": 0.0,
+    "improvement": 5.0,
+    "regional_slope_deg": 2.6
+   },
+   "best_by_distance": {
+    "within_250_m": {
+     "latitude_deg": -84.785856,
+     "longitude_deg": 29.133055,
+     "distance_m": 223.1,
+     "bearing_deg": 304.2,
+     "direction": "NW",
+     "value": 3.0,
+     "improvement": 2.0,
+     "regional_slope_deg": 1.26
+    },
+    "within_500_m": {
+     "latitude_deg": -84.799286,
+     "longitude_deg": 29.090941,
+     "distance_m": 411.5,
+     "bearing_deg": 226.8,
+     "direction": "SW",
+     "value": 1.0,
+     "improvement": 4.0,
+     "regional_slope_deg": 3.08
+    }
+   },
+   "headline": "Moving 599 m NW cuts longest darkness from 5 h to 0 h."
+  },
+  "longest_earth_blackout_hours": {
+   "unit": "h",
+   "higher_is_better": false,
+   "centre": 20.0,
+   "neighbours": {
+    "min": 19.0,
+    "p10": 20.0,
+    "median": 25.0,
+    "p90": 79.0,
+    "max": 149.0
+   },
+   "centre_is_best": false,
+   "best_neighbour": {
+    "latitude_deg": -84.803095,
+    "longitude_deg": 29.239186,
+    "distance_m": 411.5,
+    "bearing_deg": 164.8,
+    "direction": "S",
+    "value": 19.0,
+    "improvement": 1.0,
+    "regional_slope_deg": 3.81
+   },
+   "best_by_distance": {
+    "within_250_m": null,
+    "within_500_m": {
+     "latitude_deg": -84.803095,
+     "longitude_deg": 29.239186,
+     "distance_m": 411.5,
+     "bearing_deg": 164.8,
+     "direction": "S",
+     "value": 19.0,
+     "improvement": 1.0,
+     "regional_slope_deg": 3.81
+    }
+   },
+   "headline": "Moving 412 m S cuts longest Earth blackout from 20 h to 19 h."
+  }
+ },
+ "arrival_date": [
+  {
+   "slip_days": -7,
+   "start_utc": "2025-02-27T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 49.85,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -6,
+   "start_utc": "2025-02-28T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 56.97,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -5,
+   "start_utc": "2025-03-01T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 64.09,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -4,
+   "start_utc": "2025-03-02T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 71.22,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -3,
+   "start_utc": "2025-03-03T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 78.34,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -2,
+   "start_utc": "2025-03-04T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 85.46,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": -1,
+   "start_utc": "2025-03-05T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 92.58,
+   "earth_los_percent": 100.0
+  },
+  {
+   "slip_days": 0,
+   "start_utc": "2025-03-06T00:00:00Z",
+   "lit_at_arrival": false,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 98.22,
+   "earth_los_percent": 94.07
+  },
+  {
+   "slip_days": 1,
+   "start_utc": "2025-03-07T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 91.39,
+   "earth_los_percent": 86.94
+  },
+  {
+   "slip_days": 2,
+   "start_utc": "2025-03-08T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 84.27,
+   "earth_los_percent": 79.82
+  },
+  {
+   "slip_days": 3,
+   "start_utc": "2025-03-09T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 77.15,
+   "earth_los_percent": 72.7
+  },
+  {
+   "slip_days": 4,
+   "start_utc": "2025-03-10T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 70.03,
+   "earth_los_percent": 65.58
+  },
+  {
+   "slip_days": 5,
+   "start_utc": "2025-03-11T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 62.91,
+   "earth_los_percent": 58.46
+  },
+  {
+   "slip_days": 6,
+   "start_utc": "2025-03-12T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 55.79,
+   "earth_los_percent": 56.08
+  },
+  {
+   "slip_days": 7,
+   "start_utc": "2025-03-13T00:00:00Z",
+   "lit_at_arrival": true,
+   "earth_visible_at_arrival": true,
+   "sunlit_percent": 48.66,
+   "earth_los_percent": 56.08
+  }
+ ],
+ "observer_height": [
+  {
+   "observer_height_m": 0.0,
+   "sunlit_percent": 98.22,
+   "earth_los_percent": 93.18
+  },
+  {
+   "observer_height_m": 1.5,
+   "sunlit_percent": 98.22,
+   "earth_los_percent": 94.07
+  },
+  {
+   "observer_height_m": 5.0,
+   "sunlit_percent": 98.52,
+   "earth_los_percent": 94.07
+  }
+ ],
+ "notes": [
+  "Percentages are of the analysis window starting at utc.",
+  "Slopes are 80 m regional DEM slopes; lander-footprint slopes are steeper.",
+  "Neighbours steeper than max_regional_slope_deg are never proposed as best."
+ ]
+}

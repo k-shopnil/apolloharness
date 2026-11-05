@@ -16,6 +16,7 @@ Results agree with the single-site functions to floating-point precision
 """
 from __future__ import annotations
 
+import warnings
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -194,7 +195,10 @@ def visibility_statistics(latitudes: np.ndarray, longitudes: np.ndarray, masks: 
         up_fraction = np.where(known, np.nanmean(margin > 0, axis=1), np.nan)
         disc = disk_fraction(margin, np.degrees(np.arcsin(radius / ranges)))
         result[f"{name}_up_fraction"] = up_fraction
-        result[f"{name}_mean_disk_fraction"] = np.where(known, np.nanmean(disc, axis=1), np.nan)
+        with np.errstate(invalid="ignore"), warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)  # all-NaN rows are masked below
+            mean_disc = np.nanmean(disc, axis=1)
+        result[f"{name}_mean_disk_fraction"] = np.where(known, mean_disc, np.nan)
         result[f"{name}_mean_elevation_deg"] = elevation.mean(axis=1)
         # Longest continuous run without the body (in samples) — darkness/blackout.
         down = ~(margin > 0)

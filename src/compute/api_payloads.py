@@ -9,6 +9,7 @@ rasters or the nested catalog schema:
     GET /api/v1/missions                    -> catalog_records()
     GET /api/v1/sites/geometry?lat&lon&utc  -> site_geometry(lat, lon, utc)
     GET /api/v1/sites/geometry?site_id=     -> mission_geometry(site_id)
+    GET /api/v1/sites/sensitivity?lat&lon&utc -> site_sensitivity(lat, lon, utc)
 
 Errors: ``ValueError`` for bad input (map to HTTP 422), ``LookupError`` for an
 unknown site or a site without a published coordinate/date (map to 404).
@@ -149,7 +150,21 @@ def mission_geometry(site_id: str, *, track_dir: str | Path = TRACK_DIR) -> dict
     })
 
 
+def site_sensitivity(latitude_deg: float, longitude_deg: float, utc: str,
+                     **options: Any) -> dict[str, Any]:
+    """"Small changes, big effects": position, arrival-date and mast-height sensitivity.
+
+    Sites whose horizon is complete in the polar DEM only (about 83.5-90°S);
+    ``ValueError`` otherwise (HTTP 422).
+    A few seconds per call with defaults: cache by (lat, lon, utc, options).
+    """
+    from .sensitivity import site_sensitivity as _compute
+    return _clean(_compute(latitude_deg, longitude_deg, utc, **options))
+
+
 FIXTURE_DIR = DATA_DIR.parent / "offline_fixtures" / "site_geometry"
+SENSITIVITY_FIXTURE_DIR = DATA_DIR.parent / "offline_fixtures" / "site_sensitivity"
+POLAR_DEM_LIMIT_DEG = -80.0
 
 
 def export_fixtures(output: str | Path = FIXTURE_DIR) -> list[str]:
@@ -172,8 +187,38 @@ def export_fixtures(output: str | Path = FIXTURE_DIR) -> list[str]:
     return written
 
 
+def export_sensitivity_fixtures(output: str | Path = SENSITIVITY_FIXTURE_DIR) -> list[str]:
+    """``site_sensitivity`` at each tracked catalog site inside the polar DEM.
+
+    Uses the same start time as the site's precomputed track, so the offline
+    payload matches what the live API returns for that site.
+    """
+    out = Path(output)
+    out.mkdir(parents=True, exist_ok=True)
+    written = []
+    for record in catalog_records():
+        if not record["has_precomputed_track"]:
+            continue
+        geometry = mission_geometry(record["id"])
+        site = geometry["site"]
+        if site["latitude_deg"] > POLAR_DEM_LIMIT_DEG:
+            continue
+        try:
+            result = site_sensitivity(site["latitude_deg"], site["longitude_deg"], geometry["utc"])
+        except ValueError:
+            continue  # horizon leaves the polar DEM; the live API refuses it too
+        payload = {"site_id": record["id"], "mission": geometry["mission"], **result}
+        (out / f"{record['id']}.json").write_text(
+            json.dumps(payload, indent=1, allow_nan=False) + "\n", encoding="utf-8")
+        written.append(record["id"])
+    return written
+
+
 if __name__ == "__main__":
     import sys
     target = sys.argv[1] if len(sys.argv) > 1 else FIXTURE_DIR
     ids = export_fixtures(target)
     print(f"{len(ids)} site_geometry fixtures + missions.json -> {target}")
+    if len(sys.argv) <= 1:
+        ids = export_sensitivity_fixtures()
+        print(f"{len(ids)} site_sensitivity fixtures -> {SENSITIVITY_FIXTURE_DIR}")
