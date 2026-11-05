@@ -69,6 +69,9 @@ def warm_up() -> None:
     """
     from .terrain import coarse_grid
     load_kernels()
+    if Path(DEFAULT_PSR).is_file():
+        from .proximity import indexed_psr_path
+        indexed_psr_path(DEFAULT_PSR)  # one-time ~5 s build of the spatially indexed copy
     if Path(DEFAULT_DEM).is_file():
         coarse_grid(DEFAULT_DEM)
         evaluate_custom_site(-85.0, 0.0, "2026-01-01T00:00:00Z", duration_days=1.0)

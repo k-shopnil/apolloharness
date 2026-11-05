@@ -674,6 +674,13 @@ def find_horizon_events(
                        angular_radius_deg(EARTH_RADIUS_KM, state0.earth_range_km))
     earth["range_km"] = state0.earth_range_km
     earth["round_trip_light_time_s"] = 2.0 * state0.earth_range_km / SPEED_OF_LIGHT_KM_S
+    # Site-to-body unit vectors in MOON_PA, the frame of the track files, so the
+    # frontend can place the virtual Earth/Sun and the DTE beam without SPICE.
+    earth["unit_vector_moon_pa"] = [float(v) for v in state0.earth_unit_moon_pa]
+    sun = body_block("sun", state0.sun_elevation_deg, state0.sun_azimuth_deg,
+                     "is_lit", "sunset", "sunrise",
+                     angular_radius_deg(SUN_RADIUS_KM, state0.sun_range_km))
+    sun["unit_vector_moon_pa"] = [float(v) for v in state0.sun_unit_moon_pa]
     return {
         "latitude_deg": latitude_deg,
         "longitude_deg": longitude_deg,
@@ -685,9 +692,7 @@ def find_horizon_events(
         "disk_rule": "disk_visible_fraction: exact disc-segment area above a locally straight horizon",
         "scan_step_minutes": step_minutes,
         "tolerance_seconds": tolerance_seconds,
-        "sun": body_block("sun", state0.sun_elevation_deg, state0.sun_azimuth_deg,
-                          "is_lit", "sunset", "sunrise",
-                          angular_radius_deg(SUN_RADIUS_KM, state0.sun_range_km)),
+        "sun": sun,
         "earth": earth,
         "events": [event.to_dict() for event in events],
     }

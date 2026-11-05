@@ -7,7 +7,69 @@ import numpy as np
 from shapely.geometry import Point
 from .terrain import MOON_GEOGRAPHIC, MOON_SPS, PROJECT_ROOT
 
+import threading
+
 DEFAULT_PSR = PROJECT_ROOT / "data" / "psr" / "LPSR_80S_20MPP_ADJ.SHP"
+# PGDA's LPSR product stores its stable identifier in ``name`` (e.g.
+# "HNP_833388_0453121") and a row number in ``gid``; other datasets vary.
+ID_COLUMNS = ("psr_id", "PSR_ID", "name", "NAME", "gid", "id", "ID")
+
+
+DERIVED_DIR = PROJECT_ROOT / "cache" / "derived"
+_INDEX_LOCK = threading.Lock()
+INDEX_MIN_BYTES = 20_000_000
+
+
+def indexed_psr_path(path: str | Path = DEFAULT_PSR) -> Path:
+    """A FlatGeobuf copy of the PSR product with a packed R-tree, built once.
+
+    Shapefiles without a spatial index make every bounding-box read scan all
+    506,349 records (~0.3 s). The FlatGeobuf copy answers the same read in
+    ~0.05 s. It is a derived cache (``cache/derived``, ~5 s to build), rebuilt
+    when the source is newer; any failure falls back to the source file.
+    """
+    source = Path(path)
+    target = DERIVED_DIR / f"{source.stem}.fgb"
+    try:
+        if source.stat().st_size < INDEX_MIN_BYTES:  # small files: a scan is already fast
+            return source
+        if target.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+            return target
+        with _INDEX_LOCK:
+            if target.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
+                return target
+            from pyogrio import read_dataframe, write_dataframe
+            DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+            partial = target.with_suffix(".fgb.partial")
+            write_dataframe(read_dataframe(source), partial, driver="FlatGeobuf",
+                            layer_options={"SPATIAL_INDEX": "YES"})
+            partial.replace(target)
+            return target
+    except Exception:  # read-only checkout, missing driver: stay correct, just slower
+        return source
+
+
+def _read_bbox(path: Path, bbox: tuple[float, float, float, float]) -> gpd.GeoDataFrame:
+    return gpd.read_file(indexed_psr_path(path), bbox=bbox)
+
+
+def _id_column(columns) -> str | None:
+    return next((name for name in ID_COLUMNS if name in columns), None)
+
+
+def _describe_psr(projected: gpd.GeoDataFrame, index) -> dict[str, Any]:
+    """Identifier, area and IAU host crater of one PSR polygon."""
+    from .psr_names import host_crater
+    column = _id_column(projected.columns)
+    identifier = projected.loc[index, column] if column else None
+    area = projected.loc[index, "area_km2"] if "area_km2" in projected.columns else None
+    anchor = gpd.GeoSeries([projected.geometry.loc[index].representative_point()],
+                           crs=projected.crs).to_crs(MOON_GEOGRAPHIC).iloc[0]
+    host = host_crater(anchor.y, anchor.x)
+    return {"nearest_psr_id": None if identifier is None else str(identifier),
+            "nearest_psr_area_km2": None if area is None else float(area),
+            "nearest_psr_host": host,
+            "nearest_psr_label": None if host is None else f"PSR in {host['name']} crater"}
 
 
 def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
@@ -38,8 +100,7 @@ def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
     index = boundary_distances.idxmin()
     distance_m = float(boundary_distances.loc[index])
     if id_column is None:
-        id_column = next((name for name in ("psr_id", "PSR_ID", "id", "ID")
-                          if name in projected.columns), None)
+        id_column = _id_column(projected.columns)
     identifier = projected.loc[index, id_column] if id_column else None
     return {"distance_m": distance_m, "distance_km": distance_m / 1000.0,
             "nearest_psr": None if identifier is None else str(identifier),
@@ -49,6 +110,10 @@ def calculate_psr_distance(latitude_deg: float, longitude_deg: float,
 
 # Backwards-compatible function name.
 nearest_psr = calculate_psr_distance
+
+
+_NO_PSR = {"nearest_psr_id": None, "nearest_psr_area_km2": None, "nearest_psr_host": None,
+           "nearest_psr_label": None}
 
 
 def nearest_psr_within(latitude_deg: float, longitude_deg: float,
@@ -72,27 +137,23 @@ def nearest_psr_within(latitude_deg: float, longitude_deg: float,
         raise FileNotFoundError(f"PSR dataset not found: {path}")
     point = gpd.GeoSeries([Point(longitude_deg, latitude_deg)], crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS).iloc[0]
     # The bbox is expressed in the dataset CRS (PGDA PSRs: south-polar stereographic).
-    frame = gpd.read_file(path, bbox=(point.x - search_radius_m, point.y - search_radius_m,
-                                      point.x + search_radius_m, point.y + search_radius_m))
+    frame = _read_bbox(path, (point.x - search_radius_m, point.y - search_radius_m,
+                              point.x + search_radius_m, point.y + search_radius_m))
     base = {"search_radius_m": search_radius_m, "source_dataset": path.name,
             "analysis_crs": MOON_SPS.to_string()}
     if frame.empty:
         return {**base, "status": "no_psr_within_search_radius", "distance_m": None,
-                "min_distance_m": search_radius_m, "inside_psr": False, "nearest_psr_id": None}
+                "min_distance_m": search_radius_m, "inside_psr": False, **_NO_PSR}
     projected = frame.to_crs(MOON_SPS)
     distances = projected.geometry.distance(point)
     index = distances.idxmin()
     distance_m = float(distances.loc[index])
     if distance_m > search_radius_m:  # bbox corner hit beyond the circular radius
         return {**base, "status": "no_psr_within_search_radius", "distance_m": None,
-                "min_distance_m": search_radius_m, "inside_psr": False, "nearest_psr_id": None}
-    id_column = next((name for name in ("psr_id", "PSR_ID", "id", "ID")
-                      if name in projected.columns), None)
-    identifier = projected.loc[index, id_column] if id_column else None
+                "min_distance_m": search_radius_m, "inside_psr": False, **_NO_PSR}
     return {**base, "status": "complete", "distance_m": distance_m,
             "distance_km": distance_m / 1000.0, "min_distance_m": distance_m,
-            "inside_psr": distance_m == 0.0,
-            "nearest_psr_id": None if identifier is None else str(identifier)}
+            "inside_psr": distance_m == 0.0, **_describe_psr(projected, index)}
 
 
 def psr_distances(latitudes: np.ndarray, longitudes: np.ndarray, *,
@@ -112,7 +173,7 @@ def psr_distances(latitudes: np.ndarray, longitudes: np.ndarray, *,
                            crs=MOON_GEOGRAPHIC).to_crs(MOON_SPS)
     xmin, ymin, xmax, ymax = points.total_bounds
     pad = search_radius_m
-    frame = gpd.read_file(path, bbox=(xmin - pad, ymin - pad, xmax + pad, ymax + pad))
+    frame = _read_bbox(path, (xmin - pad, ymin - pad, xmax + pad, ymax + pad))
     out = np.full(len(points), np.nan)
     if frame.empty:
         return out

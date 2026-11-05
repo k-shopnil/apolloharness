@@ -27,6 +27,8 @@ products and SPICE kernels; no network is needed at runtime.
 | Custom site, one call | `site_evaluation.evaluate_custom_site` | Measured 0.12–0.30 s per click when warm; call `warm_up()` at startup |
 | Launch-slip Date A vs Date B | `site_evaluation.compare_launch_dates` | Shared relative clock, delta summary |
 | PSR proximity (interactive) | `proximity.nearest_psr_within` | Reports `inside_psr` and 0 m inside a cold trap |
+| PSR names (Issue #7 / #8 §4.1) | `nearest_psr_within(...)["nearest_psr_id", "nearest_psr_host", "nearest_psr_label"]`, `psr_names.host_crater` | PGDA ID plus the IAU-named host crater from the USGS gazetteer; `null` rather than an invented name |
+| Backend bridge (Issue #8 §4.2) | `api_payloads.catalog_records`, `site_geometry`, `mission_geometry` | Route handlers become one call; Earth/Sun `unit_vector_moon_pa` included for the virtual Earth/Sun and DTE beam |
 | Manifest grounding | `data/missions.json`, `demo_fixtures/missions.json` | 11 CLPS + 5 sourced reference anchors, each with `payload_summary` |
 | Regional screening (beyond the issue) | `regional.screen_region` | Exact physics for a candidate grid: ~13 ms/point, e.g. 317 points in ~4 s |
 | Site recommendations (beyond the issue) | `ml.recommend.recommend_sites` | Pareto ranking under the slope envelope; no invented weights |
@@ -138,9 +140,9 @@ launch-slip view exists for. Scientific Mode should show the margin
 
 Latency: about 0.12–0.30 s per warm call (call `site_evaluation.warm_up()`
 once at startup; the first cold call is about 0.5 s). `include_psr=true`
-adds about 0.5 s because it reads the vector dataset, so request it after
-the click (lazy load), not
-on it.
+adds about 0.05 s: `warm_up()` builds a spatially indexed FlatGeobuf copy of
+the PSR product once (`cache/derived/LPSR_80S_20MPP_ADJ.fgb`, about 5 s,
+236 MB). Without it, every lookup scans all 506,349 polygons (about 0.3 s).
 
 ### `GET /api/v1/sites/compare-dates?site_id=&date_a=&date_b=`
 
@@ -189,13 +191,64 @@ metric. `ranking_mode` says whether planner weights were used. Without
 weights the ranking is parameter-free: Pareto front, then crowding
 distance, then gentler slope.
 
-### Extending `/api/v1/sites/geometry`
+### `GET /api/v1/sites/geometry` (ready-made payloads)
 
-Merge `find_horizon_events(lat, lon, utc)["sun"|"earth"]` (the default
-`horizon_mask="auto"` loads the LOLA mask itself; pass `horizon_mask=mask` to
-reuse one you already have)
-into the Issue #7 payload. For mission sites, prefer reading the countdown at
-mission start from `data/precomputed/tracks/<id>.json → countdowns_at_start`.
+`src/compute/api_payloads.py` builds the whole Issue #7/#8 payload, so each
+route is one call. Every value comes from the engine or a precomputed track.
+
+```python
+from src.compute.api_payloads import catalog_records, mission_geometry, site_geometry
+
+@router.get("/missions")
+def missions():
+    return catalog_records()        # flat Mission shape, canonical IDs, 16 records
+
+@router.get("/sites/geometry")
+def geometry(site_id: str | None = None, lat: float | None = Query(None, ge=-90, le=90),
+             lon: float | None = Query(None, ge=-180, le=180), utc: str | None = None):
+    try:
+        if site_id:
+            return mission_geometry(site_id)   # reads the track file, no SPICE call
+        if lat is None or lon is None:
+            raise ValueError("give site_id, or lat and lon")
+        utc = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        return site_geometry(lat, lon, utc)    # ~0.2-0.35 s warm, PSR included
+    except ValueError as exc:
+        raise HTTPException(422, str(exc))
+    except LookupError as exc:                 # unknown id, or no coordinate/date (Griffin)
+        raise HTTPException(404, str(exc))
+```
+
+Payload (`schema: "apolloharness.site_geometry.v1"`):
+
+- `sun` / `earth`: the `find_horizon_events` blocks (elevation, azimuth,
+  terrain horizon, `is_lit` / `direct_los`, countdowns, disc fraction), plus
+  `unit_vector_moon_pa`. That vector points from the site to the body in
+  `MOON_PA`, which is what the virtual Earth/Sun and the DTE beam need.
+- `psr`: `distance_m`, `inside_psr`, `nearest_psr_id`, `nearest_psr_area_km2`,
+  and `nearest_psr_host` / `nearest_psr_label` (see
+  [PSR names](#psr-names-what-the-ui-may-say) below).
+- `source`: `"engine"` or `"precomputed_track"`, so the UI can show which.
+- No `tactical_pct`, `solar_power_status` or `uptime_pct` fields, because the
+  #7 example invented them. Use `sun.fraction_of_window_up`,
+  `sun.disk_visible_fraction` and `earth.fraction_of_window_up` instead.
+
+### PSR names: what the UI may say
+
+PSRs have no official names; the IAU names craters, not shadows. NASA's
+product identifies each PSR with a code such as `HNP_874817_0293767`, which
+is now returned as `nearest_psr_id`. Before this fix `nearest_psr_id` was
+always `null`, because the code never looked in the product's `name` column.
+`nearest_psr_host` gives the **smallest IAU-named crater whose rim circle
+contains the PSR**, taken from the USGS Gazetteer of Planetary Nomenclature,
+with its diameter and USGS link. `nearest_psr_label` is the ready string
+`"PSR in Shackleton crater"`. When no named crater contains it, both are
+`null`; the UI should show the distance and area only, and must never
+invent a name like "Faustini Rim".
+
+Also show `nearest_psr_area_km2`. Many nearest PSRs are micro cold traps of
+about 0.001 km² (a few 20 m pixels). These are real, but they are not the
+large crater-floor PSRs a reader would picture.
 
 ### Mission catalog schema mismatch (action needed)
 
@@ -539,6 +592,7 @@ Pipeline limitations:
 python -m src.acquire.nasa_products lola_gdr_global_64ppd   # 531 MB global DEM, verified
 python -m src.compute.global_terrain                  # rebuild committed site tiles
 python -m src.compute.precompute_tracks               # 29.5-day tracks, ~3 s total
+python -m src.acquire.usgs_nomenclature               # IAU crater subset for PSR names (24 MB, pinned sha256)
 python -m src.compute.precompute_tracks --days 14 --step-minutes 30
 python -m pip install -r requirements-dev.txt         # runtime deps + pytest
 python -m pytest -q tests                             # or: python -m unittest discover -s tests
