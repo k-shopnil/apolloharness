@@ -423,6 +423,18 @@ def compute_site_geometry(
     }
 
 
+FRONTEND_TO_CANONICAL_ID = {
+    "im-2": "clps-prime-1-im2",
+    "im-1": "clps-to2-im-im1",
+    "peregrine": "clps-to2-ab-peregrine-1",
+    "griffin-1": "clps-to20a-griffin-1",
+    "bg-1": "clps-to19d-blue-ghost-1",
+    "bg-2": "clps-cp12-draper",
+    "xl-1": "clps-cp11-im3",
+    "ls-1": "clps-cp22-im4",
+}
+
+
 @router.get("/sites/geometry")
 def get_site_geometry(
     response: Response,
@@ -436,9 +448,10 @@ def get_site_geometry(
     permanently_shadowed: bool = Query(False, description="Flag for a permanently shadowed region"),
 ):
     if site_id:
+        lookup_id = FRONTEND_TO_CANONICAL_ID.get(site_id, site_id)
         try:
             from src.compute.api_payloads import mission_geometry
-            track_payload = mission_geometry(site_id)
+            track_payload = mission_geometry(lookup_id)
             sun = track_payload.get("sun") or {}
             earth = track_payload.get("earth") or {}
             psr = track_payload.get("psr") or {}
@@ -493,7 +506,8 @@ def get_site_geometry(
         except ValueError as exc:
             raise HTTPException(422, str(exc))
         except LookupError as exc:
-            raise HTTPException(404, str(exc))
+            if lat is None or lon is None:
+                raise HTTPException(404, str(exc))
 
     if lat is None or lon is None:
         raise HTTPException(422, "give site_id, or lat and lon")

@@ -25,6 +25,7 @@ import {
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import type { Mission } from '../data/missions'
 import { COMPACT_QUERY } from '../hooks/useMediaQuery'
+import { fetchArtemisRegions, type ArtemisRegion } from '../services/api'
 import { fetchSiteGeometry, type SiteGeometry } from '../services/siteGeometry'
 import './MoonGlobe.css'
 
@@ -282,9 +283,24 @@ export function MoonGlobe({
   const [showDteBeam, setShowDteBeam] = useState(true)
   const [showSolarVectors, setShowSolarVectors] = useState(true)
   const [showTelemetryHud, setShowTelemetryHud] = useState(true)
+  const [showArtemisRegions, setShowArtemisRegions] = useState(true)
+  const [artemisRegions, setArtemisRegions] = useState<ArtemisRegion[]>([])
   const [siteHudPos, setSiteHudPos] = useState<{ x: number; y: number; visible: boolean } | null>(null)
 
   const activeMission = missions.find((m) => m.id === activeId)
+
+  // Fetch Artemis III Candidate Landing Regions
+  useEffect(() => {
+    let active = true
+    fetchArtemisRegions().then((data) => {
+      if (active && data?.regions) {
+        setArtemisRegions(data.regions)
+      }
+    })
+    return () => {
+      active = false
+    }
+  }, [])
 
   // Fetch or calculate instantaneous site celestial geometry
   useEffect(() => {
@@ -410,6 +426,64 @@ export function MoonGlobe({
       })
     }
   }, [])
+
+  // Artemis III Candidate Regions (NASA Release 24-136)
+  // Subtle glowing halos + labels; NEVER lander pins or boxes.
+  useEffect(() => {
+    const viewer = viewerRef.current
+    if (!viewer || !showArtemisRegions || artemisRegions.length === 0) return
+
+    const regionEntityIds: string[] = []
+
+    artemisRegions.forEach((region) => {
+      const lat = region.anchor.center_lat_deg
+      const lon = region.anchor.center_lon_deg
+      const diameterKm = region.anchor.diameter_km || 40
+      const radiusM = Math.max(18_000, (diameterKm / 2) * 1000)
+
+      const haloId = `artemis-halo:${region.id}`
+      const labelId = `artemis-label:${region.id}`
+      regionEntityIds.push(haloId, labelId)
+
+      // Translucent glowing halo draped on lunar surface
+      viewer.entities.add({
+        id: haloId,
+        position: Cartesian3.fromDegrees(lon, lat, 20),
+        ellipse: {
+          semiMajorAxis: radiusM,
+          semiMinorAxis: radiusM,
+          material: Color.fromCssColorString('#00d2ff').withAlpha(0.08),
+          outline: true,
+          outlineColor: Color.fromCssColorString('#00e5ff').withAlpha(0.45),
+          height: 30,
+        },
+      })
+
+      // Informative billboard text label
+      viewer.entities.add({
+        id: labelId,
+        position: Cartesian3.fromDegrees(lon, lat, 80),
+        label: {
+          text: `ARTEMIS III REGION // ${region.name.toUpperCase()}`,
+          font: `bold ${9 * LABEL_SS}px JetBrains Mono, monospace`,
+          scale: LABEL_SCALE,
+          fillColor: Color.fromCssColorString('#70e5ff'),
+          style: LabelStyle.FILL,
+          showBackground: true,
+          backgroundColor: Color.BLACK.withAlpha(0.72),
+          backgroundPadding: new Cartesian2(5 * LABEL_SS, 3 * LABEL_SS),
+          pixelOffset: new Cartesian2(0, -14),
+          horizontalOrigin: HorizontalOrigin.CENTER,
+          verticalOrigin: VerticalOrigin.BOTTOM,
+        },
+      })
+    })
+
+    return () => {
+      if (viewer.isDestroyed()) return
+      regionEntityIds.forEach((id) => viewer.entities.removeById(id))
+    }
+  }, [showArtemisRegions, artemisRegions])
 
   // Beacon pins. Missions outside the filter are dimmed; the active one is orange.
   useEffect(() => {
@@ -706,6 +780,14 @@ export function MoonGlobe({
 
       {/* Augmented Celestial & HUD Toggles */}
       <div className="globe__toggles">
+        <button
+          type="button"
+          className={`globe__toggle-btn ${showArtemisRegions ? 'globe__toggle-btn--active' : ''}`}
+          onClick={() => setShowArtemisRegions((v) => !v)}
+          title="Toggle Artemis III Candidate Landing Regions (NASA Release 24-136)"
+        >
+          {showArtemisRegions ? '☑' : '☐'} Artemis III Regions
+        </button>
         <button
           type="button"
           className={`globe__toggle-btn ${showDteBeam ? 'globe__toggle-btn--active' : ''}`}

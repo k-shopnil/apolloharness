@@ -548,3 +548,110 @@
 .scientific-meta strong {
   color: #fff;
 }
+
+/* Scientific Mode Sensitivity & Arrival Slip Table */
+.sensitivity-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.sensitivity-loading,
+.sensitivity-note {
+  font-size: 10px;
+  color: var(--text-dim);
+  line-height: 1.4;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 8px;
+  border-radius: 3px;
+  border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.sensitivity-headline-card {
+  background: rgba(0, 229, 255, 0.05);
+  border: 1px solid rgba(0, 229, 255, 0.25);
+  border-radius: 4px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.sensitivity-headline-title {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: #00e5ff;
+}
+
+.sensitivity-headline-text {
+  font-size: 11px;
+  font-weight: 600;
+  color: #ffffff;
+  line-height: 1.4;
+}
+
+.sensitivity-neighbour-detail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  font-size: 9px;
+  color: var(--text-secondary);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 4px;
+}
+
+.arrival-slips-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.sensitivity-table {
+  font-size: 9px;
+}
+
+.sensitivity-table th,
+.sensitivity-table td {
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.row--nominal {
+  background: rgba(255, 77, 0, 0.12);
+}
+
+.cell--nominal-tag {
+  color: #ff4d00;
+  font-weight: 700;
+}
+
+.slip-state {
+  display: inline-block;
+  padding: 1px 4px;
+  font-size: 8px;
+  font-weight: 700;
+  border-radius: 2px;
+}
+
+.slip-state--lit {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+
+.slip-state--dark {
+  background: rgba(248, 113, 113, 0.15);
+  color: #f87171;
+}
+
+.slip-state--dte {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+}
+
+.slip-state--blackout {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}

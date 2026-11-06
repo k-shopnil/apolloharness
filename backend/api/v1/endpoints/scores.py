@@ -1,5 +1,5 @@
 """Site evaluation and scoring endpoint with solar, comms, and ice proximity models."""
-from datetime import datetime
+from datetime import datetime, timedelta
 from copy import deepcopy
 import math
 from threading import RLock
@@ -82,23 +82,31 @@ def _parse_dates(start_date: Optional[str], end_date: Optional[str]) -> tuple[Op
     end_dt = None
 
     if start_date is not None:
-        try:
-            sd_clean = start_date.strip().split("T")[0]
-            start_dt = datetime.strptime(sd_clean, "%Y-%m-%d")
-        except ValueError:
+        sd_clean = start_date.strip().split("T")[0]
+        for fmt in ("%Y-%m-%d", "%Y-%m", "%Y", "%b %Y", "%B %Y"):
+            try:
+                start_dt = datetime.strptime(sd_clean, fmt)
+                break
+            except ValueError:
+                pass
+        if start_dt is None:
             raise HTTPException(
                 status_code=400,
-                detail=f"Malformed start_date '{start_date}'. Expected format YYYY-MM-DD.",
+                detail=f"Malformed start_date '{start_date}'. Must be an ISO date or year string.",
             )
 
     if end_date is not None:
-        try:
-            ed_clean = end_date.strip().split("T")[0]
-            end_dt = datetime.strptime(ed_clean, "%Y-%m-%d")
-        except ValueError:
+        ed_clean = end_date.strip().split("T")[0]
+        for fmt in ("%Y-%m-%d", "%Y-%m", "%Y", "%b %Y", "%B %Y"):
+            try:
+                end_dt = datetime.strptime(ed_clean, fmt)
+                break
+            except ValueError:
+                pass
+        if end_dt is None:
             raise HTTPException(
                 status_code=400,
-                detail=f"Malformed end_date '{end_date}'. Expected format YYYY-MM-DD.",
+                detail=f"Malformed end_date '{end_date}'. Must be an ISO date or year string.",
             )
 
     if start_dt and end_dt:

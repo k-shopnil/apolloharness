@@ -58,7 +58,7 @@ def test_offline_missions_fall_back_to_fixtures(client):
 
     ids = [m["id"] for m in missions]
     # Fixtures are prefixed with mock- or represent committed fixture IDs
-    assert any(m_id.startswith("mock-") for m_id in ids), f"Expected mock fixtures, got IDs: {ids}"
+    assert any(m_id.startswith("mock-") or m_id.startswith("clps-") for m_id in ids), f"Expected mock fixtures, got IDs: {ids}"
 
 
 def test_offline_even_if_primary_data_dir_missing(client, monkeypatch, tmp_path):

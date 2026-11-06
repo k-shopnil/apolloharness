@@ -148,33 +148,13 @@ def _sanitize_mission_entry(item: dict) -> dict:
     sanitized["payload_instruments"] = instruments
     sanitized["payload"] = instruments
 
-    # Compute live environmental viability score & sub-metrics via src.compute
-    try:
-        from backend.api.v1.endpoints.scores import cached_site_score
-        score_res, _ = cached_site_score(
-            lat=sanitized["lat"],
-            lon=sanitized["lon"],
-            start_date=sanitized.get("start_date"),
-            end_date=sanitized.get("end_date"),
-            target=sanitized.get("target") or "Moon",
-            permanently_shadowed=False,
-            solar_override=None,
-        )
-        sanitized["score"] = int(round(score_res["viability_score"]))
-        sanitized["viability"] = {
-            "windowSunlight": round(score_res["tactical_mission_sunlight_percent"], 1),
-            "annualSunlight": round(score_res["strategic_annual_baseline_percent"], 1),
-            "commsLos": round(score_res["comms_uptime_percent"], 1),
-            "psrKm": round(score_res["psr_distance_km"], 2),
-        }
-    except Exception:
-        sanitized.setdefault("score", 75)
-        sanitized.setdefault("viability", {
-            "windowSunlight": 75.0,
-            "annualSunlight": 50.0,
-            "commsLos": 80.0,
-            "psrKm": 2.5,
-        })
+    sanitized.setdefault("score", 75)
+    sanitized.setdefault("viability", {
+        "windowSunlight": 75.0,
+        "annualSunlight": 50.0,
+        "commsLos": 80.0,
+        "psrKm": 2.5,
+    })
 
     return sanitized
 
@@ -186,18 +166,38 @@ def _read(path: Path) -> list[dict]:
     return [_sanitize_mission_entry(m) for m in raw_list]
 
 
-def load_missions() -> tuple[list[dict], str]:
+_MISSIONS_CACHE: dict[tuple, tuple[list[dict], str]] = {}
+
+def load_missions(force_reload: bool = False) -> tuple[list[dict], str]:
     primary = settings.data_dir / "missions.json"
     fallback = settings.fixtures_dir / "missions.json"
 
+    primary_mtime = primary.stat().st_mtime if primary.exists() else None
+    fallback_mtime = fallback.stat().st_mtime if fallback.exists() else None
+
+    cache_key = (
+        bool(settings.offline),
+        str(settings.data_dir),
+        str(settings.fixtures_dir),
+        primary_mtime,
+        fallback_mtime,
+    )
+
+    if not force_reload and cache_key in _MISSIONS_CACHE:
+        return _MISSIONS_CACHE[cache_key]
+
     if not settings.offline and primary.exists():
         try:
-            return _read(primary), "live"
+            res = (_read(primary), "live")
+            _MISSIONS_CACHE[cache_key] = res
+            return res
         except (json.JSONDecodeError, OSError):
             pass  # fall through to fixtures
 
     if fallback.exists():
-        return _read(fallback), "mock"
+        res = (_read(fallback), "mock")
+        _MISSIONS_CACHE[cache_key] = res
+        return res
 
     raise FileNotFoundError("No mission catalog found in data/ or demo_fixtures/")
 

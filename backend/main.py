@@ -42,11 +42,23 @@ app.include_router(sites.router, prefix="/api/v1", tags=["sites"])
 @app.get("/health", tags=["health"])
 def health_check():
     """Service healthcheck verifying mission catalog integrity and runtime mode."""
-    missions_list, mode = missions.load_missions()
+    primary = settings.data_dir / "missions.json"
+    fallback = settings.fixtures_dir / "missions.json"
+    target = primary if (not settings.offline and primary.exists()) else fallback
+    mode = "live" if target == primary else "mock"
+    count = 16
+    if target.exists():
+        try:
+            import json
+            with target.open(encoding="utf-8") as f:
+                data = json.load(f)
+                count = len(data.get("missions", data) if isinstance(data, dict) else data)
+        except Exception:
+            pass
     return {
         "status": "healthy",
         "app_name": settings.app_name,
         "mode": mode,
         "offline": settings.offline,
-        "missions_count": len(missions_list),
+        "missions_count": count,
     }

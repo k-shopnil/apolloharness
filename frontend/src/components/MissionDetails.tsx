@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   categoryLabel,
   formatCoords,
@@ -10,9 +10,11 @@ import {
   fetchGeometryV1,
   fetchSiteComms,
   fetchSiteScore,
+  fetchSiteSensitivity,
   type GeometryV1Response,
   type SiteCommsResponse,
   type SiteScoreResponse,
+  type SiteSensitivityResponse,
 } from '../services/api'
 import type { UIMode } from './Header'
 import './MissionDetails.css'
@@ -42,6 +44,55 @@ export function MissionDetails({
   const [liveScore, setLiveScore] = useState<SiteScoreResponse | null>(null)
   const [liveComms, setLiveComms] = useState<SiteCommsResponse | null>(null)
   const [geometry, setGeometry] = useState<GeometryV1Response | null>(null)
+  const [sensitivity, setSensitivity] = useState<SiteSensitivityResponse | null>(null)
+  const [loadingSensitivity, setLoadingSensitivity] = useState(false)
+  const [sensitivityNote, setSensitivityNote] = useState<string | null>(null)
+
+  useEffect(() => {
+    let active = true
+    if (uiMode !== 'scientific') return
+
+    if (mission.lat > -83.5) {
+      setSensitivity(null)
+      setSensitivityNote(
+        'Polar micro-terrain sensitivity analysis applies to south polar sites (83.5°S – 90.0°S). Non-polar sites follow standard 14-day synodic day/night cycles without local ridge shadowing.'
+      )
+      return
+    }
+
+    setLoadingSensitivity(true)
+    setSensitivityNote(null)
+
+    fetchSiteSensitivity({
+      lat: mission.lat,
+      lon: mission.lon,
+      utc: mission.start_date || '2026-11-15T12:00:00Z',
+      siteId: mission.id,
+    })
+      .then((res) => {
+        if (!active) return
+        if (res) {
+          setSensitivity(res)
+          setSensitivityNote(null)
+        } else {
+          setSensitivity(null)
+          setSensitivityNote('High-resolution sensitivity evaluation unavailable.')
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setSensitivity(null)
+          setSensitivityNote('Sensitivity evaluation unavailable.')
+        }
+      })
+      .finally(() => {
+        if (active) setLoadingSensitivity(false)
+      })
+
+    return () => {
+      active = false
+    }
+  }, [mission.lat, mission.lon, mission.start_date, mission.id, uiMode])
 
   useEffect(() => {
     let active = true
@@ -234,6 +285,80 @@ export function MissionDetails({
           <div className="scientific-meta">
             <span>HORIZON MODEL: <strong>{geometry?.horizon_model || 'lola_terrain_mask'}</strong></span>
             <span>DEM PRODUCT: <strong>{geometry?.terrain?.dem_product || 'LOLA LDEM_80S_80MPP_ADJ'}</strong></span>
+          </div>
+
+          {/* A2.2 LOCAL POSITION SENSITIVITY & 1-KM NEIGHBOUR OPTIMIZATION */}
+          <div className="sensitivity-section">
+            <span className="vectors-title">LOCAL TERRAIN SENSITIVITY (±1 KM)</span>
+            {loadingSensitivity ? (
+              <div className="sensitivity-loading">Analyzing LOLA micro-relief &amp; slip curves...</div>
+            ) : sensitivityNote ? (
+              <div className="sensitivity-note">{sensitivityNote}</div>
+            ) : sensitivity ? (
+              <>
+                <div className="sensitivity-headline-card">
+                  <div className="sensitivity-headline-title">OPTIMIZATION HEADLINE</div>
+                  <div className="sensitivity-headline-text">
+                    {sensitivity.position?.sunlit_percent?.headline ||
+                      (sensitivity.position?.sunlit_percent?.centre_is_best
+                        ? `Current site is a local illumination optimum within 1 km (${sensitivity.position.sunlit_percent.centre.toFixed(1)}% sunlight).`
+                        : sensitivity.position?.sunlit_percent?.best_neighbour
+                          ? `Moving ${Math.round(sensitivity.position.sunlit_percent.best_neighbour.distance_m)} m ${sensitivity.position.sunlit_percent.best_neighbour.direction} raises sunlight from ${sensitivity.position.sunlit_percent.centre.toFixed(1)}% to ${sensitivity.position.sunlit_percent.best_neighbour.value.toFixed(1)}% (slope ${sensitivity.position.sunlit_percent.best_neighbour.regional_slope_deg.toFixed(1)}°).`
+                          : 'Local 1-km terrain evaluated.')}
+                  </div>
+                  {sensitivity.position?.sunlit_percent?.best_neighbour && (
+                    <div className="sensitivity-neighbour-detail">
+                      <span>BEARING: {sensitivity.position.sunlit_percent.best_neighbour.bearing_deg.toFixed(1)}° ({sensitivity.position.sunlit_percent.best_neighbour.direction})</span>
+                      <span>DISTANCE: {Math.round(sensitivity.position.sunlit_percent.best_neighbour.distance_m)} m</span>
+                      <span>LOCAL SLOPE: {sensitivity.position.sunlit_percent.best_neighbour.regional_slope_deg.toFixed(1)}°</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* A2.3 LAUNCH SLIP SENSITIVITY (±7-DAY ARRIVAL WINDOW) */}
+                {sensitivity.arrival_date && sensitivity.arrival_date.length > 0 && (
+                  <div className="arrival-slips-card">
+                    <span className="vectors-title">LAUNCH SLIP SENSITIVITY (±7-DAY ARRIVAL WINDOW)</span>
+                    <div className="telemetry-table-wrapper">
+                      <table className="telemetry-table sensitivity-table">
+                        <thead>
+                          <tr>
+                            <th>OFFSET</th>
+                            <th>ARRIVAL (UTC)</th>
+                            <th>SUNLIGHT</th>
+                            <th>EARTH LOS</th>
+                            <th>ARRIVAL STATE</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {sensitivity.arrival_date.map((slip) => {
+                            const isNominal = slip.slip_days === 0
+                            const offsetStr = isNominal ? 'NOMINAL (0d)' : `${slip.slip_days > 0 ? '+' : ''}${slip.slip_days}d`
+                            const dateStr = slip.start_utc.slice(0, 10)
+                            return (
+                              <tr key={slip.slip_days} className={isNominal ? 'row--nominal' : undefined}>
+                                <td className={isNominal ? 'cell--nominal-tag' : undefined}>{offsetStr}</td>
+                                <td>{dateStr}</td>
+                                <td className="cell--highlight">{slip.sunlit_percent.toFixed(1)}%</td>
+                                <td className="cell--cyan">{slip.earth_los_percent.toFixed(1)}%</td>
+                                <td>
+                                  <span className={`slip-state ${slip.lit_at_arrival ? 'slip-state--lit' : 'slip-state--dark'}`}>
+                                    {slip.lit_at_arrival ? '☀️ LIT' : '🌑 DARK'}
+                                  </span>{' '}
+                                  <span className={`slip-state ${slip.earth_visible_at_arrival ? 'slip-state--dte' : 'slip-state--blackout'}`}>
+                                    {slip.earth_visible_at_arrival ? '📡 LOS' : '❌ OCC'}
+                                  </span>
+                                </td>
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            ) : null}
           </div>
         </section>
       )}

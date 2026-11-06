@@ -110,19 +110,33 @@ def compare_dates(
     except ValueError as exc:
         raise HTTPException(422, str(exc))
 
+from cachetools import TTLCache
+
+_SENSITIVITY_CACHE = TTLCache(maxsize=256, ttl=24 * 3600)
+_ARTEMIS_REGIONS_CACHE = None
+
 @router.get("/sites/sensitivity")
 def sensitivity(
     lat: float = Query(..., ge=-90.0, le=90.0),
     lon: float = Query(..., ge=-180.0, le=180.0),
-    utc: str = Query(...),
+    utc: Optional[str] = Query(None),
 ):
+    utc_str = utc.strip() if utc else "2026-11-15T12:00:00Z"
+    cache_key = (round(lat, 4), round(lon, 4), utc_str)
+    if cache_key in _SENSITIVITY_CACHE:
+        return _SENSITIVITY_CACHE[cache_key]
     try:
         from src.compute.api_payloads import site_sensitivity
-        return site_sensitivity(lat, lon, utc)
+        res = site_sensitivity(lat, lon, utc_str)
+        _SENSITIVITY_CACHE[cache_key] = res
+        return res
     except ValueError as exc:
         raise HTTPException(422, str(exc))
 
 @router.get("/artemis-regions")
 def get_artemis_regions():
-    from src.compute.api_payloads import artemis_regions
-    return artemis_regions()
+    global _ARTEMIS_REGIONS_CACHE
+    if _ARTEMIS_REGIONS_CACHE is None:
+        from src.compute.api_payloads import artemis_regions
+        _ARTEMIS_REGIONS_CACHE = artemis_regions()
+    return _ARTEMIS_REGIONS_CACHE

@@ -623,3 +623,144 @@ export async function fetchCustomSite(
     return null
   }
 }
+
+export interface ArtemisRegionAnchor {
+  iau_name: string
+  feature_type: string
+  center_lat_deg: number
+  center_lon_deg: number
+  diameter_km: number
+  usgs_url: string
+}
+
+export interface ArtemisRegion {
+  id: string
+  name: string
+  kind: string
+  is_landing_point: boolean
+  program: string
+  status: string
+  anchor: ArtemisRegionAnchor
+  anchor_relation: string
+  coordinate_basis: string
+  catalog_sites_near_anchor?: Array<{
+    site_id: string
+    name: string
+    distance_km: number
+  }>
+}
+
+export interface ArtemisRegionsResponse {
+  schema: string
+  label_rule: string
+  coordinate_note: string
+  sources: string[]
+  regions: ArtemisRegion[]
+}
+
+export async function fetchArtemisRegions(): Promise<ArtemisRegionsResponse | null> {
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/artemis-regions`, {
+      headers: { Accept: 'application/json' },
+    })
+    if (res.ok) return await res.json()
+  } catch {}
+  try {
+    const fallbackRes = await fetch('/data/artemis_iii_regions.json')
+    if (fallbackRes.ok) return await fallbackRes.json()
+  } catch {}
+  return null
+}
+
+export interface BestNeighbour {
+  latitude_deg: number
+  longitude_deg: number
+  distance_m: number
+  bearing_deg: number
+  direction: string
+  value: number
+  improvement: number
+  regional_slope_deg: number
+}
+
+export interface ArrivalDateSlip {
+  slip_days: number
+  start_utc: string
+  lit_at_arrival: boolean
+  earth_visible_at_arrival: boolean
+  sunlit_percent: number
+  earth_los_percent: number
+}
+
+export interface SiteSensitivityResponse {
+  schema?: string
+  site?: {
+    latitude_deg: number
+    longitude_deg: number
+    regional_slope_deg?: number
+  }
+  utc?: string
+  position?: {
+    sunlit_percent?: {
+      unit?: string
+      higher_is_better?: boolean
+      centre: number
+      neighbours?: {
+        min: number
+        p10: number
+        median: number
+        p90: number
+        max: number
+      }
+      centre_is_best?: boolean
+      best_neighbour?: BestNeighbour | null
+      headline?: string | null
+    }
+    earth_los_percent?: {
+      unit?: string
+      centre: number
+      best_neighbour?: BestNeighbour | null
+      headline?: string | null
+    }
+  }
+  arrival_date?: ArrivalDateSlip[]
+  observer_height?: Record<
+    string,
+    {
+      sunlit_percent: number
+      earth_los_percent: number
+    }
+  >
+  notes?: string[]
+}
+
+export async function fetchSiteSensitivity(params: {
+  lat: number
+  lon: number
+  utc?: string
+  siteId?: string
+}): Promise<SiteSensitivityResponse | null> {
+  const query = new URLSearchParams({
+    lat: params.lat.toString(),
+    lon: params.lon.toString(),
+  })
+  if (params.utc) {
+    query.set('utc', params.utc)
+  }
+  try {
+    const res = await fetch(`${API_BASE_URL}/api/v1/sites/sensitivity?${query.toString()}`, {
+      headers: { Accept: 'application/json' },
+    })
+    if (res.ok) return await res.json()
+  } catch {}
+
+  // Fallback to offline fixtures if siteId provided
+  if (params.siteId) {
+    try {
+      const fixtureRes = await fetch(`/offline_fixtures/site_sensitivity/${params.siteId}.json`)
+      if (fixtureRes.ok) return await fixtureRes.json()
+    } catch {}
+  }
+  return null
+}
+
