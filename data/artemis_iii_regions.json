@@ -1,0 +1,220 @@
+{
+ "schema": "apolloharness.artemis_iii_regions.v1",
+ "label_rule": "These are regions, not landing points. Show 'Artemis III candidate region near <anchor>'; never place a lander or a site marker here.",
+ "coordinate_note": "NASA published the regions as an image only. Coordinates are the official IAU centre of the feature that names each region, so a rim region lies roughly one crater radius from its anchor.",
+ "sources": [
+  {
+   "title": "NASA Provides Update on Artemis III Moon Landing Regions (release 24-136)",
+   "publisher": "NASA",
+   "date": "2024-10-28",
+   "url": "https://www.nasa.gov/news-release/nasa-provides-update-on-artemis-iii-moon-landing-regions/"
+  },
+  {
+   "title": "Artemis III Site Selection Update: Downselection From Thirteen to Nine Candidate Regions (George, Rubio, Lawrence, Curell; LPSC 2026)",
+   "publisher": "NASA NTRS 20250011660",
+   "date": "2026-03-16",
+   "url": "https://ntrs.nasa.gov/citations/20250011660"
+  },
+  {
+   "title": "Gazetteer of Planetary Nomenclature (IAU WGPSN), Moon centre points",
+   "publisher": "USGS Astrogeology",
+   "sha256": "8aa0bafc7760ffb6ff2c55fc696ce92d447678c694687501467db7e44c655491",
+   "url": "https://planetarynames.wr.usgs.gov/"
+  }
+ ],
+ "regions": [
+  {
+   "id": "artemis3-peak-near-cabeus-b",
+   "name": "Peak near Cabeus B",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Cabeus B",
+    "feature_type": "Satellite Feature",
+    "center_lat_deg": -82.2587,
+    "center_lon_deg": -54.5846,
+    "diameter_km": 59.617,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/8058"
+   },
+   "anchor_relation": "region is on a peak near this crater",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-haworth",
+   "name": "Haworth",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Haworth",
+    "feature_type": "Crater, craters",
+    "center_lat_deg": -87.45,
+    "center_lon_deg": -5.17,
+    "diameter_km": 51.423,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/14502"
+   },
+   "anchor_relation": "region is named after this crater and lies near it",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-malapert-massif",
+   "name": "Malapert Massif",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Mons Malapert",
+    "feature_type": "Mons, montes",
+    "center_lat_deg": -85.98,
+    "center_lon_deg": -1.67,
+    "diameter_km": 67.0,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/16338"
+   },
+   "anchor_relation": "region is on this massif",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-mons-mouton-plateau",
+   "name": "Mons Mouton Plateau",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Mons Mouton",
+    "feature_type": "Mons, montes",
+    "center_lat_deg": -84.6,
+    "center_lon_deg": 31.0,
+    "diameter_km": 130.0,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/16070"
+   },
+   "anchor_relation": "region is on the plateau of this mountain",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": [
+    {
+     "id": "clps-prime-1-im2",
+     "mission": "IM-2 Athena",
+     "distance_from_anchor_km": 7.7
+    },
+    {
+     "id": "clps-cp22-im4",
+     "mission": "IM-4",
+     "distance_from_anchor_km": 7.7
+    }
+   ]
+  },
+  {
+   "id": "artemis3-mons-mouton",
+   "name": "Mons Mouton",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Mons Mouton",
+    "feature_type": "Mons, montes",
+    "center_lat_deg": -84.6,
+    "center_lon_deg": 31.0,
+    "diameter_km": 130.0,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/16070"
+   },
+   "anchor_relation": "region is on this mountain",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": [
+    {
+     "id": "clps-prime-1-im2",
+     "mission": "IM-2 Athena",
+     "distance_from_anchor_km": 7.7
+    },
+    {
+     "id": "clps-cp22-im4",
+     "mission": "IM-4",
+     "distance_from_anchor_km": 7.7
+    }
+   ]
+  },
+  {
+   "id": "artemis3-nobile-rim-1",
+   "name": "Nobile Rim 1",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Nobile",
+    "feature_type": "Crater, craters",
+    "center_lat_deg": -85.2752,
+    "center_lon_deg": 53.2725,
+    "diameter_km": 79.272,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/4321"
+   },
+   "anchor_relation": "region is on the rim of this crater, not at its centre",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-nobile-rim-2",
+   "name": "Nobile Rim 2",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Nobile",
+    "feature_type": "Crater, craters",
+    "center_lat_deg": -85.2752,
+    "center_lon_deg": 53.2725,
+    "diameter_km": 79.272,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/4321"
+   },
+   "anchor_relation": "region is on the rim of this crater, not at its centre",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-de-gerlache-rim-2",
+   "name": "de Gerlache Rim 2",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "de Gerlache",
+    "feature_type": "Crater, craters",
+    "center_lat_deg": -88.4849,
+    "center_lon_deg": -88.3447,
+    "diameter_km": 32.705,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/1439"
+   },
+   "anchor_relation": "region is on the rim of this crater, not at its centre",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  },
+  {
+   "id": "artemis3-slater-plain",
+   "name": "Slater Plain",
+   "kind": "candidate_region",
+   "is_landing_point": false,
+   "program": "Artemis III",
+   "status": "NASA candidate landing region (announced 2024-10-28)",
+   "anchor": {
+    "iau_name": "Slater",
+    "feature_type": "Crater, craters",
+    "center_lat_deg": -88.0792,
+    "center_lon_deg": 111.2881,
+    "diameter_km": 25.119,
+    "usgs_url": "https://planetarynames.wr.usgs.gov/Feature/15325"
+   },
+   "anchor_relation": "region is on a plain named after this crater",
+   "coordinate_basis": "iau_feature_centre",
+   "catalog_sites_near_anchor": []
+  }
+ ]
+}

@@ -1,0 +1,286 @@
+{
+  "schema": "apolloharness.data_provenance.v1",
+  "audit_date": "2026-11-06",
+  "challenge": "NASA Space Apps Challenge 2026 - Lunar Landing Site Navigator",
+  "scope": "Scientific, astronomical, geospatial, mission, PSR, terrain, illumination and derived validation data used by this repository.",
+  "review_policy": {
+    "automated_validation": "Computational consistency only.",
+    "human_scientific_review": "pending",
+    "assigned_reviewer": "@Thirtha17"
+  },
+  "entries": [
+    {
+      "dataset": "Mission and payload catalog",
+      "description": "Sixteen CLPS and historical/reference mission records, payload summaries, dates, target descriptions and coordinate qualifiers.",
+      "source": {
+        "organization": "NASA and the primary organizations cited per record",
+        "title": "Per-record source citations in data/missions.json",
+        "url": "data/missions.json",
+        "version_or_date": "Record-specific; accessed dates are stored per source record."
+      },
+      "local_files": ["data/missions.json", "offline_fixtures/missions.json"],
+      "retrieval": {
+        "date": "Record-specific",
+        "method": "Manual curation from the source URLs embedded in each record."
+      },
+      "processing": {
+        "method": "Payload fields are transcribed; offline fixtures add explicit unavailable-analysis fields. Coordinates retain coordinate_type and coordinate_provenance."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending",
+      "limitations": [
+        "Several planned-mission coordinates are NASA destination/region references, not published landing fixes; they are not represented as actual landings.",
+        "CP-12 termination is sourced from SpaceNews because the current catalog record has no NASA termination release; this secondary citation requires human review."
+      ]
+    },
+    {
+      "dataset": "Artemis III candidate regions",
+      "description": "The intentionally used nine-region October 2024 Artemis III candidate-region set; coordinates are IAU feature-centre anchors, not NASA region centroids or landing points.",
+      "source": {
+        "organization": "NASA",
+        "title": "NASA Provides Update on Artemis III Moon Landing Regions (release 24-136)",
+        "url": "https://www.nasa.gov/news-release/nasa-provides-update-on-artemis-iii-moon-landing-regions/",
+        "version_or_date": "2024-10-28"
+      },
+      "supplemental_sources": [
+        {
+          "organization": "NASA Technical Reports Server",
+          "title": "Artemis III Site Selection Update: Downselection From Thirteen to Nine Candidate Regions",
+          "url": "https://ntrs.nasa.gov/citations/20250011660",
+          "version_or_date": "2026-03-16"
+        },
+        {
+          "organization": "USGS Astrogeology / IAU WGPSN",
+          "title": "Gazetteer of Planetary Nomenclature, Moon centre points",
+          "url": "https://planetarynames.wr.usgs.gov/",
+          "version_or_date": "Archive SHA-256 8aa0bafc7760ffb6ff2c55fc696ce92d447678c694687501467db7e44c655491"
+        }
+      ],
+      "local_files": ["data/artemis_iii_regions.json", "src/acquire/artemis_regions.py"],
+      "retrieval": {
+        "date": "2026-11-05 for the pinned USGS archive; NASA publication dates are source dates.",
+        "method": "NASA region names were transcribed; USGS archive was downloaded and filtered to IAU-adopted anchor features."
+      },
+      "processing": {
+        "method": "Anchor longitudes are normalized to [-180, 180] and rounded to four decimals; diameters to three decimals; nearby catalog distances use a 1737.4 km spherical haversine calculation."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending",
+      "version_choice": "Nine-region October 2024 update, not the original thirteen-region August 2022 list."
+    },
+    {
+      "dataset": "Lunar South Pole permanently shadowed regions",
+      "description": "NASA PGDA product 90 LPSR 80S 20MPP polygon dataset used for PSR containment, nearest-region distance and area.",
+      "source": {
+        "organization": "NASA GSFC PGDA",
+        "title": "LOLA product 90, LPSR_80S_20MPP_ADJ",
+        "url": "https://pgda.gsfc.nasa.gov/products/90",
+        "version_or_date": "Filename release LPSR_80S_20MPP_ADJ; exact upstream publication date not stated in repository."
+      },
+      "local_files": [
+        "data/psr/LPSR_80S_20MPP_ADJ.SHP",
+        "data/psr/LPSR_80S_20MPP_ADJ.SHX",
+        "data/psr/LPSR_80S_20MPP_ADJ.DBF",
+        "data/psr/LPSR_80S_20MPP_ADJ.PRJ",
+        "src/compute/proximity.py"
+      ],
+      "retrieval": {
+        "date": "Manifest verification date is runtime-specific; expected SHA-256 values are in src/acquire/verify_data.py.",
+        "method": "Git LFS or NASA PGDA download via src/acquire/nasa_products.py."
+      },
+      "processing": {
+        "method": "Local projected spatial queries, invalid-source-geometry handling, nearest-distance and area calculations; no polygon values are changed."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending",
+      "limitations": [
+        "The source PRJ and product documentation have different lunar frame descriptions; see docs/SCIENTIFIC_BASIS.md.",
+        "PSR host-crater names are not NASA polygon attributes; they are a separate locally filtered USGS/IAU gazetteer join."
+      ]
+    },
+    {
+      "dataset": "IAU lunar crater and feature names",
+      "description": "IAU-adopted Moon feature centre points, feature types and diameters used for PSR host names and Artemis anchors.",
+      "source": {
+        "organization": "USGS Astrogeology / IAU WGPSN",
+        "title": "Gazetteer of Planetary Nomenclature, Moon centre points archive",
+        "url": "https://asc-planetarynames-data.s3.us-west-2.amazonaws.com/MOON_nomenclature_center_pts.zip",
+        "version_or_date": "Pinned archive SHA-256 8aa0bafc7760ffb6ff2c55fc696ce92d447678c694687501467db7e44c655491; 2026-11-05"
+      },
+      "local_files": ["data/psr/iau_south_polar_craters.csv", "src/acquire/usgs_nomenclature.py"],
+      "retrieval": {
+        "date": "2026-11-05",
+        "method": "Downloaded archive, SHA-256 checked, filtered to IAU-adopted crater/satellite features south of 70 degrees latitude."
+      },
+      "processing": {
+        "method": "Longitude normalization to [-180, 180], coordinate/diameter rounding, CSV export; PSR host assignment is a local geometric containment/area operation."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "Polar LOLA DEM",
+      "description": "80 m/pixel NASA PGDA product 90 terrain used for elevation, slopes and horizon masks in the 80-90 degree south region.",
+      "source": {
+        "organization": "NASA GSFC PGDA / LRO LOLA",
+        "title": "LOLA_20mpp LDEM_80S_80MPP_ADJ.TIF",
+        "url": "https://pgda.gsfc.nasa.gov/data/LOLA_20mpp/LDEM_80S_80MPP_ADJ.TIF",
+        "version_or_date": "Product 90; SHA-256 82030dcbdd7c4bb0c7d858e9b4b293b9f2cda5a543ba31ec0f42784bd6beee5a"
+      },
+      "local_files": ["data/lola/LDEM_80S_80MPP_ADJ.TIF", "src/compute/terrain.py"],
+      "retrieval": {
+        "date": "2026-10-20 local verification recorded in cache metadata",
+        "method": "Git LFS or verified NASA PGDA download."
+      },
+      "processing": {
+        "method": "Raster sampling and horizon ray tracing; CRS and reference-sphere limitations are documented in docs/SCIENTIFIC_BASIS.md."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "Global LOLA GDR DEM",
+      "description": "Global LDEM_64 raster used outside the polar DEM and to build committed site tiles.",
+      "source": {
+        "organization": "NASA PDS Geosciences Node / LRO LOLA",
+        "title": "LRO-L-LOLA-3-RDR-V1 LDEM_64",
+        "url": "https://pds-geosciences.wustl.edu/lro/lro-l-lola-3-rdr-v1/lrolol_1xxx/data/lola_gdr/cylindrical/img/ldem_64.img",
+        "version_or_date": "LRO-L-LOLA-3-RDR-V1; SHA-256 1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6"
+      },
+      "local_files": ["cache/nasa/pds/ldem_64.img", "cache/nasa/pds/ldem_64.lbl", "data/lola/tiles/*.tif", "data/lola/tiles/index.json"],
+      "retrieval": {
+        "date": "2026-10-30 local verification recorded in cache metadata",
+        "method": "Verified PDS download; site tiles are generated locally."
+      },
+      "processing": {
+        "method": "Global DEM resampling into site-centred stereographic tiles with 1737400 m sphere height reference; tile source identity is recorded in data/lola/tiles/index.json."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "NASA PGDA average solar illumination",
+      "description": "Product 69 long-term mean visible solar-disc fraction at 85-90S and 75-90S.",
+      "source": {
+        "organization": "NASA GSFC PGDA",
+        "title": "Average solar illumination product 69",
+        "url": "https://pgda.gsfc.nasa.gov/products/69",
+        "version_or_date": "201608 release; files AVGVISIB_85S_060M_201608.TIF and AVGVISIB_75S_120M_201608.TIF"
+      },
+      "local_files": ["data/illumination/AVGVISIB_85S_060M_201608.TIF", "data/illumination/AVGVISIB_75S_120M_201608.TIF", "data/validation/annual_illumination_validation.json"],
+      "retrieval": {
+        "date": "2026-10-20 local verification recorded for 85S product; manifest checks all files.",
+        "method": "Verified NASA PGDA download or Git LFS."
+      },
+      "processing": {
+        "method": "GeoTIFF scale 0.00004 and offset 0 are applied; values are compared with SPICE/LOLA-derived long-term estimates."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "NASA PGDA Earth visibility truth raster",
+      "description": "Product 69 fraction of hourly epochs where any part of Earth's disc is above terrain.",
+      "source": {
+        "organization": "NASA GSFC PGDA",
+        "title": "Average Earth visibility raster, AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "url": "https://pgda.gsfc.nasa.gov/data/MoonIllumination/AVGVISIB_85S_060M_201608_EARTH.TIF",
+        "version_or_date": "201608 release; SHA-256 d71dc5adfff653e0e924e0a4cbf03795b996caa30b4ace3d5843a70a5ab2f3d2"
+      },
+      "local_files": ["data/validation/earth_visibility_validation.json"],
+      "retrieval": {
+        "date": "Manifest verification date is runtime-specific.",
+        "method": "Verified NASA PGDA download; validation-only input, not API runtime data."
+      },
+      "processing": {
+        "method": "Held-out comparison against locally generated SPICE/LOLA Earth-disc visibility."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "NAIF SPICE kernels and ephemerides",
+      "description": "Leap seconds, body constants, lunar frames/orientation and DE430 solar-system ephemeris used by the physics engine.",
+      "source": {
+        "organization": "NASA/JPL NAIF",
+        "title": "NAIF generic kernels",
+        "url": "https://naif.jpl.nasa.gov/naif/data_generic.html",
+        "version_or_date": "Kernel-specific filenames and SHA-256 values are in src/acquire/nasa_products.py and src/acquire/verify_data.py."
+      },
+      "local_files": ["data/spice/naif0012.tls", "data/spice/pck00010.tpc", "data/spice/moon_080317.tf", "data/spice/moon_pa_de421_1900-2050.bpc", "data/spice/de430.bsp"],
+      "retrieval": {
+        "date": null,
+        "method": "Git LFS or verified NAIF download."
+      },
+      "processing": {
+        "method": "spiceypy loads kernels; ME/PA frame transforms and topocentric azimuth/elevation are computed locally."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "JPL Horizons reference ephemerides",
+      "description": "Cached apparent Sun/Earth observer-table azimuth/elevation used for the independent cross-check.",
+      "source": {
+        "organization": "NASA/JPL Solar System Dynamics Group",
+        "title": "Horizons API",
+        "url": "https://ssd.jpl.nasa.gov/api/horizons.api",
+        "version_or_date": "Query and retrieval timestamp are recorded in data/validation/horizons_crosscheck.json."
+      },
+      "local_files": ["data/validation/horizons/*.txt", "data/validation/horizons_crosscheck.json", "src/ml/horizons_crosscheck.py"],
+      "retrieval": {
+        "date": "Recorded in each cached response header and generated report.",
+        "method": "Programmatic API query; cached text responses retained as reference data."
+      },
+      "processing": {
+        "method": "Objects 10 and 399, center coord@301, geodetic user site, MEAN_ME, 0 km altitude, UTC interval 2026-11-15 through 2026-12-14T12:00Z, 6 h step, observer quantity 4, AIRLESS, degrees."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
+      "dataset": "Derived SPICE tracks, geometry and validation outputs",
+      "description": "Locally generated tracks, horizons, countdowns, illumination comparisons and API fixtures.",
+      "source": {
+        "organization": "Local application processing using cited NASA/JPL/USGS inputs",
+        "title": "Reproducible derived products",
+        "url": "docs/DATA_SOURCES.md",
+        "version_or_date": "Generated per artifact; code revision is recorded by Git."
+      },
+      "local_files": ["data/precomputed/tracks/*.json", "offline_fixtures/site_geometry/*.json", "offline_fixtures/site_sensitivity/*.json", "data/validation/*.json"],
+      "retrieval": {
+        "date": "Artifact-specific generated timestamps where available.",
+        "method": "Local Python modules; no external source is claimed for derived values."
+      },
+      "processing": {
+        "method": "Inputs, coordinate conventions, constants and transformations are documented in source modules and docs/SCIENTIFIC_BASIS.md."
+      },
+      "citation_required": true,
+      "citation_status": "present_as_derived",
+      "human_review_status": "pending"
+    }
+  ],
+  "audit_findings": {
+    "unsupported_or_ambiguous_items": [
+      "Peregrine, Blue Ghost 1, IM-3, CP-12 and IM-4 catalog coordinates are explicitly destination/region references without an independently established exact-coordinate source.",
+      "Nassau, Nobile, Shackleton Connecting Ridge and other planned targets are feature/region references, not landing points.",
+      "Some historical landing records cite alternate coordinate solutions; the selected coordinate and alternative are both described in data/missions.json.",
+      "CP-12 termination currently relies on a secondary SpaceNews citation and needs human confirmation against an official NASA/Draper release."
+    ],
+    "not_claimed": [
+      "Automated validation is not scientific approval.",
+      "Artemis anchor coordinates are not NASA-published region centroids.",
+      "Locally generated tiles, tracks, API payloads and geometry are not NASA datasets."
+    ]
+  }
+}

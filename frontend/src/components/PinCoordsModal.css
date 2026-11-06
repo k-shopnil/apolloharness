@@ -1,0 +1,222 @@
+﻿.pin-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 10, 15, 0.78);
+  backdrop-filter: blur(4px);
+  padding: 16px;
+}
+
+.pin-modal {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 4px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  font-family: var(--font-ui);
+  animation: modalIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.pin-modal__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 12px;
+}
+
+.pin-modal__title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pin-modal__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.pin-modal__head h2 {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text);
+  margin: 0;
+}
+
+.pin-modal__close {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.pin-modal__close:hover {
+  color: var(--text);
+}
+
+.pin-modal__desc {
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0;
+}
+
+.pin-modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pin-modal__inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pin-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pin-modal__field label {
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  color: var(--text-dim);
+}
+
+.pin-modal__field input {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  font-family: var(--font-data);
+  font-size: 12px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.15s ease;
+}
+
+.pin-modal__field input:focus {
+  border-color: var(--accent);
+}
+
+.pin-modal__error {
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.4);
+  color: #ff6666;
+  font-size: 11px;
+  padding: 8px 12px;
+  border-radius: 2px;
+}
+
+.pin-modal__presets {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.pin-modal__presets-title {
+  font-size: 9px;
+  letter-spacing: 0.8px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.pin-modal__presets-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.pin-modal__preset-pill {
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 10px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.pin-modal__preset-pill:hover {
+  color: var(--text);
+  border-color: var(--accent);
+}
+
+.pin-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+}
+
+.pin-modal__btn-cancel {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.pin-modal__btn-cancel:hover {
+  color: var(--text);
+  border-color: var(--border-strong);
+}
+
+.pin-modal__btn-submit {
+  background: var(--accent);
+  border: none;
+  color: #000;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 8px 18px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.pin-modal__btn-submit:hover {
+  opacity: 0.9;
+}

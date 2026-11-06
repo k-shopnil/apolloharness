@@ -5,8 +5,21 @@ services:
       - "8000:8000"
     environment:
       - OFFLINE=${OFFLINE:-0}
+      - PYTHONPATH=/app
     volumes:
       - ./backend:/app/backend
+      - ./src:/app/src
       - ./data:/app/data
       - ./demo_fixtures:/app/demo_fixtures
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src
+    depends_on:
+      - api

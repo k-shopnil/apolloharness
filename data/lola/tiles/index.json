@@ -1,0 +1,86 @@
+{
+  "schema": "apolloharness.lola_tiles.v1",
+  "source_product": "LOLA GDR LDEM_64",
+  "source_sha256": "1c4958699d4cffd7e777d51421b6044bba300aa0bef286a544309efb082cdbd6",
+  "projection": "site-centred stereographic, R=1737400 m",
+  "height_reference": "metres above 1737.4 km sphere",
+  "tiles": [
+    {
+      "site_id": "clps-to2-ab-peregrine-1",
+      "file": "clps-to2-ab-peregrine-1.tif",
+      "center_lat_deg": 35.07,
+      "center_lon_deg": -41.76,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "clps-to2-im-im1",
+      "file": "clps-to2-im-im1.tif",
+      "center_lat_deg": -80.13,
+      "center_lon_deg": 1.44,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "clps-to19d-blue-ghost-1",
+      "file": "clps-to19d-blue-ghost-1.tif",
+      "center_lat_deg": 18.56,
+      "center_lon_deg": 61.81,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "clps-cp11-im3",
+      "file": "clps-cp11-im3.tif",
+      "center_lat_deg": 7.5,
+      "center_lon_deg": -59.0,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "clps-cp12-draper",
+      "file": "clps-cp12-draper.tif",
+      "center_lat_deg": -75.0,
+      "center_lon_deg": 132.0,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "clps-cs3-blue-ghost-2",
+      "file": "clps-cs3-blue-ghost-2.tif",
+      "center_lat_deg": -24.91,
+      "center_lon_deg": 177.34,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "anchor-apollo-11",
+      "file": "anchor-apollo-11.tif",
+      "center_lat_deg": 0.67416,
+      "center_lon_deg": 23.47314,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "anchor-apollo-17",
+      "file": "anchor-apollo-17.tif",
+      "center_lat_deg": 20.1911,
+      "center_lon_deg": 30.7723,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "anchor-chandrayaan-3",
+      "file": "anchor-chandrayaan-3.tif",
+      "center_lat_deg": -69.3741,
+      "center_lon_deg": 32.32,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "anchor-change-4",
+      "file": "anchor-change-4.tif",
+      "center_lat_deg": -45.457,
+      "center_lon_deg": 177.589,
+      "half_width_m": 160000.0
+    },
+    {
+      "site_id": "anchor-slim",
+      "file": "anchor-slim.tif",
+      "center_lat_deg": -13.316,
+      "center_lon_deg": 25.251,
+      "half_width_m": 160000.0
+    }
+  ]
+}

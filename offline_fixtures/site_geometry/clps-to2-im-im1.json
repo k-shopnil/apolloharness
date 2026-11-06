@@ -1,0 +1,108 @@
+{
+ "schema": "apolloharness.site_geometry.v1",
+ "source": "precomputed_track",
+ "site_id": "clps-to2-im-im1",
+ "mission": "IM-1 Odysseus",
+ "site": {
+  "latitude_deg": -80.13,
+  "longitude_deg": 1.44,
+  "coordinate_type": "actual_landing"
+ },
+ "utc": "2024-02-22T23:23:53Z",
+ "window_start_basis": "touchdown_utc",
+ "frame": "MOON_PA; unit vectors point from the site to the body",
+ "sun": {
+  "azimuth_deg": 18.6098340345193,
+  "elevation_deg": 10.472373196207101,
+  "terrain_horizon_deg": 0.11796763991063608,
+  "is_lit": true,
+  "time_to_sunset_hours": 211.7537841796875,
+  "time_to_sunset_formatted": "8d 19h",
+  "time_to_sunrise_hours": null,
+  "time_to_sunrise_formatted": null,
+  "countdown_status": "complete",
+  "fraction_of_window_up": 0.44115574348132486,
+  "angular_radius_deg": 0.2686666644728066,
+  "disk_visible_fraction": 1.0,
+  "unit_vector_moon_pa": [
+   0.9412229446435375,
+   0.33725296611777433,
+   -0.018968535033363775
+  ]
+ },
+ "earth": {
+  "azimuth_deg": 1.5668262571017573,
+  "elevation_deg": 15.432425426076218,
+  "terrain_horizon_deg": -0.5512741531433043,
+  "direct_los": true,
+  "time_to_earthset_hours": null,
+  "time_to_earthset_formatted": null,
+  "time_to_earthrise_hours": null,
+  "time_to_earthrise_formatted": null,
+  "countdown_status": "no_earthset_within_window",
+  "fraction_of_window_up": 1.0,
+  "angular_radius_deg": 0.904414743274206,
+  "disk_visible_fraction": 1.0,
+  "range_km": 403627.3992420477,
+  "round_trip_light_time_s": 2.6927121645071384,
+  "unit_vector_moon_pa": [
+   0.9940132681534791,
+   0.05102408380269325,
+   -0.09661348563702268
+  ]
+ },
+ "events": [
+  {
+   "body": "sun",
+   "kind": "set",
+   "utc": "2024-03-02T19:09:07Z",
+   "hours_from_start": 211.7538
+  },
+  {
+   "body": "sun",
+   "kind": "rise",
+   "utc": "2024-03-19T07:37:06Z",
+   "hours_from_start": 608.2203
+  }
+ ],
+ "psr": {
+  "search_radius_m": 20000.0,
+  "source_dataset": "LPSR_80S_20MPP_ADJ.SHP",
+  "nearest_large_psr": {
+   "min_area_km2": 1.0,
+   "search_radius_m": 50000.0,
+   "status": "complete",
+   "distance_m": 8367.804594235417,
+   "distance_km": 8.367804594235416,
+   "inside_psr": false,
+   "id": "HNP_886257_0005280",
+   "area_km2": 14.546,
+   "host": null,
+   "label": null
+  },
+  "status": "complete",
+  "distance_m": 555.1442708152208,
+  "distance_km": 0.5551442708152208,
+  "min_distance_m": 555.1442708152208,
+  "inside_psr": false,
+  "nearest_psr_id": "HNP_886744_0013220",
+  "nearest_psr_area_km2": 0.045,
+  "nearest_psr_host": null,
+  "nearest_psr_label": null
+ },
+ "horizon_model": "lola_terrain_mask",
+ "terrain": {
+  "elevation_m": 2591.9477552567105,
+  "dem_product": "LOLA LDEM_80S_80MPP_ADJ (PGDA product 90) + LOLA GDR LDEM_64 (edge fill)",
+  "dem_resolution_m": 80.0,
+  "horizon_model": "lola_terrain_mask",
+  "horizon_incomplete_azimuths": 0,
+  "horizon_azimuths_filled_from_global": 176,
+  "status": "complete"
+ },
+ "track_summary": {
+  "sunlit_percent": 44.01,
+  "earth_los_percent": 100.0,
+  "mean_sun_disk_visible_fraction": 0.4402
+ }
+}

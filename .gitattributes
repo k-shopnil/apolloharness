@@ -1,0 +1,9 @@
+data/spice/*.bsp filter=lfs diff=lfs merge=lfs -text
+data/spice/*.bpc filter=lfs diff=lfs merge=lfs -text
+data/lola/** filter=lfs diff=lfs merge=lfs -text
+data/illumination/** filter=lfs diff=lfs merge=lfs -text
+data/psr/** filter=lfs diff=lfs merge=lfs -text
+
+# Small text files stay in plain Git so code can read them without LFS.
+data/lola/tiles/*.json -filter -diff -merge text
+data/psr/*.csv -filter -diff -merge text

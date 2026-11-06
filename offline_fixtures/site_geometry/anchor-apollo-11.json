@@ -1,0 +1,88 @@
+{
+ "schema": "apolloharness.site_geometry.v1",
+ "source": "precomputed_track",
+ "site_id": "anchor-apollo-11",
+ "mission": "Apollo 11",
+ "site": {
+  "latitude_deg": 0.67416,
+  "longitude_deg": 23.47314,
+  "coordinate_type": "actual_landing"
+ },
+ "utc": "1969-07-20T20:17:40Z",
+ "window_start_basis": "touchdown_utc",
+ "frame": "MOON_PA; unit vectors point from the site to the body",
+ "sun": {
+  "azimuth_deg": 88.80552120479851,
+  "elevation_deg": 10.697963111685414,
+  "terrain_horizon_deg": -0.5837421200200293,
+  "is_lit": true,
+  "time_to_sunset_hours": 331.2757568359375,
+  "time_to_sunset_formatted": "13d 19h",
+  "time_to_sunrise_hours": null,
+  "time_to_sunrise_formatted": null,
+  "countdown_status": "complete",
+  "fraction_of_window_up": 0.5010570824524313,
+  "angular_radius_deg": 0.2624644350620764,
+  "disk_visible_fraction": 1.0,
+  "unit_vector_moon_pa": [
+   -0.220961369429902,
+   0.975021118164741,
+   0.022580796098462082
+  ]
+ },
+ "earth": {
+  "azimuth_deg": 272.1953300353989,
+  "elevation_deg": 59.22442247336236,
+  "terrain_horizon_deg": 0.9456085727719573,
+  "direct_los": true,
+  "time_to_earthset_hours": null,
+  "time_to_earthset_formatted": null,
+  "time_to_earthrise_hours": null,
+  "time_to_earthrise_formatted": null,
+  "countdown_status": "no_earthset_within_window",
+  "fraction_of_window_up": 1.0,
+  "angular_radius_deg": 0.9409066967255475,
+  "disk_visible_fraction": 1.0,
+  "range_km": 387974.5143447205,
+  "round_trip_light_time_s": 2.5882873567467835,
+  "unit_vector_moon_pa": [
+   0.9914201398434246,
+   -0.12720430912032585,
+   0.030086044174419763
+  ]
+ },
+ "events": [
+  {
+   "body": "sun",
+   "kind": "set",
+   "utc": "1969-08-03T15:34:13Z",
+   "hours_from_start": 331.2758
+  },
+  {
+   "body": "sun",
+   "kind": "rise",
+   "utc": "1969-08-18T09:18:10Z",
+   "hours_from_start": 685.0084
+  }
+ ],
+ "psr": {
+  "status": "outside_product_coverage",
+  "distance_m": null,
+  "inside_psr": null
+ },
+ "horizon_model": "lola_terrain_mask",
+ "terrain": {
+  "elevation_m": -1925.3042602539062,
+  "dem_product": "LOLA GDR LDEM_64",
+  "dem_resolution_m": 473.802,
+  "horizon_model": "lola_terrain_mask",
+  "horizon_incomplete_azimuths": 0,
+  "horizon_azimuths_filled_from_global": 0,
+  "status": "complete"
+ },
+ "track_summary": {
+  "sunlit_percent": 50.07,
+  "earth_los_percent": 100.0,
+  "mean_sun_disk_visible_fraction": 0.5011
+ }
+}

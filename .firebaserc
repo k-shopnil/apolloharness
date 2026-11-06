@@ -1,0 +1,17 @@
+{
+  "projects": {
+    "default": "chhayanautical-37871"
+  },
+  "targets": {
+    "chhayanautical-37871": {
+      "hosting": {
+        "chhayanautical": [
+          "chhayanautical"
+        ],
+        "apolloharness": [
+          "apolloharness"
+        ]
+      }
+    }
+  }
+}

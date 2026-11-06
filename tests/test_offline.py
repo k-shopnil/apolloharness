@@ -128,3 +128,59 @@ def test_offline_hard_gate_functional_offline(client):
     assert data["scores"]["total_viability_score"] == 0.0
     assert data["scores"]["hard_gate_triggered"] is True
     assert data["hard_gate_rule"]["solar_gate_passed"] is False
+
+
+def test_offline_sites_geometry_structure_and_mock_mode(client):
+    """Verify that GET /api/v1/sites/geometry serves valid celestial geometry in offline mode."""
+    params = {"lat": -84.79, "lon": 29.20, "start_date": "2026-11-01", "end_date": "2027-02-15"}
+    r = client.get("/api/v1/sites/geometry", params=params)
+    assert r.status_code == 200
+    assert r.headers["X-Data-Mode"] == "mock"
+    data = r.json()
+
+    # Validate exact required schema
+    for key in ("earth", "sun", "psr", "illumination", "dte_comms"):
+        assert key in data, f"Missing key '{key}' in geometry response"
+
+    assert "elevation_deg" in data["earth"]
+    assert "azimuth_deg" in data["earth"]
+    assert "visible" in data["earth"]
+    assert "unit_vector" in data["earth"]
+    assert len(data["earth"]["unit_vector"]) == 3
+
+    assert "elevation_deg" in data["sun"]
+    assert "azimuth_deg" in data["sun"]
+    assert "visible" in data["sun"]
+    assert "unit_vector" in data["sun"]
+    assert len(data["sun"]["unit_vector"]) == 3
+
+    assert "nearest_name" in data["psr"]
+    assert "distance_km" in data["psr"]
+    assert data["psr"]["distance_km"] >= 0.0
+
+    assert "tactical_pct" in data["illumination"]
+    assert "solar_power_status" in data["illumination"]
+
+    assert "status" in data["dte_comms"]
+    assert "uptime_pct" in data["dte_comms"]
+
+
+def test_offline_latency_under_50ms_for_sites_geometry_endpoint(client):
+    """Confirm site geometry evaluation response times stay strictly under 50ms offline."""
+    params = {"lat": -84.79, "lon": 29.20, "start_date": "2026-11-01", "end_date": "2027-02-15"}
+    # Warm up cache
+    client.get("/api/v1/sites/geometry", params=params)
+
+    durations_ms = []
+    for _ in range(15):
+        start = time.perf_counter()
+        r = client.get("/api/v1/sites/geometry", params=params)
+        duration = (time.perf_counter() - start) * 1000.0
+        durations_ms.append(duration)
+        assert r.status_code == 200
+        assert r.headers["X-Data-Mode"] == "mock"
+
+    max_duration = max(durations_ms)
+    avg_duration = sum(durations_ms) / len(durations_ms)
+    print(f"\n[LATENCY BENCHMARK] Sites Geometry: max={max_duration:.2f}ms, avg={avg_duration:.2f}ms")
+    assert max_duration < 50.0, f"Max latency exceeded 50ms: {max_duration:.2f}ms"

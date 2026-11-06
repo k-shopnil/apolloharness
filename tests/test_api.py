@@ -339,3 +339,56 @@ def test_cors_does_not_allow_unknown_origin(client):
         },
     )
     assert "access-control-allow-origin" not in response.headers
+
+
+def test_sites_geometry_endpoint_full_contract(client):
+    """Verify GET /api/v1/sites/geometry returns SPICE earth/sun vectors, psr, illumination, comms."""
+    response = client.get(
+        "/api/v1/sites/geometry",
+        params={"lat": -84.79, "lon": 29.20, "start_date": "2026-11-01", "end_date": "2027-02-15"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+
+    assert "earth" in body
+    earth = body["earth"]
+    assert isinstance(earth["elevation_deg"], (int, float))
+    assert isinstance(earth["azimuth_deg"], (int, float))
+    assert isinstance(earth["visible"], bool)
+    assert len(earth["unit_vector"]) == 3
+    uv_mag = sum(x**2 for x in earth["unit_vector"])**0.5
+    assert abs(uv_mag - 1.0) < 0.01
+
+    assert "sun" in body
+    sun = body["sun"]
+    assert isinstance(sun["elevation_deg"], (int, float))
+    assert isinstance(sun["azimuth_deg"], (int, float))
+    assert isinstance(sun["visible"], bool)
+    assert len(sun["unit_vector"]) == 3
+
+    assert "psr" in body
+    assert body["psr"]["nearest_name"] in ("Faustini Rim", "Faustini PSR")
+    assert 0.5 <= body["psr"]["distance_km"] <= 3.0
+
+    assert "illumination" in body
+    assert body["illumination"]["tactical_pct"] >= 0.0
+    assert body["illumination"]["solar_power_status"] in ("OPTIMAL", "NOMINAL", "MARGINAL", "CRITICAL_BLACKOUT")
+
+    assert "dte_comms" in body
+    assert body["dte_comms"]["status"] in ("CONNECTED", "OCCULTED")
+    assert 0.0 <= body["dte_comms"]["uptime_pct"] <= 100.0
+
+
+def test_sites_geometry_extreme_polar_and_farside(client):
+    """Verify geometry logic for Shackleton south pole rim and far side."""
+    r_pole = client.get("/api/v1/sites/geometry", params={"lat": -89.9, "lon": 0.0})
+    assert r_pole.status_code == 200
+    pole_data = r_pole.json()
+    assert pole_data["psr"]["nearest_name"] == "Shackleton Interior"
+
+    r_far = client.get("/api/v1/sites/geometry", params={"lat": 0.0, "lon": 180.0})
+    assert r_far.status_code == 200
+    far_data = r_far.json()
+    assert far_data["earth"]["elevation_deg"] < -80.0
+    assert far_data["earth"]["visible"] is False
+    assert far_data["dte_comms"]["status"] == "OCCULTED"

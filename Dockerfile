@@ -9,6 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY backend ./backend
+COPY src ./src
 COPY data ./data
 COPY demo_fixtures ./demo_fixtures
 COPY scripts ./scripts

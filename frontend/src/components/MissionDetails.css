@@ -1,0 +1,550 @@
+.details__block {
+  padding: 16px 16px 17px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.details__head {
+  gap: 4px;
+}
+
+.details__eyebrow {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.details__title {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 22.5px;
+}
+
+.details__sub {
+  font-size: 11px;
+  line-height: 16.5px;
+  color: var(--text-secondary);
+}
+
+.details__meta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 16px;
+}
+
+.details__meta dt {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.details__meta dd {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.details__score {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 44px;
+}
+
+.details__score span {
+  font-weight: 400;
+  font-size: 16px;
+  color: var(--text-dim);
+}
+
+.details__note {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--amber);
+}
+
+.details__note--live {
+  color: var(--ok);
+}
+
+.details__note--offline {
+  color: var(--amber);
+}
+
+.details__bars {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.details__metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+
+.details__metric span:first-child {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.details__metric span:last-child {
+  font-size: 12px;
+}
+
+.bar {
+  height: 4px;
+  background: var(--border-subtle);
+}
+
+.bar__fill {
+  height: 100%;
+  background: #fff;
+}
+
+.details__block--decision-gates {
+  gap: 10px;
+}
+
+.gate-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 9px 11px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.gate-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.gate-card__tag {
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  font-weight: 700;
+}
+
+.gate-card__title {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  flex: 1;
+}
+
+.gate-badge {
+  font-size: 8px;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  padding: 1px 6px;
+  border-radius: 2px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.gate-badge--ok {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid var(--ok);
+  color: var(--ok);
+}
+
+.gate-badge--cyan {
+  background: rgba(0, 207, 255, 0.15);
+  border: 1px solid var(--cyan);
+  color: var(--cyan);
+}
+
+.gate-badge--warn {
+  background: rgba(212, 160, 23, 0.15);
+  border: 1px solid var(--amber);
+  color: var(--amber);
+}
+
+.gate-badge--fail {
+  background: rgba(255, 77, 0, 0.15);
+  border: 1px solid var(--accent);
+  color: var(--accent);
+}
+
+.gate-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gate-card__metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.gate-card__metric span {
+  font-size: 9px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+}
+
+.gate-card__metric strong {
+  font-size: 11px;
+  font-family: var(--font-data);
+}
+
+.gate-card__rule {
+  margin: 0;
+  font-size: 9.5px;
+  line-height: 13.5px;
+  color: var(--text-secondary);
+}
+
+.details__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 9px 11px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.stat span {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+}
+
+.stat strong {
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__payloads {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payload {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 11px;
+  background: var(--surface-control);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+}
+
+.payload__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.payload strong {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.payload > span {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.tag {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  font-size: 8px;
+  line-height: 12px;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tag--volatiles {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tag--spectrometers {
+  border-color: var(--cyan);
+  color: var(--cyan);
+}
+
+.tag--rovers {
+  border-color: var(--signal);
+  color: var(--signal);
+}
+
+.details__block--provenance {
+  background: #050505;
+  gap: 8px;
+  padding: 12px;
+}
+
+.details__prov {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.details__link {
+  align-self: center;
+  padding-top: 24px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--accent);
+}
+
+.details__cta {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.details__cta button {
+  width: 100%;
+  padding: 11px 17px;
+  border: 1px solid #fff;
+  border-radius: 2px;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 18px;
+}
+
+.details__cta button:hover {
+  background: #fff;
+  color: #000;
+}
+
+.details__cta .details__cta-secondary {
+  border-color: var(--border-strong);
+  color: var(--text-secondary);
+  font-weight: 400;
+}
+
+/* Dual-Mode Additions */
+.details__head-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mode-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.mode-tag--simple {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.4);
+}
+
+.mode-tag--scientific {
+  background: rgba(0, 229, 255, 0.15);
+  color: #00e5ff;
+  border: 1px solid rgba(0, 229, 255, 0.4);
+}
+
+/* Simple Mode Countdown Card */
+.details__block--simple-hud {
+  background: rgba(0, 229, 255, 0.03);
+  border-left: 2px solid #00e5ff;
+}
+
+.countdown-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 12px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.countdown-card__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.countdown-icon {
+  font-size: 20px;
+}
+
+.countdown-label {
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-dim);
+  display: block;
+}
+
+.countdown-value {
+  margin: 2px 0 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.countdown-value--cyan {
+  color: #00e5ff;
+}
+
+.countdown-value--warn {
+  color: #f59e0b;
+}
+
+.plain-badges {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.plain-badge {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.plain-badge__title {
+  font-size: 9px;
+  color: var(--text-dim);
+}
+
+.plain-badge__tag {
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tag--ok {
+  color: #4ade80;
+}
+
+.tag--cyan {
+  color: #00e5ff;
+}
+
+.tag--warn {
+  color: #fbbf24;
+}
+
+.tag--fail {
+  color: #f87171;
+}
+
+/* Scientific Mode Telemetry Table */
+.details__block--scientific {
+  background: rgba(0, 229, 255, 0.03);
+  border-left: 2px solid #a855f7;
+}
+
+.telemetry-table-wrapper {
+  overflow-x: auto;
+}
+
+.telemetry-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 10px;
+}
+
+.telemetry-table th {
+  text-align: left;
+  padding: 4px 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.telemetry-table td {
+  padding: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cell--highlight {
+  font-weight: 700;
+  color: #fff;
+}
+
+.cell--cyan {
+  color: #00e5ff;
+  font-weight: 700;
+}
+
+.unit-vectors-box {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 8px 10px;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.vectors-title {
+  font-size: 9px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+}
+
+.unit-vectors-box code {
+  font-size: 10px;
+  color: #00e5ff;
+}
+
+.scientific-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+.scientific-meta strong {
+  color: #fff;
+}

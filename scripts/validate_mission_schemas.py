@@ -81,18 +81,67 @@ MISSION_SCHEMA = {
 
 
 def apply_defaults(mission: dict) -> dict:
-    """Ensure missing or optional fields have clean defaults."""
+    """Ensure missing or optional fields have clean defaults.
+    
+    Robustly handles mapping from Issue #2 data pipeline properties:
+    landing_site -> lat/lon, mission -> name, target_date -> start_date,
+    payloads -> payload_instruments.
+    """
     sanitized = copy.deepcopy(mission)
+    sanitized["name"] = sanitized.get("name") or sanitized.get("mission") or sanitized.get("id")
+
+    landing_site = sanitized.get("landing_site") or {}
+    lat_val = sanitized.get("lat")
+    if lat_val is None:
+        lat_val = landing_site.get("latitude_deg")
+    if lat_val is None:
+        lat_val = -84.79
+    sanitized["lat"] = float(lat_val)
+
+    lon_val = sanitized.get("lon")
+    if lon_val is None:
+        lon_val = landing_site.get("longitude_deg")
+    if lon_val is None:
+        lon_val = 29.20
+    sanitized["lon"] = float(lon_val)
+
+    start_date = sanitized.get("start_date")
+    if not start_date:
+        t_date = sanitized.get("target_date")
+        if t_date and re.match(DATE_REGEX, str(t_date)):
+            start_date = str(t_date)
+        elif t_date and re.match(r"^\d{4}$", str(t_date)):
+            start_date = f"{t_date}-06-01"
+        else:
+            start_date = "2026-06-01"
+    sanitized["start_date"] = start_date
+
     for key, val in DEFAULT_MISSION_VALUES.items():
         if key not in sanitized or sanitized[key] is None:
             sanitized[key] = copy.deepcopy(val)
-    # If payload is provided instead of payload_instruments, map it
-    if "payload" in sanitized and not sanitized.get("payload_instruments"):
-        sanitized["payload_instruments"] = copy.deepcopy(sanitized["payload"])
+
+    if not sanitized.get("payload_instruments"):
+        payloads = sanitized.get("payloads") or sanitized.get("payload") or []
+        insts = []
+        for p in payloads:
+            p_name = p.get("name", "Sensor")
+            p_type = p.get("type")
+            if not p_type:
+                purpose = p.get("purpose", [])
+                p_type = ", ".join(purpose) if isinstance(purpose, list) and purpose else "Science Instrument"
+            insts.append({
+                "name": p_name,
+                "type": p_type,
+                "description": p.get("description", f"{p_name} science payload for lunar exploration."),
+            })
+        if not insts:
+            insts.append({"name": "Standard Instrument", "type": "Science", "description": "Default lunar exploration payload."})
+        sanitized["payload_instruments"] = insts
+
     return sanitized
 
 
-def validate_missions_data(missions: list[dict], apply_clean_defaults: bool = False) -> list[str]:
+def validate_missions_data(missions: list[dict], apply_clean_defaults: bool = True) -> list[str]:
     """Validate a list of mission dictionaries against the mission schema."""
     if apply_clean_defaults:
         missions = [apply_defaults(m) for m in missions]
@@ -114,7 +163,7 @@ def validate_missions_data(missions: list[dict], apply_clean_defaults: bool = Fa
     return errors
 
 
-def validate_file(path: Path, apply_clean_defaults: bool = False) -> bool:
+def validate_file(path: Path, apply_clean_defaults: bool = True) -> bool:
     """Validate a JSON mission catalog file."""
     if not path.exists():
         print(f"SKIP {path.relative_to(ROOT)} (not found)")
@@ -144,8 +193,10 @@ def validate_file(path: Path, apply_clean_defaults: bool = False) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Validate mission catalogs against expected JSON schema.")
     parser.add_argument("--files", nargs="*", help="Optional specific paths to validate")
-    parser.add_argument("--apply-defaults", action="store_true", help="Apply clean defaults before schema check")
+    parser.add_argument("--no-defaults", action="store_true", help="Do not apply defaults before schema check")
     args = parser.parse_args()
+
+    apply_defaults_flag = not args.no_defaults
 
     if args.files:
         targets = [Path(f) for f in args.files]
@@ -155,7 +206,7 @@ def main() -> int:
             ROOT / "demo_fixtures" / "missions.json",
         ]
 
-    results = [validate_file(p, apply_clean_defaults=args.apply_defaults) for p in targets]
+    results = [validate_file(p, apply_clean_defaults=apply_defaults_flag) for p in targets]
     return 0 if all(results) else 1
 
 

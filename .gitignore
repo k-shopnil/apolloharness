@@ -1,1 +1,52 @@
+node_modules
+dist
+build
+out
 .env
+.env.*
+!.env.example
+*.log
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Runtime/cache data
+cache/
+*.cache
+
+# Downloaded external datasets
+*.vrt
+*.hdf
+*.h5
+*.nc
+
+# Generated scientific outputs
+outputs/
+results/
+reports/generated/
+artifacts/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
+
+# Local AI/agent artifacts
+.claude/
+.cursor/
+.copilot/
+.codex/
+.agent/
+.agents/
+.ai/
+
+# Optional validation-truth downloads (registry: earth_visibility_85s_60m), not committed
+data/illumination/*_EARTH.TIF
+
+# Event-day downloads of third-party challenge resources (docs/EVENT_DAY_PLAN.md)
+event_resources/
