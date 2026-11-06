@@ -436,7 +436,7 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
     ``spherical_horizon`` so downstream countdowns state their weaker basis.
     """
     from . import global_terrain as gt
-if is_installed(dem_path):
+    if is_installed(dem_path):
         elevation = interpolate_elevation(latitude_deg, longitude_deg, dem_path)
         product: str | None = POLAR_DEM_PRODUCT if elevation["status"] == "complete" else None
     else:
