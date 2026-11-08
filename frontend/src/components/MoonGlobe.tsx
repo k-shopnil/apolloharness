@@ -13,6 +13,7 @@ import {
   Math as CesiumMath,
   PolylineDashMaterialProperty,
   PolylineGlowMaterialProperty,
+  ConstantProperty,
   ScreenSpaceEventHandler,
   ScreenSpaceEventType,
   Transforms,
@@ -240,6 +241,8 @@ export function MoonGlobe({
   const viewerRef = useRef<Viewer | null>(null)
   const selectRef = useRef(onSelect)
   selectRef.current = onSelect
+  const activeRef = useRef(activeId)
+  activeRef.current = activeId
   const mounted = useRef(false)
   const cardRef = useRef<HTMLDivElement>(null)
   const [layers, setLayers] = useState({ beam: true, solar: true })
@@ -305,6 +308,24 @@ export function MoonGlobe({
       if (typeof id === 'string' && /^(mission|pulse):/.test(id)) selectRef.current(id.slice(id.indexOf(':') + 1))
     }, ScreenSpaceEventType.LEFT_CLICK)
 
+    // Hovering a pin reveals its label; the selected pin's label is always on.
+    let hovered: string | null = null
+    const setHover = (next: string | null) => {
+      if (next === hovered) return
+      const labelOf = (mid: string | null) => (mid ? viewer.entities.getById(`mission:${mid}`)?.label : undefined)
+      const prev = labelOf(hovered)
+      if (prev && hovered !== activeRef.current) prev.show = new ConstantProperty(false)
+      const cur = labelOf(next)
+      if (cur) cur.show = new ConstantProperty(true)
+      hovered = next
+      scene.canvas.style.cursor = next ? 'pointer' : ''
+    }
+    handler.setInputAction((move: { endPosition: Cartesian2 }) => {
+      const picked = scene.pick(move.endPosition)
+      const id = defined(picked) ? picked.id?.id : undefined
+      setHover(typeof id === 'string' && /^(mission|pulse):/.test(id) ? id.slice(id.indexOf(':') + 1) : null)
+    }, ScreenSpaceEventType.MOUSE_MOVE)
+
     viewerRef.current = viewer
     return () => {
       handler.destroy()
@@ -364,7 +385,7 @@ export function MoonGlobe({
       const tint = active ? '#ff4d00' : '#ffffff'
       const phaseOffset = (i * 0.37) % 1
 
-      if (lit) {
+      if (lit && active) {
         // Expanding ring that fades out, looping: the beacon pulse.
         const pulseId = `pulse:${m.id}`
         ids.push(pulseId)
@@ -393,7 +414,7 @@ export function MoonGlobe({
           color: Color.WHITE.withAlpha(lit ? 1 : 0.35),
         },
         label: {
-          show: lit && (!compact || active),
+          show: lit && active, // others label on hover only, to keep the globe readable
           text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : ' (target)'}`,
           font: `${active ? 'bold ' : ''}${11 * LABEL_SS}px JetBrains Mono, monospace`,
           scale: LABEL_SCALE,
