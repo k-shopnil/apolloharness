@@ -1,0 +1,255 @@
+.fleet {
+  width: var(--sidebar-w);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.fleet__header {
+  flex: none;
+  padding: 16px 16px 17px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fleet__header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.fleet__subtitle {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.fleet__list {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+}
+
+.fleet__accent {
+  color: var(--accent) !important;
+}
+
+.fleet__footer {
+  flex: none;
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fleet__footer-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.fleet__footer-row span:last-child {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* Mission card */
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: 12px 16px 13px;
+  border-bottom: 1px solid var(--border-subtle);
+  text-align: left;
+}
+
+.card:hover {
+  background: var(--surface-active);
+}
+
+.card--active {
+  background: var(--surface-active);
+}
+
+.card--flagged {
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+.card__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card__index {
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-dim);
+}
+
+.card--active .card__index {
+  color: var(--accent);
+}
+
+.card__name {
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text);
+}
+
+.card__badge {
+  margin-left: auto;
+}
+
+.card__rows {
+  margin: 0;
+  padding-left: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.card--filtered .card__rows {
+  gap: 4px;
+}
+
+.card__row {
+  display: flex;
+  gap: 16px;
+  font-size: 10px;
+  line-height: 15px;
+  letter-spacing: 0.5px;
+}
+
+.card--filtered .card__row {
+  font-size: 11px;
+  line-height: 17px;
+  letter-spacing: 0;
+}
+
+.card__row dt {
+  flex: none;
+  width: 64px;
+  color: var(--text-dim);
+}
+
+.card--filtered .card__row dt {
+  width: 80px;
+  letter-spacing: 0.5px;
+  font-size: 10px;
+}
+
+.card__row dd {
+  margin: 0;
+  color: var(--text-dim);
+}
+
+.card__row dd.card__bright {
+  color: var(--text-secondary);
+}
+
+.card--filtered .card__row dd.card__bright {
+  color: var(--text);
+}
+
+.card--filtered .card__row dd.fleet__accent {
+  font-weight: 700;
+}
+
+.card__viability {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+}
+
+.card__viability span:last-child {
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* The sheet handle only exists on phones. */
+.fleet__handle {
+  display: none;
+}
+
+@media (max-width: 800px) {
+  .fleet {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: auto;
+    height: 160px;
+    z-index: 3;
+    border-left: 0;
+    border-top: 1px solid var(--border);
+    transition: height 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .fleet--expanded {
+    height: 72%;
+  }
+
+  .fleet__handle {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 0 4px;
+    width: 100%;
+    font-size: 9px;
+    letter-spacing: 0.8px;
+    color: var(--text-dim);
+  }
+
+  .fleet__grip {
+    width: 36px;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--border-strong);
+  }
+
+  .fleet__header {
+    padding: 8px 16px 10px;
+  }
+
+  .card {
+    padding: 14px 16px 15px;
+  }
+
+  .fleet__footer {
+    display: none;
+  }
+
+  .fleet--expanded .fleet__footer {
+    display: flex;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fleet {
+    transition: none;
+  }
+}
