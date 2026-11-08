@@ -394,7 +394,7 @@ export function MoonGlobe({
         },
         label: {
           show: lit && (!compact || active),
-          text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : '\n(target / reference)'}`,
+          text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : ' (target)'}`,
           font: `${active ? 'bold ' : ''}${11 * LABEL_SS}px JetBrains Mono, monospace`,
           scale: LABEL_SCALE,
           fillColor: active ? ACCENT : Color.fromCssColorString('#aaaaaa'),

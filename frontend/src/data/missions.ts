@@ -161,7 +161,9 @@ export function humanize(tag: string): string {
 /** Short badge text for how far a coordinate can be trusted. */
 export function coordinateBadge(m: Mission): string {
   if (m.lat === null || m.lon === null) return 'NO COORDINATE PUBLISHED'
-  return m.isLandingFix ? 'ACTUAL LANDING' : 'TARGET / REFERENCE'
+  if (m.isLandingFix) return 'ACTUAL LANDING'
+  if (m.coordinateType === 'reported_landing_rounded') return 'REPORTED LANDING (ROUNDED)'
+  return 'TARGET / REFERENCE'
 }
 
 export function missionYear(m: Mission): string {
