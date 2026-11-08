@@ -14,8 +14,8 @@ export const SiteTelemetryCard = forwardRef<HTMLDivElement, Props>(function Site
   { mission, telemetry: t },
   ref,
 ) {
-  const sunTone = t.power === 'NOMINAL' ? 'ok' : t.power === 'MARGINAL' ? 'warn' : 'bad'
-  const commsTone = t.comms === 'LINK ACTIVE' ? 'ok' : t.comms === 'LOW ELEVATION' ? 'warn' : 'bad'
+  const sunTone = t.power === 'FULL SUN' ? 'ok' : t.power === 'PARTIAL SUN' || t.power === 'UNKNOWN' ? 'warn' : 'bad'
+  const commsTone = t.comms === 'LINK ACTIVE' ? 'ok' : t.comms === 'MARGINAL' || t.comms === 'UNKNOWN' ? 'warn' : 'bad'
   return (
     <div ref={ref} className="site-card" style={{ visibility: 'hidden' }}>
       <div className="site-card__title">{mission.targetSite.toUpperCase()}</div>

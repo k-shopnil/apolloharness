@@ -4,7 +4,9 @@ import { FleetSidebar } from './components/FleetSidebar'
 import { Header } from './components/Header'
 import { MissionDrawer } from './components/MissionDrawer'
 import { ProvenanceModal } from './components/ProvenanceModal'
+import { SiteHud, type UIMode } from './components/SiteHud'
 import { SiteView } from './components/SiteView'
+import { TimelineScrubber } from './components/TimelineScrubber'
 import { COMPACT_QUERY, useMediaQuery } from './hooks/useMediaQuery'
 import {
   formatCoords,
@@ -15,7 +17,8 @@ import {
   type Mission,
   type MissionFilter,
 } from './data/missions'
-import { loadTrackIndex } from './data/tracks'
+import { sampleTrack } from './data/timeline'
+import { loadTrackIndex, useTrack } from './data/tracks'
 
 // Cesium is the bulk of the bundle; load it after the page shell has painted.
 const MoonGlobe = lazy(() => import('./components/MoonGlobe').then((m) => ({ default: m.MoonGlobe })))
@@ -90,10 +93,18 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
   const [filter, setFilter] = useState<MissionFilter>('all')
   const [activeId, setActiveId] = useState<string>(missions.find((m) => m.id === DEFAULT_ACTIVE)?.id ?? missions[0].id)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [mode, setMode] = useState<UIMode>('simple')
+  const [scrub, setScrub] = useState<{ id: string; hours: number }>({ id: '', hours: 0 })
   const [showProvenance, setShowProvenance] = useState(false)
   const [pair, setPair] = useState<{ a: string; b: string }>(() => ({ a: activeId0(missions), b: partnerFor(missions, activeId0(missions)) }))
 
   const compact = useMediaQuery(COMPACT_QUERY)
+  const trackLookup = useTrack(activeId)
+  const hours = scrub.id === activeId ? scrub.hours : 0
+  const setHours = useCallback((h: number) => setScrub({ id: activeId, hours: h }), [activeId])
+  const trackData = trackLookup.state === 'ready' ? trackLookup.data : null
+  const activeMission = missions.find((m) => m.id === activeId)
+  const sample = useMemo(() => (trackData ? sampleTrack(trackData.track, hours) : null), [trackData, hours])
   const visible = useMemo(() => missionsFor(missions, filter), [missions, filter])
   const located = useMemo(() => missions.filter(isLocated), [missions])
   const getMission = (id: string) => missions.find((m) => m.id === id)!
@@ -130,7 +141,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
 
   return (
     <div className="app">
-      <Header missions={missions} filter={filter} onFilterChange={changeFilter} />
+      <Header mode={mode} onModeChange={setMode} missions={missions} filter={filter} onFilterChange={changeFilter} />
       <main className="app__main" data-screen={screen}>
         {screen === 'fleet' && (
           <>
@@ -144,7 +155,23 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
                 onCompare={() => openCompare()}
                 compact={compact}
                 hud={hudFor(missions.find((m) => m.id === activeId) ?? null, filter)}
-              />
+                sample={isLocated(activeMission!) ? sample : null}
+              >
+                {trackData && sample && activeMission && isLocated(activeMission) ? (
+                  <>
+                    <SiteHud mode={mode} mission={activeMission} data={trackData} sample={sample} />
+                    <TimelineScrubber track={trackData.track} hours={hours} onChange={setHours} />
+                  </>
+                ) : (
+                  <div className="hud hud--note">
+                    {trackLookup.state === 'loading'
+                      ? 'LOADING TRACK…'
+                      : trackLookup.state === 'ready'
+                        ? 'NO COORDINATE PUBLISHED · nothing to compute.'
+                        : `UNAVAILABLE · ${trackLookup.reason}`}
+                  </div>
+                )}
+              </MoonGlobe>
             </Suspense>
             <FleetSidebar filter={filter} missions={visible} activeId={activeId} onSelect={selectMission} />
             <MissionDrawer

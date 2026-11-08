@@ -1,13 +1,17 @@
+import type { UIMode } from './SiteHud'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
+import './Hud.css'
 
 interface HeaderProps {
+  mode: UIMode
+  onModeChange: (mode: UIMode) => void
   missions: Mission[]
   filter: MissionFilter
   onFilterChange: (filter: MissionFilter) => void
 }
 
-export function Header({ missions, filter, onFilterChange }: HeaderProps) {
+export function Header({ mode, onModeChange, missions, filter, onFilterChange }: HeaderProps) {
   return (
     <header className="header">
       <div className="header__brand">
@@ -29,6 +33,14 @@ export function Header({ missions, filter, onFilterChange }: HeaderProps) {
           </button>
         ))}
       </nav>
+
+      <div className="mode-switch" role="group" aria-label="Interface mode">
+        {(['simple', 'scientific'] as const).map((m) => (
+          <button key={m} type="button" aria-pressed={mode === m} onClick={() => onModeChange(m)}>
+            {m.toUpperCase()}
+          </button>
+        ))}
+      </div>
 
       <div className="header__status" title="NASA PDS · OFFLINE CACHED">
         <span className="header__status-dot" />

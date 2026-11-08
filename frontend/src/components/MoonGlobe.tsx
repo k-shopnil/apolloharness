@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import {
   ArcType,
   Cartesian2,
@@ -26,7 +26,8 @@ import {
 import 'cesium/Build/Cesium/Widgets/widgets.css'
 import type { LocatedMission } from '../data/missions'
 import { COMPACT_QUERY } from '../hooks/useMediaQuery'
-import { getEphemeris, siteTelemetry } from '../data/ephemeris'
+import { ephemerisFrom, siteTelemetry } from '../data/ephemeris'
+import type { TrackSample } from '../data/timeline'
 import { SiteTelemetryCard } from './SiteTelemetryCard'
 import './MoonGlobe.css'
 
@@ -80,6 +81,10 @@ interface MoonGlobeProps {
   /** Phone layout: smaller resolution, fewer labels, bigger tap targets. */
   compact: boolean
   hud: { target: string; readout: string }
+  /** Track values at the scrubber time for the active site; null when it has no track. */
+  sample: TrackSample | null
+  /** HUD panels and scrubber docked over the bottom of the globe. */
+  children?: ReactNode
 }
 
 /** Pole view; pulled back on portrait screens so the whole Moon still fits the width. */
@@ -228,6 +233,8 @@ export function MoonGlobe({
   onCompare,
   compact,
   hud,
+  sample,
+  children,
 }: MoonGlobeProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewerRef = useRef<Viewer | null>(null)
@@ -237,9 +244,12 @@ export function MoonGlobe({
   const cardRef = useRef<HTMLDivElement>(null)
   const [layers, setLayers] = useState({ beam: true, solar: true })
 
-  const eph = useMemo(() => getEphemeris(), [])
+  const eph = useMemo(() => ephemerisFrom(sample), [sample])
   const activeMission = missions.find((m) => m.id === activeId) ?? null
-  const telemetry = useMemo(() => (activeMission ? siteTelemetry(activeMission, eph) : null), [activeMission, eph])
+  const telemetry = useMemo(
+    () => (activeMission && sample ? siteTelemetry(activeMission, sample) : null),
+    [activeMission, sample],
+  )
 
   // Create the viewer once.
   useEffect(() => {
@@ -439,7 +449,7 @@ export function MoonGlobe({
   // Earth (always) and Sun (Solar Vectors layer) placed along the sub-Earth / sub-solar directions.
   useEffect(() => {
     const viewer = viewerRef.current
-    if (!viewer) return
+    if (!viewer || !eph) return
     viewer.entities.add({
       id: 'body:earth',
       position: bodyPosition(eph.subEarth),
@@ -478,7 +488,7 @@ export function MoonGlobe({
   // DTE line-of-sight beam (glowing cyan when clear, dashed red when occulted) and the solar vector.
   useEffect(() => {
     const viewer = viewerRef.current
-    if (!viewer || !activeMission || !telemetry || !highlightIds.has(activeMission.id)) return
+    if (!viewer || !eph || !activeMission || !telemetry || !highlightIds.has(activeMission.id)) return
     const from = Cartesian3.fromDegrees(activeMission.lon, activeMission.lat, 1000)
     const ids: string[] = []
 
@@ -513,7 +523,7 @@ export function MoonGlobe({
           arcType: ArcType.NONE,
           width: 2,
           material: new PolylineDashMaterialProperty({
-            color: SOLAR_AMBER.withAlpha(telemetry.sunElevDeg > 0 ? 0.95 : 0.4),
+            color: SOLAR_AMBER.withAlpha(telemetry.power === 'NO SUN' ? 0.4 : 0.95),
             dashLength: 10,
           }),
         },
@@ -592,6 +602,7 @@ export function MoonGlobe({
           <span>Solar Vectors</span>
         </label>
       </div>
+      {children && <div className="globe__dock">{children}</div>}
       <button type="button" className="globe__compare" onClick={onCompare}>
         ⇄ COMPARE SITES
       </button>
