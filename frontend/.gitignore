@@ -26,3 +26,6 @@ dist-ssr
 # Copied from node_modules by scripts/copy-cesium.mjs
 public/cesium
 public/tiles
+
+# Copied from ../data by scripts/copy-data.mjs
+public/data

@@ -9,8 +9,9 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "copy-cesium": "node scripts/copy-cesium.mjs",
-    "predev": "npm run copy-cesium && node scripts/fetch-tiles.mjs --soft",
-    "prebuild": "npm run copy-cesium && node scripts/fetch-tiles.mjs --soft",
+    "copy-data": "node scripts/copy-data.mjs",
+    "predev": "npm run copy-cesium && npm run copy-data && node scripts/fetch-tiles.mjs --soft",
+    "prebuild": "npm run copy-cesium && npm run copy-data && node scripts/fetch-tiles.mjs --soft",
     "fetch-tiles": "node scripts/fetch-tiles.mjs"
   },
   "dependencies": {
