@@ -37,6 +37,8 @@ export interface Mission {
   /** ISO date or year string as published; null when TBD. */
   targetDate: string | null
   touchdownUtc: string | null
+  /** Reference anchors only: the lesson this landing provides, as published in the catalog. */
+  baselineRole: { tag: string; text: string } | null
   /** Selenographic degrees (south/west negative). null = no coordinate published. */
   lat: number | null
   lon: number | null
@@ -72,6 +74,7 @@ interface RawMission {
   status_note?: string
   target_date: string | null
   touchdown_utc?: string
+  baseline_role?: string
   landing_site: {
     latitude_deg: number | null
     longitude_deg: number | null
@@ -93,6 +96,13 @@ export function categorize(purpose: string[]): PayloadCategory {
   return 'other'
 }
 
+/** Catalog format is "tag: sentence". */
+function parseBaseline(raw: string | undefined): Mission['baselineRole'] {
+  if (!raw) return null
+  const i = raw.indexOf(':')
+  return i < 0 ? { tag: 'baseline', text: raw } : { tag: raw.slice(0, i).trim(), text: raw.slice(i + 1).trim() }
+}
+
 function normalize(raw: RawMission): Mission {
   const site = raw.landing_site
   return {
@@ -108,6 +118,7 @@ function normalize(raw: RawMission): Mission {
     statusNote: raw.status_note ?? null,
     targetDate: raw.target_date ?? null,
     touchdownUtc: raw.touchdown_utc ?? null,
+    baselineRole: parseBaseline(raw.baseline_role),
     lat: site.latitude_deg,
     lon: site.longitude_deg,
     coordinateType: site.coordinate_type,
@@ -129,6 +140,19 @@ export async function loadMissions(): Promise<Mission[]> {
   if (!res.ok) throw new Error(`missions.json: HTTP ${res.status}`)
   const raw = (await res.json()) as RawMission[]
   return raw.filter((m) => m.status !== 'terminated').map(normalize)
+}
+
+export type MissionGroup = 'all' | 'fleet' | 'anchors'
+
+export const groupTabs: { id: MissionGroup; label: string }[] = [
+  { id: 'all', label: 'ALL' },
+  { id: 'fleet', label: 'FLEET' },
+  { id: 'anchors', label: 'ANCHORS' },
+]
+
+/** Fleet = CLPS missions; anchors = past real landings used as yardsticks. */
+export function inGroup(mission: Mission, group: MissionGroup): boolean {
+  return group === 'all' || (group === 'anchors') === (mission.kind === 'reference_anchor')
 }
 
 export const filterTabs: { id: MissionFilter; label: string }[] = [

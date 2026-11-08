@@ -253,3 +253,23 @@
     transition: none;
   }
 }
+
+.fleet__groups {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  align-self: flex-start;
+}
+
+.fleet__groups button {
+  padding: 3px 10px;
+  font-size: 10px;
+  letter-spacing: 0.4px;
+  color: var(--text-dim);
+}
+
+.fleet__groups button[aria-pressed='true'] {
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+}

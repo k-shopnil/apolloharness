@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { coordinateBadge, missionYear, type Mission, type MissionFilter } from '../data/missions'
+import { coordinateBadge, groupTabs, missionYear, type Mission, type MissionFilter, type MissionGroup } from '../data/missions'
 import './FleetSidebar.css'
 
 interface FleetSidebarProps {
   filter: MissionFilter
   missions: Mission[]
+  group: MissionGroup
+  onGroupChange: (group: MissionGroup) => void
   activeId: string
   onSelect: (id: string) => void
 }
@@ -15,7 +17,7 @@ const filterTitle: Record<Exclude<MissionFilter, 'all'>, string> = {
   rovers: '01 // ROVERS & MOBILITY PAYLOADS',
 }
 
-export function FleetSidebar({ filter, missions, activeId, onSelect }: FleetSidebarProps) {
+export function FleetSidebar({ filter, missions, group, onGroupChange, activeId, onSelect }: FleetSidebarProps) {
   const title = filter === 'all' ? '01 // MISSION MANIFEST' : filterTitle[filter]
   // Phones: the manifest is a bottom sheet that peeks over the globe and expands on demand.
   const [expanded, setExpanded] = useState(false)
@@ -35,6 +37,13 @@ export function FleetSidebar({ filter, missions, activeId, onSelect }: FleetSide
         <div className="fleet__header-row">
           <p className="section-title">{title}</p>
           {filter !== 'all' && <span className="badge">FILTER ACTIVE</span>}
+        </div>
+        <div className="fleet__groups" role="group" aria-label="Mission group">
+          {groupTabs.map((g) => (
+            <button key={g.id} type="button" aria-pressed={group === g.id} onClick={() => onGroupChange(g.id)}>
+              {g.label}
+            </button>
+          ))}
         </div>
         <p className="fleet__subtitle">{`${missions.length} MISSIONS DISPLAYED`}</p>
       </div>

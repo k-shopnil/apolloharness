@@ -1,6 +1,6 @@
 import type { Mission } from '../data/missions'
 import { countdown, formatHours, type Countdown, type TrackSample } from '../data/timeline'
-import type { TrackFile } from '../data/tracks'
+import { horizonLabel, type TrackFile } from '../data/tracks'
 import './Hud.css'
 
 export type UIMode = 'simple' | 'scientific'
@@ -114,7 +114,7 @@ function ScientificPanel({ mission, data, sample: s }: { mission: Mission; data:
     ],
     ['SUN VECTOR (MOON_PA)', vec(s.sunUnit)],
     ['EARTH VECTOR (MOON_PA)', vec(s.earthUnit)],
-    ['HORIZON MODEL', data.track.horizon_model],
+    ['HORIZON MODEL', horizonLabel(data.track.horizon_model)],
     ['DEM PRODUCT', data.terrain.dem_product ?? 'Unavailable'],
   ]
   return (

@@ -131,6 +131,11 @@ export function useTrack(missionId: string | null): TrackLookup {
   return result.id === missionId ? result.lookup : { state: 'loading' }
 }
 
+/** Label for how the skyline was computed; the unmodelled case must say so plainly. */
+export function horizonLabel(model: string): string {
+  return model === 'lola_terrain_mask' ? 'LOLA terrain horizon' : model === 'spherical_horizon' ? 'Terrain not modelled here' : model
+}
+
 export function fmtPct(v: number | null | undefined): string {
   return v === null || v === undefined ? 'Unavailable' : `${v.toFixed(1)}%`
 }

@@ -10,9 +10,11 @@ import { TimelineScrubber } from './components/TimelineScrubber'
 import { COMPACT_QUERY, useMediaQuery } from './hooks/useMediaQuery'
 import {
   formatCoords,
+  inGroup,
   isLocated,
   loadMissions,
   type LocatedMission,
+  type MissionGroup,
   missionsFor,
   type Mission,
   type MissionFilter,
@@ -93,6 +95,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
   const [filter, setFilter] = useState<MissionFilter>('all')
   const [activeId, setActiveId] = useState<string>(missions.find((m) => m.id === DEFAULT_ACTIVE)?.id ?? missions[0].id)
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [group, setGroup] = useState<MissionGroup>('all')
   const [mode, setMode] = useState<UIMode>('simple')
   const [scrub, setScrub] = useState<{ id: string; hours: number }>({ id: '', hours: 0 })
   const [showProvenance, setShowProvenance] = useState(false)
@@ -105,7 +108,8 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
   const trackData = trackLookup.state === 'ready' ? trackLookup.data : null
   const activeMission = missions.find((m) => m.id === activeId)
   const sample = useMemo(() => (trackData ? sampleTrack(trackData.track, hours) : null), [trackData, hours])
-  const visible = useMemo(() => missionsFor(missions, filter), [missions, filter])
+  const scoped = useMemo(() => missions.filter((m) => inGroup(m, group)), [missions, group])
+  const visible = useMemo(() => missionsFor(scoped, filter), [scoped, filter])
   const located = useMemo(() => missions.filter(isLocated), [missions])
   const getMission = (id: string) => missions.find((m) => m.id === id)!
   const highlightIds = useMemo(() => new Set(visible.map((m) => m.id)), [visible])
@@ -115,7 +119,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
     setFilter(next)
     setDrawerOpen(false)
     setScreen('fleet')
-    const list = missionsFor(missions, next)
+    const list = missionsFor(scoped, next)
     if (list.length && !list.some((m) => m.id === activeId)) setActiveId(list[0].id)
   }
 
@@ -141,7 +145,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
 
   return (
     <div className="app">
-      <Header mode={mode} onModeChange={setMode} missions={missions} filter={filter} onFilterChange={changeFilter} />
+      <Header mode={mode} onModeChange={setMode} missions={scoped} filter={filter} onFilterChange={changeFilter} />
       <main className="app__main" data-screen={screen}>
         {screen === 'fleet' && (
           <>
@@ -173,7 +177,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
                 )}
               </MoonGlobe>
             </Suspense>
-            <FleetSidebar filter={filter} missions={visible} activeId={activeId} onSelect={selectMission} />
+            <FleetSidebar filter={filter} missions={visible} group={group} onGroupChange={setGroup} activeId={activeId} onSelect={selectMission} />
             <MissionDrawer
               mission={drawerMission}
               onClose={closeDrawer}

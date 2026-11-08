@@ -42,9 +42,9 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
         ))}
       </div>
 
-      <div className="header__status" title="NASA PDS · OFFLINE CACHED">
+      <div className="header__status" title="Mission catalog and tracks are bundled with the app; no live server is used">
         <span className="header__status-dot" />
-        <span className="header__status-text">NASA PDS · OFFLINE CACHED</span>
+        <span className="header__status-text">BUNDLED DATA · OFFLINE</span>
       </div>
     </header>
   )

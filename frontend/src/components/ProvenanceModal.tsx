@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import type { Mission } from '../data/missions'
-import { useTrack, type Track } from '../data/tracks'
+import { horizonLabel, useTrack, type Track } from '../data/tracks'
 import './ProvenanceModal.css'
 
 interface ProvenanceModalProps {
@@ -86,7 +86,7 @@ export function ProvenanceModal({ mission, onClose }: ProvenanceModalProps) {
           <section className="ids">
             <div className="ids__head">
               <h3>B // DATA SOURCES</h3>
-              <span>{data ? data.track.horizon_model.toUpperCase().replace(/_/g, ' ') : 'NO TRACK'}</span>
+              <span>{data ? horizonLabel(data.track.horizon_model).toUpperCase() : 'NO TRACK'}</span>
             </div>
             {data?.terrain.dem_product && (
               <div className="ids__row">

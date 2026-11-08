@@ -2,7 +2,7 @@ import { useState } from 'react'
 import craterSurface from '../assets/crater-surface.jpg'
 import { MissionDetails } from './MissionDetails'
 import { formatCoords, type LocatedMission } from '../data/missions'
-import { useTrack } from '../data/tracks'
+import { horizonLabel, useTrack } from '../data/tracks'
 import './SiteView.css'
 
 interface SiteViewProps {
@@ -67,7 +67,7 @@ export function SiteView({ mission, onBack, onCompare, onOpenProvenance }: SiteV
             </p>
             <p className="site-map__hud-dim">
               {data?.terrain.dem_product ?? 'TERRAIN UNAVAILABLE'} &nbsp;|&nbsp;{' '}
-              {data ? data.track.horizon_model.replace(/_/g, ' ').toUpperCase() : 'NO TRACK'}
+              {data ? horizonLabel(data.track.horizon_model).toUpperCase() : 'NO TRACK'}
             </p>
           </div>
           <div className="site-map__chips">

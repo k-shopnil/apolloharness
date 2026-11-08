@@ -6,7 +6,7 @@ import {
   isLocated,
   type Mission,
 } from '../data/missions'
-import { fmtPct, useTrack } from '../data/tracks'
+import { fmtPct, horizonLabel, useTrack } from '../data/tracks'
 import './MissionDetails.css'
 
 interface MissionDetailsProps {
@@ -79,6 +79,14 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
             <dd>{humanize(mission.status)}</dd>
           </div>
         </dl>
+        {mission.touchdownUtc && (
+          <p className="details__note">TOUCHDOWN (UTC): {mission.touchdownUtc.replace('T', ' ').replace('Z', '')}</p>
+        )}
+        {mission.baselineRole && (
+          <p className="details__note">
+            BASELINE · {humanize(mission.baselineRole.tag.replace(/_baseline$/, ''))}: {mission.baselineRole.text}
+          </p>
+        )}
         {mission.statusNote && <p className="details__note">{mission.statusNote}</p>}
       </section>
 
@@ -87,7 +95,7 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
           <p className="section-title">02 // ILLUMINATION &amp; COMMS (29.5-DAY WINDOW)</p>
           {track && (
             <span className="badge" title="Whether terrain was modelled for the horizon">
-              {track.horizon_model === 'lola_terrain_mask' ? 'LOLA TERRAIN HORIZON' : 'SPHERICAL HORIZON'}
+              {horizonLabel(track.horizon_model).toUpperCase()}
             </span>
           )}
         </div>
