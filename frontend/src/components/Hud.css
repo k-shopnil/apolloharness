@@ -189,12 +189,61 @@
 }
 
 @media (max-width: 800px) {
+  /* Compact panels so the Moon stays visible; sit above the readout and the manifest sheet. */
   .globe__dock {
-    bottom: 172px;
+    left: 8px;
+    right: 8px;
+    bottom: 192px;
+    gap: 6px;
+  }
+
+  .hud,
+  .scrub {
+    padding: 6px 8px;
+    font-size: 10px;
+    line-height: 14px;
+  }
+
+  .hud[data-mode='simple'] {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .hud__cell {
+    gap: 2px;
+    max-width: none;
+  }
+
+  .hud__big {
+    font-size: 11px;
+    line-height: 14px;
+  }
+
+  .hud__badge {
+    font-size: 9px;
+    line-height: 13px;
   }
 
   .hud--sci {
     max-width: none;
     width: 100%;
+    font-size: 9px;
+    line-height: 13px;
+    column-gap: 10px;
+    /* Scroll inside the panel rather than covering the Moon. */
+    max-height: 26vh;
+    overflow-y: auto;
+  }
+
+  .scrub {
+    flex: 1 1 100%;
+    min-width: 0;
+    gap: 3px;
+  }
+
+  .scrub__strip-label {
+    width: 36px;
   }
 }
