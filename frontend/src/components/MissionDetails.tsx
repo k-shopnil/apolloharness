@@ -1,10 +1,12 @@
 import {
   categoryLabel,
+  coordinateBadge,
   formatCoords,
-  psrFill,
-  scoreTag,
+  humanize,
+  isLocated,
   type Mission,
 } from '../data/missions'
+import { fmtPct, useTrack } from '../data/tracks'
 import './MissionDetails.css'
 
 interface MissionDetailsProps {
@@ -15,28 +17,45 @@ interface MissionDetailsProps {
   onOpenInspector?: () => void
 }
 
-const PROVENANCE = [
-  'ELEVATION: NASA LRO LOLA (20m Polar DEM)',
-  'LIGHTING: NASA LROC WAC (Mazarico et al. 2011)',
-  'ORBITS: NASA JPL NAIF SPICE de421.bsp',
-]
+const UNAVAILABLE = 'Unavailable'
 
 export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenInspector }: MissionDetailsProps) {
-  const v = mission.viability
+  const lookup = useTrack(mission.id)
+  const data = lookup.state === 'ready' ? lookup.data : null
+  const track = data?.track ?? null
+
   const bars = [
-    { label: '01. MISSION WINDOW SUNLIGHT', value: `${v.windowSunlight.toFixed(1)}%`, fill: v.windowSunlight },
-    { label: '02. ANNUAL SUNLIGHT BASELINE', value: `${v.annualSunlight.toFixed(1)}%`, fill: v.annualSunlight },
-    { label: '03. EARTH COMMS LINE-OF-SIGHT', value: `${v.commsLos.toFixed(1)}% LOS`, fill: v.commsLos },
-    { label: '04. DISTANCE TO PSR COLD TRAP', value: `${v.psrKm.toFixed(1)} km`, fill: psrFill(v.psrKm) },
+    { label: '01. WINDOW SUNLIGHT', value: fmtPct(track?.sunlit_percent), fill: track?.sunlit_percent ?? null },
+    { label: '02. EARTH COMMS LINE-OF-SIGHT', value: fmtPct(track?.earth_los_percent), fill: track?.earth_los_percent ?? null },
+    {
+      label: '03. MEAN SUN DISC VISIBLE',
+      value: fmtPct(track && track.mean_sun_disk_visible_fraction !== null ? track.mean_sun_disk_visible_fraction * 100 : null),
+      fill: track && track.mean_sun_disk_visible_fraction !== null ? track.mean_sun_disk_visible_fraction * 100 : null,
+    },
   ]
+
+  const ellipse =
+    mission.ellipseMajorKm !== null && mission.ellipseMinorKm !== null
+      ? `${mission.ellipseMajorKm} km × ${mission.ellipseMinorKm} km`
+      : mission.ellipseMajorKm !== null
+        ? `${mission.ellipseMajorKm} km major axis (minor not published)`
+        : 'Not published'
+
+  const psr = data?.psr
+  const psrText =
+    psr?.distance_km === null || psr?.distance_km === undefined
+      ? UNAVAILABLE
+      : psr.inside_psr
+        ? 'Inside a PSR'
+        : `${psr.distance_km.toFixed(2)} km`
 
   return (
     <div className="details">
       <div className="details__block details__head">
-        <p className="details__eyebrow">SELECTED SITE</p>
+        <p className="details__eyebrow">{mission.kind === 'reference_anchor' ? 'REFERENCE ANCHOR' : 'SELECTED SITE'}</p>
         <h2 className="details__title">{mission.name}</h2>
         <p className="details__sub">
-          {mission.provider} · {mission.target}
+          {mission.provider} · {mission.targetSite}
         </p>
       </div>
 
@@ -52,29 +71,29 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
             <dd>{mission.lander}</dd>
           </div>
           <div>
-            <dt>LAUNCH WINDOW</dt>
-            <dd>{mission.launchWindow}</dd>
+            <dt>TARGET DATE</dt>
+            <dd>{mission.targetDate ?? 'TBD'}</dd>
           </div>
           <div>
-            <dt>TARGET</dt>
-            <dd>{mission.site}</dd>
+            <dt>STATUS</dt>
+            <dd>{humanize(mission.status)}</dd>
           </div>
         </dl>
+        {mission.statusNote && <p className="details__note">{mission.statusNote}</p>}
       </section>
 
       <section className="details__block">
         <div className="details__row">
-          <p className="section-title">02 // ENVIRONMENTAL VIABILITY INDEX</p>
-          <span className="badge">{scoreTag(mission.score)}</span>
+          <p className="section-title">02 // ILLUMINATION &amp; COMMS (29.5-DAY WINDOW)</p>
+          {track && (
+            <span className="badge" title="Whether terrain was modelled for the horizon">
+              {track.horizon_model === 'lola_terrain_mask' ? 'LOLA TERRAIN HORIZON' : 'SPHERICAL HORIZON'}
+            </span>
+          )}
         </div>
-        <p className="details__score">
-          {mission.score}
-          <span> / 100</span>
-        </p>
-        {mission.dataStatus === 'placeholder' && (
-          <p className="details__note" title="Illustrative values until PDS-derived numbers are wired in">
-            PROVISIONAL · ILLUSTRATIVE VALUES
-          </p>
+        {lookup.state === 'loading' && <p className="details__note">LOADING TRACK…</p>}
+        {(lookup.state === 'none' || lookup.state === 'error') && (
+          <p className="details__note">UNAVAILABLE · {lookup.reason}</p>
         )}
         <div className="details__bars">
           {bars.map((bar) => (
@@ -84,7 +103,7 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
                 <span>{bar.value}</span>
               </div>
               <div className="bar">
-                <div className="bar__fill" style={{ width: `${bar.fill}%` }} />
+                <div className="bar__fill" style={{ width: `${bar.fill ?? 0}%` }} />
               </div>
             </div>
           ))}
@@ -94,18 +113,26 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
       <section className="details__block">
         <p className="section-title">03 // SITE GEOMETRY</p>
         <div className="details__grid">
-          <Stat label="LANDING ELLIPSE" value={`${mission.ellipseKm[0] * 2}km × ${mission.ellipseKm[1] * 2}km`} />
-          <Stat label="TERRAIN SLOPE" value={`${mission.slopeDeg.toFixed(1)}° (nominal)`} />
+          <Stat label="LANDING ELLIPSE" value={ellipse} />
           <Stat
             label="ELEVATION"
-            value={`${mission.elevationM >= 0 ? '+' : '−'}${Math.abs(mission.elevationM).toLocaleString('en-US')}m`}
+            value={
+              data?.terrain.elevation_m == null
+                ? UNAVAILABLE
+                : `${data.terrain.elevation_m >= 0 ? '+' : '−'}${Math.abs(Math.round(data.terrain.elevation_m)).toLocaleString('en-US')}m`
+            }
           />
-          <Stat label="LAT / LON" value={formatCoords(mission.lat, mission.lon)} />
+          <Stat label="NEAREST PSR" value={psrText} />
+          <Stat label="LAT / LON" value={isLocated(mission) ? formatCoords(mission.lat, mission.lon) : 'No coordinate published'} />
         </div>
+        <p className="details__note" title={mission.coordinateProvenance}>
+          {coordinateBadge(mission)} · {humanize(mission.coordinateType)}
+        </p>
+        <p className="details__note">{mission.coordinateProvenance}</p>
       </section>
 
       <section className="details__block">
-        <p className="section-title">04 // PAYLOAD MANIFEST (CLPS)</p>
+        <p className="section-title">04 // PAYLOAD MANIFEST</p>
         <div className="details__payloads">
           {mission.payloads.map((p) => (
             <div className="payload" key={p.name}>
@@ -113,21 +140,26 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
                 <strong>{p.name}</strong>
                 <span className={`tag tag--${p.category}`}>{categoryLabel[p.category]}</span>
               </div>
-              <span>{p.detail}</span>
+              <span>{p.purpose.map((x) => x.replace(/_/g, ' ')).join(' · ')}</span>
             </div>
           ))}
         </div>
       </section>
 
       <section className="details__block details__block--provenance">
-        <p className="section-title">05 // SCIENTIFIC PROVENANCE (NASA PDS)</p>
+        <p className="section-title">05 // SOURCES</p>
         <div className="details__prov">
-          {PROVENANCE.map((line) => (
-            <p key={line}>{line}</p>
+          {data?.terrain.dem_product && <p>TERRAIN: {data.terrain.dem_product}</p>}
+          {mission.sources.map((s) => (
+            <p key={s.url}>
+              <a href={s.url} target="_blank" rel="noreferrer">
+                {s.publisher}: {s.title}
+              </a>
+            </p>
           ))}
         </div>
         <button type="button" className="details__link" onClick={onOpenProvenance}>
-          [ View Raw PDS Data &amp; Curves ↗ ]
+          [ View Data Provenance ↗ ]
         </button>
       </section>
 

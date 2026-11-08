@@ -1,17 +1,23 @@
 import { useMemo } from 'react'
 import { buildComparison, type CompareRow, type CompareSide } from '../data/compare'
-import { getMission, missions } from '../data/missions'
+import { isLocated, type Mission } from '../data/missions'
+import { useTrack } from '../data/tracks'
 import './CompareView.css'
 
 interface CompareViewProps {
+  missions: Mission[]
   aId: string
   bId: string
   onChange: (aId: string, bId: string) => void
   onBack: () => void
 }
 
-export function CompareView({ aId, bId, onChange, onBack }: CompareViewProps) {
-  const comparison = useMemo(() => buildComparison(getMission(aId), getMission(bId)), [aId, bId])
+export function CompareView({ missions, aId, bId, onChange, onBack }: CompareViewProps) {
+  const a0 = missions.find((m) => m.id === aId)!
+  const b0 = missions.find((m) => m.id === bId)!
+  const ta = useTrack(aId)
+  const tb = useTrack(bId)
+  const comparison = useMemo(() => buildComparison(a0, b0, ta, tb), [a0, b0, ta, tb])
   const { a, b, rows, brief, citations } = comparison
 
   return (
@@ -23,25 +29,25 @@ export function CompareView({ aId, bId, onChange, onBack }: CompareViewProps) {
           </button>
 
           <div className="compare__pickers">
-            <Picker label="SITE A" value={aId} other={bId} onChange={(id) => onChange(id, bId)} />
+            <Picker missions={missions} label="SITE A" value={aId} other={bId} onChange={(id) => onChange(id, bId)} />
             <span className="compare__vs">VS</span>
-            <Picker label="SITE B" value={bId} other={aId} onChange={(id) => onChange(aId, id)} />
+            <Picker missions={missions} label="SITE B" value={bId} other={aId} onChange={(id) => onChange(aId, id)} />
           </div>
         </div>
 
         <div className="compare__cards">
-          <MissionCard side={a} winner={a.badge === 'WINNER'} />
-          <MissionCard side={b} winner={b.badge === 'WINNER'} />
+          <MissionCard side={a} winner={a.badge === 'LEADS'} />
+          <MissionCard side={b} winner={b.badge === 'LEADS'} />
         </div>
 
         <div className="compare__matrix" role="table" aria-label="Comparison matrix">
           <div className="matrix__row matrix__row--head" role="row">
             <span className="matrix__metric">METRIC</span>
             <span className="matrix__cell matrix__cell--head matrix__cell--accent">
-              {a.mission.name.toUpperCase()} · {a.mission.site.toUpperCase()}
+              {a.mission.name.toUpperCase()} · {a.mission.targetSite.toUpperCase()}
             </span>
             <span className="matrix__cell matrix__cell--head">
-              {b.mission.name.toUpperCase()} · {b.mission.site.toUpperCase()}
+              {b.mission.name.toUpperCase()} · {b.mission.targetSite.toUpperCase()}
             </span>
           </div>
           {rows.map((row, i) => (
@@ -57,9 +63,6 @@ export function CompareView({ aId, bId, onChange, onBack }: CompareViewProps) {
           <p>{brief}</p>
           <footer>
             <span>{citations}</span>
-            <span>
-              SECURITY: UNCLASSIFIED // <em>NASA GSFC</em>
-            </span>
           </footer>
         </section>
       </div>
@@ -68,11 +71,13 @@ export function CompareView({ aId, bId, onChange, onBack }: CompareViewProps) {
 }
 
 function Picker({
+  missions,
   label,
   value,
   other,
   onChange,
 }: {
+  missions: Mission[]
   label: string
   value: string
   other: string
@@ -82,9 +87,9 @@ function Picker({
     <label className="picker">
       <span>{label}</span>
       <select value={value} onChange={(e) => onChange(e.target.value)}>
-        {missions.map((m) => (
+        {missions.filter(isLocated).map((m) => (
           <option key={m.id} value={m.id} disabled={m.id === other}>
-            {m.name} — {m.site}
+            {m.name} — {m.targetSite}
           </option>
         ))}
       </select>
@@ -104,19 +109,7 @@ function MissionCard({ side, winner }: { side: CompareSide; winner: boolean }) {
         </div>
         <span className={`mission__badge${winner ? ' mission__badge--winner' : ''}`}>{side.badge}</span>
       </div>
-      <div className="mission__score">
-        <div>
-          <strong>{mission.score}</strong>
-          <span>/ 100</span>
-          <em>VIABILITY INDEX</em>
-        </div>
-        <div className="track">
-          <div
-            className={`track__fill${winner ? ' track__fill--accent' : ' track__fill--white'}`}
-            style={{ width: `${mission.score}%` }}
-          />
-        </div>
-      </div>
+      {side.trackNote && <p className="mission__target">{side.trackNote}</p>}
     </article>
   )
 }
@@ -142,7 +135,7 @@ function MatrixRow({ row, tinted }: { row: CompareRow; tinted: boolean }) {
             <div className="track track--thin">
               <div
                 className={`track__fill${won ? ' track__fill--accent' : ' track__fill--dim'}`}
-                style={{ width: `${cell.fill}%` }}
+                style={{ width: `${cell.fill ?? 0}%` }}
               />
             </div>
           </div>

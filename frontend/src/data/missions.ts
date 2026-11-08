@@ -1,306 +1,135 @@
+/**
+ * Mission catalog, loaded from the engine's data/missions.json (copied to
+ * public/data by scripts/copy-data.mjs). Nothing in here is hand-written
+ * science: every value comes from the catalog, and unknowns stay null.
+ */
+
 export type MissionFilter = 'all' | 'volatiles' | 'spectrometers' | 'rovers'
 export type PayloadCategory = 'volatiles' | 'spectrometers' | 'rovers' | 'other'
+export type MissionKind = 'clps' | 'reference_anchor'
 
 export interface Payload {
   name: string
-  detail: string
+  /** Raw purpose tags from the catalog, e.g. "water_ice". */
+  purpose: string[]
   category: PayloadCategory
 }
 
-/** Raw inputs behind the Environmental Viability Index bars. */
-export interface Viability {
-  /** Sunlit share of the tactical mission window, %. */
-  windowSunlight: number
-  /** Strategic annual sunlight baseline, %. */
-  annualSunlight: number
-  /** Earth line-of-sight availability, %. */
-  commsLos: number
-  /** Distance to the nearest permanently shadowed (PSR) cold trap, km. */
-  psrKm: number
+export interface Source {
+  publisher: string
+  title: string
+  url: string
 }
 
 export interface Mission {
+  /** Canonical id from data/missions.json, e.g. "clps-prime-1-im2". */
   id: string
-  index: string
+  /** Mission name, e.g. "IM-2 Athena". */
   name: string
+  kind: MissionKind
   provider: string
   lander: string
-  launchWindow: string
-  site: string
-  /** Longer geographic description shown in the drawer. */
-  target: string
-  year: number
-  /** Selenographic latitude in degrees (south negative). */
-  lat: number
-  /** Selenographic longitude in degrees east, -180..180. */
-  lon: number
-  /** Landing ellipse semi-axes in km (major, minor). */
-  ellipseKm: [number, number]
-  slopeDeg: number
-  elevationM: number
-  score: number
-  viability: Viability
-  /** Short instrument list for sidebar cards. */
+  taskOrder: string
+  targetSite: string
+  region: string
+  status: string
+  statusNote: string | null
+  /** ISO date or year string as published; null when TBD. */
+  targetDate: string | null
+  touchdownUtc: string | null
+  /** Selenographic degrees (south/west negative). null = no coordinate published. */
+  lat: number | null
+  lon: number | null
+  coordinateType: string
+  coordinateProvenance: string
+  /** Only an actual_landing coordinate may be presented as a landing fix. */
+  isLandingFix: boolean
+  /** Landing ellipse axes in km; null = unpublished (never invent one). */
+  ellipseMajorKm: number | null
+  ellipseMinorKm: number | null
   payloadSummary: string
   payloads: Payload[]
-  /**
-   * 'figma' values come from the design file. 'placeholder' values are illustrative
-   * until the real PDS-derived numbers are wired in, and the UI labels them as such.
-   */
-  dataStatus: 'figma' | 'placeholder'
-  /** Cards used by the filtered sidebars in the design. */
-  filtered?: {
-    volatiles?: FilteredCard
-    rovers?: FilteredCard
+  sources: Source[]
+}
+
+/** A mission that has a coordinate and can be drawn on the globe. */
+export type LocatedMission = Mission & { lat: number; lon: number }
+
+export function isLocated(m: Mission): m is LocatedMission {
+  return m.lat !== null && m.lon !== null
+}
+
+interface RawMission {
+  id: string
+  mission: string
+  category: string
+  provider: string
+  lander: string
+  task_order: string
+  target_site: string
+  region: string
+  status: string
+  status_note?: string
+  target_date: string | null
+  touchdown_utc?: string
+  landing_site: {
+    latitude_deg: number | null
+    longitude_deg: number | null
+    coordinate_type: string
+    coordinate_provenance: string
+  }
+  landing_ellipse_km?: { major_axis_km: number | null; minor_axis_km: number | null }
+  payload_summary: string
+  payloads: { name: string; purpose: string[] }[]
+  sources: { publisher: string; title: string; url: string }[]
+}
+
+/** Payload category from the catalog's purpose tags (first match wins). */
+export function categorize(purpose: string[]): PayloadCategory {
+  const tags = purpose.join(' ')
+  if (/rover/.test(tags)) return 'rovers'
+  if (/spectromet|spectral/.test(tags)) return 'spectrometers'
+  if (/volatile|water|ice|drill|prospect|resource|subsurface/.test(tags)) return 'volatiles'
+  return 'other'
+}
+
+function normalize(raw: RawMission): Mission {
+  const site = raw.landing_site
+  return {
+    id: raw.id,
+    name: raw.mission,
+    kind: raw.category === 'reference_anchor' ? 'reference_anchor' : 'clps',
+    provider: raw.provider,
+    lander: raw.lander,
+    taskOrder: raw.task_order,
+    targetSite: raw.target_site,
+    region: raw.region,
+    status: raw.status,
+    statusNote: raw.status_note ?? null,
+    targetDate: raw.target_date ?? null,
+    touchdownUtc: raw.touchdown_utc ?? null,
+    lat: site.latitude_deg,
+    lon: site.longitude_deg,
+    coordinateType: site.coordinate_type,
+    coordinateProvenance: site.coordinate_provenance,
+    isLandingFix: site.coordinate_type === 'actual_landing',
+    ellipseMajorKm: raw.landing_ellipse_km?.major_axis_km ?? null,
+    ellipseMinorKm: raw.landing_ellipse_km?.minor_axis_km ?? null,
+    payloadSummary: raw.payload_summary,
+    payloads: raw.payloads.map((p) => ({ name: p.name, purpose: p.purpose, category: categorize(p.purpose) })),
+    sources: raw.sources.map(({ publisher, title, url }) => ({ publisher, title, url })),
   }
 }
 
-interface FilteredCard {
-  title: string
-  badge: string
-  site: string
-  payload: string
-  viability?: { value: string; tag: string; accent?: boolean }
-}
+export const DATA_BASE = `${import.meta.env.BASE_URL}data/`
 
-export const missions: Mission[] = [
-  {
-    id: 'im-1',
-    payloadSummary: 'ROLSES, LN-1, NDL',
-    index: '01',
-    name: 'Nova-C Odysseus',
-    provider: 'Intuitive Machines',
-    lander: 'Nova-C (IM-1)',
-    launchWindow: 'Feb 2024',
-    site: 'Malapert A',
-    target: 'Malapert A, near the south pole',
-    year: 2024,
-    lat: -86.0,
-    lon: 4.0,
-    ellipseKm: [4, 2.5],
-    slopeDeg: 6.1,
-    elevationM: 1480,
-    score: 61,
-    viability: { windowSunlight: 58, annualSunlight: 49, commsLos: 77, psrKm: 6.8 },
-    payloads: [
-      { name: 'ROLSES', detail: 'NASA GSFC · Radio observations of the lunar surface environment', category: 'other' },
-      { name: 'LN-1', detail: 'NASA MSFC · Autonomous navigation demonstration', category: 'other' },
-      { name: 'NDL', detail: 'NASA LaRC · Navigation Doppler Lidar for precision landing', category: 'other' },
-    ],
-    dataStatus: 'placeholder',
-  },
-  {
-    id: 'im-2',
-    payloadSummary: 'TRIDENT, MSolo, PRIME-1',
-    index: '02',
-    name: 'Nova-C Athena',
-    provider: 'Intuitive Machines',
-    lander: 'Nova-C (IM-2)',
-    launchWindow: 'Feb 2025',
-    site: 'Mons Mouton',
-    target: 'Mons Mouton Plateau, Shackleton–de Gerlache ridge',
-    year: 2025,
-    lat: -84.8,
-    lon: 29.2,
-    ellipseKm: [2.5, 1.5],
-    slopeDeg: 4.8,
-    elevationM: 1920,
-    score: 79,
-    viability: { windowSunlight: 82, annualSunlight: 68, commsLos: 71, psrKm: 1.2 },
-    payloads: [
-      { name: 'TRIDENT 1M SUBSURFACE DRILL', detail: 'NASA KSC · Target: 1-meter regolith ice extraction', category: 'volatiles' },
-      { name: 'MSolo MASS SPECTROMETER', detail: 'NASA Ames · Target: Real-time volatile desorption', category: 'spectrometers' },
-      { name: 'PRIME-1 MISSION SUITE', detail: 'NASA JSC · Integrated subsurface investigation', category: 'volatiles' },
-    ],
-    dataStatus: 'figma',
-    filtered: {
-      volatiles: {
-        title: 'Nova-C Athena (IM-2)',
-        badge: 'ACTIVE DRILL',
-        site: 'Mons Mouton (84.8°S, 29.2°E)',
-        payload: 'TRIDENT 1m Drill, MSolo, PRIME-1',
-        viability: { value: '79 / 100 [OPTIMAL]', tag: 'ENVIRONMENTAL VIABILITY:', accent: true },
-      },
-    },
-  },
-  {
-    id: 'peregrine',
-    payloadSummary: 'NIRVSS, NSS, PITMS',
-    index: '03',
-    name: 'Peregrine M-1',
-    provider: 'Astrobotic',
-    lander: 'Peregrine',
-    launchWindow: 'Jan 2024',
-    site: 'Lacus Mortis',
-    target: 'Lacus Mortis, northern near side',
-    year: 2024,
-    lat: 45.0,
-    lon: 25.0,
-    ellipseKm: [3, 2],
-    slopeDeg: 3.2,
-    elevationM: -1800,
-    score: 54,
-    viability: { windowSunlight: 66, annualSunlight: 52, commsLos: 92, psrKm: 9.4 },
-    payloads: [
-      { name: 'NIRVSS', detail: 'NASA Ames · Near-infrared volatiles spectrometer system', category: 'spectrometers' },
-      { name: 'NSS', detail: 'NASA Ames · Neutron spectrometer for hydrogen mapping', category: 'spectrometers' },
-      { name: 'PITMS', detail: 'NASA GSFC · Ion-trap mass spectrometer', category: 'spectrometers' },
-    ],
-    dataStatus: 'placeholder',
-  },
-  {
-    id: 'griffin-1',
-    payloadSummary: 'VIPER Rover',
-    index: '04',
-    name: 'Griffin-1',
-    provider: 'Astrobotic',
-    lander: 'Griffin Mission One',
-    launchWindow: '2026',
-    site: 'Mons Mouton',
-    target: 'Mons Mouton Plateau',
-    year: 2026,
-    lat: -84.9,
-    lon: -31.6,
-    ellipseKm: [3, 2],
-    slopeDeg: 7.2,
-    elevationM: 2310,
-    score: 68,
-    viability: { windowSunlight: 64, annualSunlight: 58, commsLos: 89, psrKm: 3.4 },
-    payloads: [
-      { name: 'VIPER ROVER', detail: 'NASA Ames · Water-hunting mobile explorer', category: 'rovers' },
-    ],
-    dataStatus: 'figma',
-    filtered: {
-      rovers: {
-        title: 'Griffin Mission 1',
-        badge: 'HEAVY ROVER',
-        site: 'Mons Mouton Plateau (84.9°S, 31.6°W)',
-        payload: 'VIPER Rover (Water-Hunting Mobile Explorer)',
-        viability: { value: '68 / 100 [RUNNER-UP]', tag: 'ENVIRONMENTAL VIABILITY:' },
-      },
-    },
-  },
-  {
-    id: 'bg-1',
-    payloadSummary: 'LuSEE-Night, LISTER',
-    index: '05',
-    name: 'Blue Ghost M-1',
-    provider: 'Firefly Aerospace',
-    lander: 'Blue Ghost',
-    launchWindow: 'Jan 2025',
-    site: 'Mare Crisium',
-    target: 'Mare Crisium, near side',
-    year: 2025,
-    lat: 18.6,
-    lon: 61.8,
-    ellipseKm: [3.5, 2],
-    slopeDeg: 2.4,
-    elevationM: -2600,
-    score: 57,
-    viability: { windowSunlight: 71, annualSunlight: 55, commsLos: 94, psrKm: 11.2 },
-    payloads: [
-      { name: 'LuSEE-Night', detail: 'NASA / DOE · Radio spectrometer for the lunar night', category: 'other' },
-      { name: 'LISTER', detail: 'NASA · Subsurface thermal probe', category: 'other' },
-    ],
-    dataStatus: 'placeholder',
-  },
-  {
-    id: 'bg-2',
-    payloadSummary: 'MSFC Drill, PROSPECT',
-    index: '06',
-    name: 'Blue Ghost M-2',
-    provider: 'Firefly Aerospace',
-    lander: 'Blue Ghost',
-    launchWindow: '2026',
-    site: 'Schrödinger',
-    target: 'Schrödinger Basin, far-side polar',
-    year: 2026,
-    lat: -75.0,
-    lon: 132.4,
-    ellipseKm: [3, 2],
-    slopeDeg: 5.4,
-    elevationM: -1100,
-    score: 63,
-    viability: { windowSunlight: 61, annualSunlight: 57, commsLos: 38, psrKm: 4.9 },
-    payloads: [
-      { name: 'MSFC DRILL', detail: 'NASA MSFC · Regolith coring drill', category: 'volatiles' },
-      { name: 'PROSPECT PACKAGE', detail: 'ESA · Drill and sample analysis laboratory', category: 'volatiles' },
-    ],
-    dataStatus: 'placeholder',
-    filtered: {
-      volatiles: {
-        title: 'Blue Ghost M-2',
-        badge: 'FAR-SIDE POLAR',
-        site: 'Schrödinger Basin (75.0°S, 132.4°E)',
-        payload: 'MSFC Drill, PROSPECT Package',
-      },
-    },
-  },
-  {
-    id: 'xl-1',
-    payloadSummary: 'TAUBER, BSE-1',
-    index: '07',
-    name: 'XL-1',
-    provider: 'Masten Space',
-    lander: 'XL-1 Lander',
-    launchWindow: '2026',
-    site: 'Haworth Crater',
-    target: 'Haworth Crater, south pole',
-    year: 2026,
-    lat: -87.0,
-    lon: -40.0,
-    ellipseKm: [3, 2],
-    slopeDeg: 5.9,
-    elevationM: -400,
-    score: 58,
-    viability: { windowSunlight: 52, annualSunlight: 44, commsLos: 66, psrKm: 0.9 },
-    payloads: [
-      { name: 'TAUBER', detail: 'Mobile surface demonstration payload', category: 'rovers' },
-      { name: 'BSE-1', detail: 'Surface experiment package', category: 'other' },
-    ],
-    dataStatus: 'placeholder',
-    filtered: {
-      rovers: {
-        title: 'XL-1 Lander',
-        badge: 'MOBILE DEMO',
-        site: 'Haworth Crater (-87.0°S, -40.0°W)',
-        payload: 'TAUBER Mobile Demo, BSE-1',
-      },
-    },
-  },
-  {
-    id: 'ls-1',
-    payloadSummary: 'LASSI, PRIME-2',
-    index: '08',
-    name: 'LS-1',
-    provider: 'LunaSonde',
-    lander: 'LS-1 Lander',
-    launchWindow: '2027',
-    site: 'Nobile Rim',
-    target: 'Nobile crater rim, south pole',
-    year: 2027,
-    lat: -85.2,
-    lon: 53.0,
-    ellipseKm: [3, 2],
-    slopeDeg: 5.1,
-    elevationM: 2050,
-    score: 66,
-    viability: { windowSunlight: 69, annualSunlight: 61, commsLos: 74, psrKm: 2.3 },
-    payloads: [
-      { name: 'LASSI', detail: 'Laser spectrometer for surface volatiles', category: 'spectrometers' },
-      { name: 'PRIME-2', detail: 'NASA · Follow-on subsurface drill suite', category: 'volatiles' },
-    ],
-    dataStatus: 'placeholder',
-    filtered: {
-      volatiles: {
-        title: 'LS-1',
-        badge: 'POLAR DRILL',
-        site: 'Nobile Rim (85.2°S, 53.0°E)',
-        payload: 'LASSI, PRIME-2',
-      },
-    },
-  },
-]
+/** Loads the catalog. Terminated missions (e.g. Draper CP-12) are hidden. */
+export async function loadMissions(): Promise<Mission[]> {
+  const res = await fetch(`${DATA_BASE}missions.json`)
+  if (!res.ok) throw new Error(`missions.json: HTTP ${res.status}`)
+  const raw = (await res.json()) as RawMission[]
+  return raw.filter((m) => m.status !== 'terminated').map(normalize)
+}
 
 export const filterTabs: { id: MissionFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -320,29 +149,23 @@ export function matchesFilter(mission: Mission, filter: MissionFilter): boolean 
   return filter === 'all' || mission.payloads.some((p) => p.category === filter)
 }
 
-export function missionsFor(filter: MissionFilter): Mission[] {
-  const list = missions.filter((m) => matchesFilter(m, filter))
-  // Filtered manifests lead with the featured mission (Figma ordering).
-  const lead = filter === 'volatiles' ? 'im-2' : filter === 'rovers' ? 'griffin-1' : undefined
-  return lead ? [...list].sort((a, b) => (a.id === lead ? -1 : b.id === lead ? 1 : 0)) : list
+export function missionsFor(missions: Mission[], filter: MissionFilter): Mission[] {
+  return missions.filter((m) => matchesFilter(m, filter))
 }
 
-export function getMission(id: string): Mission {
-  const mission = missions.find((m) => m.id === id)
-  if (!mission) throw new Error(`Unknown mission: ${id}`)
-  return mission
+/** "actual_landing" -> "ACTUAL LANDING". */
+export function humanize(tag: string): string {
+  return tag.replace(/_/g, ' ').toUpperCase()
 }
 
-/** Rating label for the score badge. */
-export function scoreTag(score: number): string {
-  if (score >= 75) return 'OPTIMAL_SITE'
-  if (score >= 60) return 'VIABLE_SITE'
-  return 'MARGINAL_SITE'
+/** Short badge text for how far a coordinate can be trusted. */
+export function coordinateBadge(m: Mission): string {
+  if (m.lat === null || m.lon === null) return 'NO COORDINATE PUBLISHED'
+  return m.isLandingFix ? 'ACTUAL LANDING' : 'TARGET / REFERENCE'
 }
 
-/** Bar fill (0..100) for each viability input. Distance is inverted: closer is better. */
-export function psrFill(km: number): number {
-  return Math.max(0, Math.min(100, Math.round(100 - (km / 10) * 100)))
+export function missionYear(m: Mission): string {
+  return m.targetDate ? m.targetDate.slice(0, 4) : 'TBD'
 }
 
 export function formatCoords(lat: number, lon: number): string {

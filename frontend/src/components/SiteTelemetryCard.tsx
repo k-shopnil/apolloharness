@@ -18,11 +18,7 @@ export const SiteTelemetryCard = forwardRef<HTMLDivElement, Props>(function Site
   const commsTone = t.comms === 'LINK ACTIVE' ? 'ok' : t.comms === 'LOW ELEVATION' ? 'warn' : 'bad'
   return (
     <div ref={ref} className="site-card" style={{ visibility: 'hidden' }}>
-      <div className="site-card__title">{mission.site.toUpperCase()}</div>
-      <div className="site-card__row">
-        <span>PSR COLD TRAP</span>
-        <b>{t.psrKm.toFixed(1)} km</b>
-      </div>
+      <div className="site-card__title">{mission.targetSite.toUpperCase()}</div>
       <div className="site-card__row">
         <span>SUN ELEV</span>
         <b>

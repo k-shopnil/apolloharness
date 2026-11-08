@@ -24,7 +24,7 @@ import {
   defined,
 } from 'cesium'
 import 'cesium/Build/Cesium/Widgets/widgets.css'
-import type { Mission } from '../data/missions'
+import type { LocatedMission } from '../data/missions'
 import { COMPACT_QUERY } from '../hooks/useMediaQuery'
 import { getEphemeris, siteTelemetry } from '../data/ephemeris'
 import { SiteTelemetryCard } from './SiteTelemetryCard'
@@ -70,7 +70,7 @@ const GRATICULE: { lat: number; label: string }[] = [
 
 interface MoonGlobeProps {
   /** Every mission; the globe dims those outside `highlightIds`. */
-  missions: Mission[]
+  missions: LocatedMission[]
   highlightIds: ReadonlySet<string>
   activeId: string | null
   /** When true the camera is parked over the active site with its landing ellipse drawn. */
@@ -102,7 +102,7 @@ function flyToOverview(viewer: Viewer) {
 
 const SITE_VIEW_HEIGHT = 18_000
 
-function flyToSite(viewer: Viewer, mission: Mission) {
+function flyToSite(viewer: Viewer, mission: LocatedMission) {
   viewer.camera.flyTo({
     destination: Cartesian3.fromDegrees(mission.lon, mission.lat, SITE_VIEW_HEIGHT),
     orientation: { heading: 0, pitch: CesiumMath.toRadians(-90), roll: 0 },
@@ -384,7 +384,7 @@ export function MoonGlobe({
         },
         label: {
           show: lit && (!compact || active),
-          text: `${m.name}\n${m.site}`,
+          text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : '\n(target / reference)'}`,
           font: `${active ? 'bold ' : ''}${11 * LABEL_SS}px JetBrains Mono, monospace`,
           scale: LABEL_SCALE,
           fillColor: active ? ACCENT : Color.fromCssColorString('#aaaaaa'),
@@ -401,15 +401,16 @@ export function MoonGlobe({
 
     const active = missions.find((m) => m.id === activeId)
     if (active && highlightIds.has(active.id)) {
-      if (drawerOpen) {
+      if (drawerOpen && active.ellipseMajorKm !== null && active.ellipseMinorKm !== null) {
+        // Only drawn when the landing ellipse is published; never invented.
         // Semi-transparent landing ellipse draped on the surface around the site.
         ids.push('ellipse:active')
         viewer.entities.add({
           id: 'ellipse:active',
           position: Cartesian3.fromDegrees(active.lon, active.lat, 0),
           ellipse: {
-            semiMajorAxis: active.ellipseKm[0] * 1000,
-            semiMinorAxis: active.ellipseKm[1] * 1000,
+            semiMajorAxis: active.ellipseMajorKm * 500,
+            semiMinorAxis: active.ellipseMinorKm * 500,
             material: ACCENT.withAlpha(0.22),
             outline: true,
             outlineColor: ACCENT,

@@ -1,4 +1,4 @@
-import type { Mission } from './missions'
+import type { LocatedMission } from './missions'
 
 /** Selenographic direction (degrees) of a body as seen from the Moon's centre. */
 export interface BodyDirection {
@@ -7,7 +7,7 @@ export interface BodyDirection {
 }
 
 /**
- * Local fixtures for the sub-Earth and sub-solar points. These stand in for the
+ * TEMPORARY: Local fixtures for the sub-Earth and sub-solar points. These stand in for the
  * ephemeris backend; swap `getEphemeris()` for an API call later without touching the UI.
  * Earth sits near (0, 0) with libration of a few degrees; the Sun is near the equator.
  */
@@ -40,7 +40,6 @@ export type PowerRating = 'NOMINAL' | 'MARGINAL' | 'NO SUN'
 export type CommsStatus = 'LINK ACTIVE' | 'LOW ELEVATION' | 'OCCULTED'
 
 export interface SiteTelemetry {
-  psrKm: number
   sunElevDeg: number
   power: PowerRating
   earthElevDeg: number
@@ -49,13 +48,12 @@ export interface SiteTelemetry {
   losActive: boolean
 }
 
-export function siteTelemetry(mission: Mission, eph: Ephemeris = getEphemeris()): SiteTelemetry {
+export function siteTelemetry(mission: LocatedMission, eph: Ephemeris = getEphemeris()): SiteTelemetry {
   const site = { lat: mission.lat, lon: mission.lon }
   const sunElevDeg = elevationDeg(site, eph.subSolar)
   const earthElevDeg = elevationDeg(site, eph.subEarth)
   const losActive = earthElevDeg > 0
   return {
-    psrKm: mission.viability.psrKm,
     sunElevDeg,
     power: sunElevDeg >= 1.5 ? 'NOMINAL' : sunElevDeg > 0 ? 'MARGINAL' : 'NO SUN',
     earthElevDeg,

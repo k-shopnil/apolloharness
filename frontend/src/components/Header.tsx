@@ -1,12 +1,13 @@
-import { filterTabs, missionsFor, type MissionFilter } from '../data/missions'
+import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
 
 interface HeaderProps {
+  missions: Mission[]
   filter: MissionFilter
   onFilterChange: (filter: MissionFilter) => void
 }
 
-export function Header({ filter, onFilterChange }: HeaderProps) {
+export function Header({ missions, filter, onFilterChange }: HeaderProps) {
   return (
     <header className="header">
       <div className="header__brand">
@@ -24,7 +25,7 @@ export function Header({ filter, onFilterChange }: HeaderProps) {
             aria-pressed={filter === tab.id}
             onClick={() => onFilterChange(tab.id)}
           >
-            {tab.label} ({missionsFor(tab.id).length})
+            {tab.label} ({missionsFor(missions, tab.id).length})
           </button>
         ))}
       </nav>

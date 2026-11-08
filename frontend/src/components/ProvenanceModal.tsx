@@ -1,15 +1,50 @@
 import { useEffect } from 'react'
-import elevationChart from '../assets/elevation-chart.svg'
-import spiceChart from '../assets/spice-chart.svg'
-import check from '../assets/check.svg'
-import { pdsProducts } from '../data/provenance'
+import type { Mission } from '../data/missions'
+import { useTrack, type Track } from '../data/tracks'
 import './ProvenanceModal.css'
 
 interface ProvenanceModalProps {
+  mission: Mission
   onClose: () => void
 }
 
-export function ProvenanceModal({ onClose }: ProvenanceModalProps) {
+const W = 600
+const H = 160
+
+/** Polyline for one column; null samples break the line. Y range is -10..+90 degrees. */
+function linePath(values: (number | null)[], hours: number[]): string {
+  const maxH = hours[hours.length - 1] || 1
+  let d = ''
+  let pen = false
+  values.forEach((v, i) => {
+    if (v === null) {
+      pen = false
+      return
+    }
+    const x = (hours[i] / maxH) * W
+    const y = H - ((Math.max(-10, Math.min(90, v)) + 10) / 100) * H
+    d += `${pen ? 'L' : 'M'}${x.toFixed(1)},${y.toFixed(1)}`
+    pen = true
+  })
+  return d
+}
+
+function ElevationChart({ track }: { track: Track }) {
+  const c = track.columns
+  const zeroY = H - (10 / 100) * H
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label="Sun and Earth elevation over the 29.5-day window" preserveAspectRatio="none" width="100%" height="100%">
+      <line x1="0" x2={W} y1={zeroY} y2={zeroY} stroke="rgba(255,255,255,0.35)" strokeDasharray="4 4" />
+      <path d={linePath(c.earth_elevation_deg, c.hours_from_start)} fill="none" stroke="#00cfff" strokeWidth="1.5" />
+      <path d={linePath(c.sun_elevation_deg, c.hours_from_start)} fill="none" stroke="#d4a017" strokeWidth="1.5" />
+    </svg>
+  )
+}
+
+export function ProvenanceModal({ mission, onClose }: ProvenanceModalProps) {
+  const lookup = useTrack(mission.id)
+  const data = lookup.state === 'ready' ? lookup.data : null
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose()
     window.addEventListener('keydown', onKey)
@@ -22,7 +57,7 @@ export function ProvenanceModal({ onClose }: ProvenanceModalProps) {
         <header className="modal__header">
           <div>
             <p className="modal__eyebrow">EVIDENCE &amp; DATA PROVENANCE</p>
-            <h2 id="pds-title">{'// NASA PDS ARCHIVE'}</h2>
+            <h2 id="pds-title">{`// ${mission.name.toUpperCase()}`}</h2>
           </div>
           <button type="button" className="modal__close" onClick={onClose}>
             [ ✕ CLOSE ]
@@ -30,64 +65,62 @@ export function ProvenanceModal({ onClose }: ProvenanceModalProps) {
         </header>
 
         <div className="modal__body">
-          <section className="panel panel--elevation">
-            <h3>A // LRO LOLA ELEVATION CROSS-SECTION (20M DEM)</h3>
-            <p>Crater rim to floor traverse through landing ellipse center</p>
-            <div className="chart chart--tall">
-              <img src={elevationChart} alt="Elevation cross-section" />
-              <span className="chart__tag" style={{ left: '43.9%', right: '20.1%', top: 8 }}>
-                <i /> ELLIPSE CENTER (POINT ALPHA)
-              </span>
-            </div>
-            <div className="panel__legend">
-              <span>CRATER RIM (W) [+1380M]</span>
-              <span>CRATER FLOOR [-4120M]</span>
-              <span className="panel__legend--hi">RIDGE (E) [+1120M]</span>
-            </div>
-          </section>
-
           <section className="panel">
-            <h3>B // NAIF SPICE EARTH LINE-OF-SIGHT ELEVATION (29.5-DAY CYCLE)</h3>
-            <p>Earth elevation angle from Mons Mouton over one synodic period</p>
-            <div className="chart chart--short">
-              <img src={spiceChart} alt="Earth line-of-sight elevation" />
-              <span className="chart__label chart__label--tl">90° ZENITH</span>
-              <span className="chart__label chart__label--bl">0° HORIZON (LOS LIMIT)</span>
-              <span className="chart__label chart__label--br">+29.5 DAYS (SYNODIC END)</span>
-              <span className="chart__tag chart__tag--plain" style={{ left: '38%', right: '35.2%', top: 8 }}>
-                PEAK APOGEE: +8.2° LOS
-              </span>
-            </div>
+            <h3>A // SUN &amp; EARTH ELEVATION (29.5-DAY WINDOW)</h3>
+            <p>
+              {data
+                ? `Computed from SPICE ephemeris at ${mission.targetSite}. Cyan = Earth, amber = Sun; dashed line is 0° (horizon).`
+                : lookup.state === 'loading'
+                  ? 'Loading…'
+                  : `Unavailable · ${lookup.state === 'none' || lookup.state === 'error' ? lookup.reason : ''}`}
+            </p>
+            {data && (
+              <div className="chart chart--short">
+                <ElevationChart track={data.track} />
+                <span className="chart__label chart__label--bl">0° HORIZON</span>
+                <span className="chart__label chart__label--br">+29.5 DAYS</span>
+              </div>
+            )}
           </section>
 
           <section className="ids">
             <div className="ids__head">
-              <h3>C // NASA PDS PRODUCT IDENTIFIERS</h3>
-              <span>FORMAT: PDS4 ARCHIVE STANDARDS</span>
+              <h3>B // DATA SOURCES</h3>
+              <span>{data ? data.track.horizon_model.toUpperCase().replace(/_/g, ' ') : 'NO TRACK'}</span>
             </div>
-            {pdsProducts.map((p) => (
-              <div className="ids__row" key={p.label}>
-                <strong>{p.label}</strong>
-                <span>{p.urn}</span>
+            {data?.terrain.dem_product && (
+              <div className="ids__row">
+                <strong>TERRAIN</strong>
+                <span>{data.terrain.dem_product}</span>
+              </div>
+            )}
+            {data?.terrain.source_dataset && (
+              <div className="ids__row">
+                <strong>DEM FILE</strong>
+                <span>{data.terrain.source_dataset}</span>
+              </div>
+            )}
+            <div className="ids__row">
+              <strong>COORDINATE</strong>
+              <span>{mission.coordinateProvenance}</span>
+            </div>
+            {mission.sources.map((s) => (
+              <div className="ids__row" key={s.url}>
+                <strong>{s.publisher.toUpperCase()}</strong>
+                <span>
+                  <a href={s.url} target="_blank" rel="noreferrer">
+                    {s.title}
+                  </a>
+                </span>
               </div>
             ))}
           </section>
 
-          <div className="verify">
-            <span className="verify__badge">
-              <img src={check} alt="" width={9.1} height={9.42} />
-            </span>
-            <div>
-              <strong>Deterministic Python Compute Boundary Verified</strong>
-              <p>Zero AI Hallucination · All values derived from NASA PDS archives via deterministic pipeline</p>
-            </div>
-          </div>
+          <p className="details__note">
+            Derived output computed by the HarnessApollo engine. Human scientific review is pending; this is not an
+            official NASA product.
+          </p>
         </div>
-
-        <footer className="modal__footer">
-          <span>HASH: SHA256-D7E2B89...419A</span>
-          <span className="modal__status">STATUS: VERIFIED PDS GOLD RECORD</span>
-        </footer>
       </div>
     </div>
   )
