@@ -122,6 +122,8 @@ function pulsePhase(offset: number): number {
 }
 
 const sprites = new Map<string, HTMLCanvasElement>()
+/** Sprites are drawn at 2x and displayed at half scale so they stay sharp on HiDPI screens. */
+const SPRITE = 2
 
 /** Soft radial glow with a bright core, drawn once per colour. */
 function glowSprite(css: string, ring = false): HTMLCanvasElement {
@@ -129,7 +131,7 @@ function glowSprite(css: string, ring = false): HTMLCanvasElement {
   const cached = sprites.get(key)
   if (cached) return cached
 
-  const size = 128
+  const size = 128 * SPRITE
   const c = document.createElement('canvas')
   c.width = c.height = size
   const g = c.getContext('2d')!
@@ -137,9 +139,9 @@ function glowSprite(css: string, ring = false): HTMLCanvasElement {
 
   if (ring) {
     g.strokeStyle = css
-    g.lineWidth = 3
+    g.lineWidth = 3 * SPRITE
     g.beginPath()
-    g.arc(mid, mid, mid - 6, 0, Math.PI * 2)
+    g.arc(mid, mid, mid - 6 * SPRITE, 0, Math.PI * 2)
     g.stroke()
   } else {
     const grad = g.createRadialGradient(mid, mid, 0, mid, mid, mid)
@@ -159,29 +161,30 @@ function bodySprite(kind: 'earth' | 'sun'): HTMLCanvasElement {
   const key = `body:${kind}`
   const cached = sprites.get(key)
   if (cached) return cached
-  const size = 128
+  const size = 128 * SPRITE
+  const k = SPRITE
   const c = document.createElement('canvas')
   c.width = c.height = size
   const g = c.getContext('2d')!
   const mid = size / 2
   if (kind === 'earth') {
-    const halo = g.createRadialGradient(mid, mid, 30, mid, mid, mid)
+    const halo = g.createRadialGradient(mid, mid, 30 * k, mid, mid, mid)
     halo.addColorStop(0, '#4aa3ff55')
     halo.addColorStop(1, '#4aa3ff00')
     g.fillStyle = halo
     g.fillRect(0, 0, size, size)
-    const body = g.createRadialGradient(mid - 12, mid - 12, 4, mid, mid, 32)
+    const body = g.createRadialGradient(mid - 12 * k, mid - 12 * k, 4 * k, mid, mid, 32 * k)
     body.addColorStop(0, '#9fd0ff')
     body.addColorStop(0.55, '#2a6fd6')
     body.addColorStop(1, '#0a2a66')
     g.fillStyle = body
     g.beginPath()
-    g.arc(mid, mid, 30, 0, Math.PI * 2)
+    g.arc(mid, mid, 30 * k, 0, Math.PI * 2)
     g.fill()
     g.fillStyle = '#3f9b5a99' // a hint of landmass
     g.beginPath()
-    g.ellipse(mid - 8, mid - 2, 11, 7, 0.5, 0, Math.PI * 2)
-    g.ellipse(mid + 12, mid + 10, 7, 5, -0.4, 0, Math.PI * 2)
+    g.ellipse(mid - 8 * k, mid - 2 * k, 11 * k, 7 * k, 0.5, 0, Math.PI * 2)
+    g.ellipse(mid + 12 * k, mid + 10 * k, 7 * k, 5 * k, -0.4, 0, Math.PI * 2)
     g.fill()
   } else {
     const grad = g.createRadialGradient(mid, mid, 0, mid, mid, mid)
@@ -283,11 +286,10 @@ export function MoonGlobe({
     })
     viewer.imageryLayers.addImageryProvider(remote)
 
-    if (startsCompact) {
-      // Cap the render resolution: phone GPUs struggle at full device pixel ratio.
-      viewer.useBrowserRecommendedResolution = false
-      viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, 1.5)
-    }
+    // Render at device pixels, not CSS pixels (Cesium's default), or HiDPI screens look blurry.
+    // Phone GPUs struggle at full ratio, so cap them lower.
+    viewer.useBrowserRecommendedResolution = false
+    viewer.resolutionScale = Math.min(window.devicePixelRatio || 1, startsCompact ? 1.5 : 2)
 
     const { scene } = viewer
     scene.backgroundColor = Color.BLACK
@@ -394,7 +396,7 @@ export function MoonGlobe({
           position,
           billboard: {
             image: glowSprite(tint, true),
-            scale: new CallbackProperty(() => 0.18 + 0.42 * pulsePhase(phaseOffset), false),
+            scale: new CallbackProperty(() => (0.18 + 0.42 * pulsePhase(phaseOffset)) / SPRITE, false),
             color: new CallbackProperty(
               () => Color.WHITE.withAlpha((1 - pulsePhase(phaseOffset)) * (active ? 0.9 : 0.55)),
               false,
@@ -410,7 +412,7 @@ export function MoonGlobe({
         position,
         billboard: {
           image: glowSprite(tint),
-          scale: (active ? 0.42 : lit ? 0.3 : 0.16) * (compact ? 1.35 : 1),
+          scale: ((active ? 0.42 : lit ? 0.3 : 0.16) * (compact ? 1.35 : 1)) / SPRITE,
           color: Color.WHITE.withAlpha(lit ? 1 : 0.35),
         },
         label: {
@@ -474,7 +476,7 @@ export function MoonGlobe({
     viewer.entities.add({
       id: 'body:earth',
       position: bodyPosition(eph.subEarth),
-      billboard: { image: bodySprite('earth'), scale: compact ? 0.55 : 0.7 },
+      billboard: { image: bodySprite('earth'), scale: (compact ? 0.55 : 0.7) / SPRITE },
       label: {
         text: 'EARTH',
         font: `${10 * LABEL_SS}px JetBrains Mono, monospace`,
@@ -488,7 +490,7 @@ export function MoonGlobe({
       viewer.entities.add({
         id: 'body:sun',
         position: bodyPosition(eph.subSolar),
-        billboard: { image: bodySprite('sun'), scale: compact ? 0.55 : 0.75 },
+        billboard: { image: bodySprite('sun'), scale: (compact ? 0.55 : 0.75) / SPRITE },
         label: {
           text: 'SUN',
           font: `${10 * LABEL_SS}px JetBrains Mono, monospace`,
