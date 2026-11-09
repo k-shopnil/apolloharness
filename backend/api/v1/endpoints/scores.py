@@ -299,7 +299,6 @@ def compute_site_score(
 
 
 @router.get("/sites/score", response_model=SiteScoreResponse)
-@router.get("/sites/scores", response_model=SiteScoreResponse)
 def get_site_score(
     response: Response,
     lat: float = Query(..., ge=-90.0, le=90.0, description="Latitude in degrees (-90 to +90)"),
