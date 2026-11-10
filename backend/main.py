@@ -83,7 +83,7 @@ def health_check():
         except Exception:
             count = None
 
-    is_healthy = bool(count is not None)
+    is_healthy = bool(count is not None and not KERNEL_STATUS.get("error"))
     return {
         "status": "healthy" if is_healthy else "degraded",
         "app_name": settings.app_name,
