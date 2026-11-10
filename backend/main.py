@@ -63,6 +63,17 @@ app.include_router(missions.router, prefix="/api/v1", tags=["missions"])
 app.include_router(sites.router, prefix="/api/v1", tags=["sites"])
 
 
+@app.get("/", tags=["root"])
+def root():
+    return {
+        "status": "online",
+        "app_name": settings.app_name,
+        "docs": "/docs",
+        "health": "/health",
+        "missions": "/api/v1/missions",
+    }
+
+
 @app.get("/api/v1/health", tags=["health"])
 @app.get("/health", tags=["health"])
 def health_check():
