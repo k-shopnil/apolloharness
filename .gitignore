@@ -50,3 +50,6 @@ data/illumination/*_EARTH.TIF
 
 # Event-day downloads of third-party challenge resources (docs/EVENT_DAY_PLAN.md)
 event_resources/
+
+# Confidential technical schematics (withheld until judging)
+docs/*.pdf

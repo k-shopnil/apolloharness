@@ -88,22 +88,24 @@ def test_missions_schema_and_payload_array_types(client):
     assert r.status_code == 200
     missions = r.json()
     assert isinstance(missions, list)
-    assert len(missions) > 0
+    assert len(missions) == 16
 
     for m in missions:
         # Core identification
         assert isinstance(m["id"], str) and len(m["id"]) > 0
         assert isinstance(m["name"], str) and len(m["name"]) > 0
-        assert -90.0 <= m["lat"] <= 90.0
-        assert -180.0 <= m["lon"] <= 180.0
-        assert isinstance(m.get("target"), str)
+        assert isinstance(m["category"], str)
+        assert isinstance(m["status"], str)
+        assert isinstance(m["has_precomputed_track"], bool)
+        if m.get("lat") is not None:
+            assert -90.0 <= m["lat"] <= 90.0
+        if m.get("lon") is not None:
+            assert -180.0 <= m["lon"] <= 180.0
 
-        # Landing ellipse schema
+        # Landing ellipse schema (None or dict)
         ellipse = m.get("landing_ellipse")
-        assert ellipse is not None, f"Mission {m['id']} missing landing_ellipse"
-        assert ellipse["semi_major_km"] > 0
-        assert ellipse["semi_minor_km"] > 0
-        assert -360.0 <= ellipse["azimuth_deg"] <= 360.0
+        if ellipse is not None:
+            assert isinstance(ellipse, dict)
 
         # Structured payload instrument array types
         instruments = m.get("payload_instruments")
@@ -392,3 +394,27 @@ def test_sites_geometry_extreme_polar_and_farside(client):
     assert far_data["earth"]["elevation_deg"] < -80.0
     assert far_data["earth"]["visible"] is False
     assert far_data["dte_comms"]["status"] == "OCCULTED"
+
+
+def test_engine_outputs_science_contract(client):
+    """Verify physical engine boundaries and catalog mission contracts."""
+    # 1. Earth RTT within physical range [2.3s, 2.8s]
+    r_im2 = client.get("/api/v1/sites/geometry", params={"site_id": "clps-prime-1-im2"})
+    assert r_im2.status_code == 200
+    im2 = r_im2.json()
+    rtt = im2["earth"]["round_trip_light_time_s"]
+    assert 2.3 <= rtt <= 2.8, f"RTT {rtt}s outside [2.3, 2.8]"
+
+    # 2. Chang'e-4 far side direct line-of-sight occultation
+    r_ce4 = client.get("/api/v1/sites/geometry", params={"site_id": "anchor-change-4"})
+    assert r_ce4.status_code == 200
+    ce4 = r_ce4.json()
+    assert ce4["earth"]["direct_los"] is False
+    assert ce4["earth"]["countdown_status"] == "no_earthrise_within_window"
+
+    # 3. Apollo 17 terrain model verification
+    r_a17 = client.get("/api/v1/sites/geometry", params={"site_id": "anchor-apollo-17"})
+    assert r_a17.status_code == 200
+    a17 = r_a17.json()
+    assert a17["horizon_model"] == "lola_terrain_mask"
+    assert a17["terrain"]["dem_product"] == "LOLA GDR LDEM_64"

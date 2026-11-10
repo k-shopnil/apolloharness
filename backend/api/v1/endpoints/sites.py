@@ -84,7 +84,9 @@ def custom_site(
     utc = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     try:
         from src.compute.site_evaluation import evaluate_custom_site
-        return evaluate_custom_site(lat, lon, utc, include_psr=include_psr, include_track=include_track)
+        res = evaluate_custom_site(lat, lon, utc, include_psr=include_psr, include_track=include_track)
+        res["schema"] = "apolloharness.site_geometry.v1"
+        return res
     except ValueError as exc:
         raise HTTPException(422, str(exc))
 

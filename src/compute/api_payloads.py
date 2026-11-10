@@ -44,23 +44,23 @@ def flatten_mission(record: dict[str, Any]) -> dict[str, Any]:
     touchdown = record.get("touchdown_utc")
     return {
         "id": record["id"],
-        "name": record["mission"],
-        "category": record.get("category"),
+        "name": record.get("mission") or record.get("name", record["id"]),
+        "category": record.get("category", "clps"),
         "provider": record.get("provider"),
         "lander": record.get("lander"),
-        "status": record.get("status"),
+        "status": record.get("status", "planned"),
         "target_site": record.get("target_site"),
-        "lat": site.get("latitude_deg"),
-        "lon": site.get("longitude_deg"),
-        "coordinate_type": site.get("coordinate_type"),
+        "lat": site.get("latitude_deg") if "latitude_deg" in site else record.get("lat"),
+        "lon": site.get("longitude_deg") if "longitude_deg" in site else record.get("lon"),
+        "coordinate_type": site.get("coordinate_type") or record.get("coordinate_type"),
         "target_feature": record.get("target_feature"),
-        "start_date": touchdown[:10] if touchdown else _full_date(record.get("target_date")),
+        "start_date": touchdown[:10] if touchdown else _full_date(record.get("target_date")) or record.get("start_date"),
         "touchdown_utc": touchdown,
-        "landing_ellipse": ellipse,  # null = unknown; never default it
+        "landing_ellipse": ellipse if ellipse is not None else record.get("landing_ellipse"),  # null = unknown; never default it
         "payload_summary": record.get("payload_summary"),
         "payload_instruments": [{"name": p["name"], "type": ", ".join(p.get("purpose", []))}
-                                for p in record.get("payloads", [])],
-        "has_precomputed_track": (TRACK_DIR / f"{record['id']}.json").is_file(),
+                                for p in record.get("payloads", [])] if record.get("payloads") else record.get("payload_instruments", []),
+        "has_precomputed_track": (TRACK_DIR / f"{record['id']}.json").is_file() if "has_precomputed_track" not in record else record["has_precomputed_track"],
         "sources": record.get("sources", []),
     }
 
