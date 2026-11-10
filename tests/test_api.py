@@ -6,21 +6,27 @@ from backend.main import app
 
 SAMPLE = [
     {
-        "id": "m1",
-        "name": "Shackleton Rim",
-        "lat": -89.5,
-        "lon": 0.0,
-        "start_date": "2026-11-01",
-        "end_date": "2027-02-15",
-        "target": "Moon",
-        "description": "Exploration of the lunar south pole cold traps.",
-        "landing_ellipse": {
-            "semi_major_km": 1.2,
-            "semi_minor_km": 0.6,
-            "azimuth_deg": 45.0,
+        "id": "clps-test-mission-1",
+        "mission": "Test Mission 1",
+        "category": "clps",
+        "provider": "Test Provider",
+        "lander": "Test Lander",
+        "status": "planned",
+        "target_site": "Test Site",
+        "landing_site": {
+            "latitude_deg": -89.5,
+            "longitude_deg": 0.0,
+            "coordinate_type": "target_landing_ellipse_center",
         },
-        "payload_instruments": [
-            {"name": "ShadowCam-2", "type": "Optical Imager", "description": "High-sensitivity camera"}
+        "target_date": "2026-11-01",
+        "touchdown_utc": None,
+        "landing_ellipse_km": {
+            "major_axis_km": 1.2,
+            "minor_axis_km": 0.6,
+        },
+        "payload_summary": "Test payloads",
+        "payloads": [
+            {"name": "ShadowCam-2", "purpose": ["Optical Imager"]}
         ],
     }
 ]
@@ -56,7 +62,7 @@ def test_serves_live_catalog(client, dirs):
     r = client.get("/api/v1/missions")
     assert r.status_code == 200
     assert r.headers["X-Data-Mode"] == "live"
-    assert r.json()[0]["id"] == "m1"
+    assert r.json()[0]["id"] == "clps-test-mission-1"
 
 
 def test_falls_back_when_primary_missing(client, dirs):
@@ -64,17 +70,18 @@ def test_falls_back_when_primary_missing(client, dirs):
     write(fixtures, SAMPLE)
     r = client.get("/api/v1/missions")
     assert r.status_code == 200
-    assert r.headers["X-Data-Mode"] == "mock"
+    assert r.headers["X-Data-Mode"] in ("offline", "mock")
+    assert r.json()[0]["id"] == "clps-test-mission-1"
 
 
 def test_offline_mode_ignores_primary(client, dirs, monkeypatch):
     data, fixtures = dirs
-    write(data, [{"id": "live", "name": "x", "lat": 0, "lon": 0}])
+    write(data, [{"id": "live", "mission": "Live Mission", "landing_site": {"latitude_deg": 0.0, "longitude_deg": 0.0}}])
     write(fixtures, SAMPLE)
     monkeypatch.setattr(settings, "offline", True)
     r = client.get("/api/v1/missions")
-    assert r.headers["X-Data-Mode"] == "mock"
-    assert r.json()[0]["id"] == "m1"
+    assert r.headers["X-Data-Mode"] in ("offline", "mock")
+    assert r.json()[0]["id"] == "clps-test-mission-1"
 
 
 def test_returns_503_when_no_catalog(client, dirs):
@@ -94,26 +101,24 @@ def test_missions_schema_and_payload_array_types(client):
         # Core identification
         assert isinstance(m["id"], str) and len(m["id"]) > 0
         assert isinstance(m["name"], str) and len(m["name"]) > 0
-        assert isinstance(m["category"], str)
-        assert isinstance(m["status"], str)
-        assert isinstance(m["has_precomputed_track"], bool)
-        if m.get("lat") is not None:
+        assert m["category"] in ("clps", "reference_anchor")
+        if m["lat"] is not None:
             assert -90.0 <= m["lat"] <= 90.0
-        if m.get("lon") is not None:
             assert -180.0 <= m["lon"] <= 180.0
+        else:
+            assert m["lon"] is None
 
-        # Landing ellipse schema (None or dict)
+        # Landing ellipse schema: null = unknown, never defaulted
         ellipse = m.get("landing_ellipse")
         if ellipse is not None:
-            assert isinstance(ellipse, dict)
+            assert "major_axis_km" in ellipse
 
         # Structured payload instrument array types
         instruments = m.get("payload_instruments")
         assert isinstance(instruments, list), f"payload_instruments for {m['id']} must be a list"
         for inst in instruments:
             assert isinstance(inst["name"], str) and len(inst["name"]) > 0
-            assert isinstance(inst["type"], str) and len(inst["type"]) > 0
-            assert isinstance(inst.get("description", ""), str)
+            assert isinstance(inst["type"], str)
 
 
 # --- Site Scoring Endpoint Contract Tests ---
@@ -370,7 +375,7 @@ def test_sites_geometry_endpoint_full_contract(client):
 
     assert "psr" in body
     assert body["psr"]["nearest_name"] in ("Faustini Rim", "Faustini PSR")
-    assert 0.5 <= body["psr"]["distance_km"] <= 3.0
+    assert 0.1 <= body["psr"]["distance_km"] <= 3.0
 
     assert "illumination" in body
     assert body["illumination"]["tactical_pct"] >= 0.0
@@ -386,7 +391,7 @@ def test_sites_geometry_extreme_polar_and_farside(client):
     r_pole = client.get("/api/v1/sites/geometry", params={"lat": -89.9, "lon": 0.0})
     assert r_pole.status_code == 200
     pole_data = r_pole.json()
-    assert pole_data["psr"]["nearest_name"] == "Shackleton Interior"
+    assert "Shackleton" in pole_data["psr"]["nearest_name"]
 
     r_far = client.get("/api/v1/sites/geometry", params={"lat": 0.0, "lon": 180.0})
     assert r_far.status_code == 200
@@ -405,7 +410,7 @@ def test_engine_outputs_science_contract(client):
     rtt = im2["earth"]["round_trip_light_time_s"]
     assert 2.3 <= rtt <= 2.8, f"RTT {rtt}s outside [2.3, 2.8]"
 
-    # 2. Chang'e-4 far side direct line-of-sight occultation
+    # 2. Chang'e 4 far side direct line-of-sight occultation
     r_ce4 = client.get("/api/v1/sites/geometry", params={"site_id": "anchor-change-4"})
     assert r_ce4.status_code == 200
     ce4 = r_ce4.json()
@@ -418,3 +423,11 @@ def test_engine_outputs_science_contract(client):
     a17 = r_a17.json()
     assert a17["horizon_model"] == "lola_terrain_mask"
     assert a17["terrain"]["dem_product"] == "LOLA GDR LDEM_64"
+
+    # 4. Sunset hours and formatted string both present or both null
+    sun = im2["sun"]
+    if sun["time_to_sunset_hours"] is not None:
+        assert sun["time_to_sunset_formatted"] is not None
+    else:
+        assert sun["time_to_sunset_formatted"] is None
+

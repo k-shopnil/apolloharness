@@ -71,6 +71,17 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -166,6 +177,17 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -268,6 +290,17 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -342,6 +375,17 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -437,6 +481,17 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps",
     "status_note": "NASA Moon Base page: planned launch late 2026. VIPER is not on Griffin-1; it moved to Blue Origin under CS-7 (NASA release 25-064).",
     "target_feature": {
@@ -525,6 +580,17 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -595,6 +661,17 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -699,6 +776,17 @@
         "accessed_utc": "2026-10-20T12:00:00Z"
       }
     ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    },
     "category": "clps"
   },
   {
@@ -761,7 +849,18 @@
         ]
       }
     ],
-    "category": "clps"
+    "category": "clps",
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-cs7-blue-origin-viper",
@@ -822,7 +921,18 @@
         ]
       }
     ],
-    "category": "clps"
+    "category": "clps",
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "clps-cs3-blue-ghost-2",
@@ -930,7 +1040,18 @@
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
     ],
-    "category": "clps"
+    "category": "clps",
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-apollo-11",
@@ -987,7 +1108,18 @@
         ],
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
-    ]
+    ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-apollo-17",
@@ -1052,7 +1184,18 @@
         ],
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
-    ]
+    ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-chandrayaan-3",
@@ -1143,7 +1286,18 @@
         ],
         "accessed_utc": "2026-10-31T12:00:00Z"
       }
-    ]
+    ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-change-4",
@@ -1211,7 +1365,18 @@
         ],
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
-    ]
+    ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   },
   {
     "id": "anchor-slim",
@@ -1273,6 +1438,17 @@
         ],
         "accessed_utc": "2026-10-30T12:00:00Z"
       }
-    ]
+    ],
+    "offline_analysis": {
+      "analysis_status": "not_computed_missing_scientific_products",
+      "tactical_sunlight_percent": null,
+      "annual_sunlight_percent": null,
+      "communications_uptime_percent": null,
+      "longest_blackout_hours": null,
+      "psr_distance_m": null,
+      "hourly_geometry": null,
+      "hourly_illumination": null,
+      "blackout_intervals": null
+    }
   }
 ]
