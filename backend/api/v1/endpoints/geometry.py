@@ -521,8 +521,8 @@ FRONTEND_TO_CANONICAL_ID = {
     "griffin-1": "clps-to20a-griffin-1",
     "bg-1": "clps-to19d-blue-ghost-1",
     "bg-2": "clps-cp12-draper",
-    "xl-1": "clps-cp11-im3",
-    "ls-1": "clps-cp22-im4",
+    "im-3": "clps-cp11-im3",
+    "im-4": "clps-cp22-im4",
 }
 
 
