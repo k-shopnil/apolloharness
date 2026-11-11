@@ -50,3 +50,7 @@ data/illumination/*_EARTH.TIF
 
 # Event-day downloads of third-party challenge resources (docs/EVENT_DAY_PLAN.md)
 event_resources/
+
+# Local planning notes (not part of the repo)
+issue8.md
+response8.md

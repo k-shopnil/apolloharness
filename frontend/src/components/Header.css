@@ -1,0 +1,120 @@
+.header {
+  flex: none;
+  height: var(--header-h);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px 1px;
+  background: rgba(9, 9, 11, 0.75);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  z-index: 10;
+}
+
+.header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--accent);
+}
+
+.header__name {
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.65px;
+}
+
+.header__tag {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.header__tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.header__tab {
+  padding: 5px 12px;
+  border-radius: 2px;
+  font-size: 11px;
+  line-height: 16.5px;
+  color: var(--text-dim);
+}
+
+.header__tab:hover {
+  color: var(--text-secondary);
+}
+
+.header__tab--active {
+  background: #fff;
+  color: #000;
+  font-weight: 700;
+}
+
+.header__status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  font-size: 10px;
+  line-height: 15px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.header__status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ok);
+}
+
+@media (max-width: 800px) {
+  .header {
+    /* A blurred backdrop over the WebGL globe is costly on phones and can blank it. */
+    background: var(--surface);
+    backdrop-filter: none;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 8px 12px;
+    row-gap: 8px;
+  }
+
+  .header__tag,
+  .header__status-text {
+    display: none;
+  }
+
+  .header__status {
+    padding: 5px 7px;
+  }
+
+  /* Tabs drop to their own row and scroll sideways if they overflow. */
+  .header__tabs {
+    order: 3;
+    width: 100%;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .header__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .header__tab {
+    flex: none;
+    padding: 8px 12px;
+    white-space: nowrap;
+  }
+}
