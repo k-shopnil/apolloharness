@@ -89,9 +89,9 @@ def compare_dates(
 def sensitivity(
     lat: float = Query(..., ge=-90.0, le=90.0),
     lon: float = Query(..., ge=-180.0, le=180.0),
-    utc: Optional[str] = Query(None),
+    utc: Optional[str] = Query(None, description="ISO 8601 UTC timestamp (defaults to current time)"),
 ):
-    utc_str = utc.strip() if utc else "2026-11-15T12:00:00Z"
+    utc_str = utc.strip() if utc else datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     cache_key = (round(lat, 4), round(lon, 4), utc_str)
     if cache_key in _SENSITIVITY_CACHE:
         return _SENSITIVITY_CACHE[cache_key]
