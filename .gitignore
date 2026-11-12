@@ -53,3 +53,7 @@ event_resources/
 
 # Confidential technical schematics (withheld until judging)
 docs/*.pdf
+
+# Local planning notes (not part of the repo)
+issue8.md
+response8.md

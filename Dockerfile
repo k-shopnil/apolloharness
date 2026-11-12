@@ -6,6 +6,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     curl \
+    git \
     libexpat1 \
     && rm -rf /var/lib/apt/lists/*
 
@@ -18,6 +19,7 @@ COPY src/ /app/src/
 COPY backend/ /app/backend/
 COPY data/ /app/data/
 COPY offline_fixtures/ /app/offline_fixtures/
+
 
 ENV PYTHONPATH=/app
 ENV PORT=8000

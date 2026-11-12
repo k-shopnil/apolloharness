@@ -54,12 +54,12 @@ def load_missions(force_reload: bool = False) -> tuple[list[dict[str, Any]], str
         except Exception:
             pass
     if fallback.exists():
-        return catalog_records(fallback), "mock"
-    raise FileNotFoundError("No mission catalog found in data/ or demo_fixtures/")
+        return catalog_records(fallback), "offline"
+    raise FileNotFoundError("No mission catalog found in data/ or offline_fixtures/")
 
 
-@router.get("/missions", response_model=list[Mission])
-def list_missions(response: Response):
+@router.get("/missions")
+def list_missions(response: Response) -> list[dict[str, Any]]:
     """Retrieve the authoritative catalog of CLPS, Artemis, and anchor lunar missions."""
     try:
         records, mode = load_missions()

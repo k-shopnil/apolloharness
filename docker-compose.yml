@@ -10,7 +10,6 @@ services:
       - ./backend:/app/backend
       - ./src:/app/src
       - ./data:/app/data
-      - ./demo_fixtures:/app/demo_fixtures
       - ./offline_fixtures:/app/offline_fixtures
     command: uvicorn backend.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/backend --timeout-graceful-shutdown 2
 

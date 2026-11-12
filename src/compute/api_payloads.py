@@ -31,6 +31,7 @@ CATALOG = DATA_DIR / "missions.json"
 ARTEMIS_REGIONS = DATA_DIR / "artemis_iii_regions.json"
 TRACK_DIR = DATA_DIR / "precomputed" / "tracks"
 SCHEMA = "apolloharness.site_geometry.v1"
+TRACK_SUMMARY_KEYS = ("sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction")
 
 
 def _full_date(value: str | None) -> str | None:
@@ -44,23 +45,23 @@ def flatten_mission(record: dict[str, Any]) -> dict[str, Any]:
     touchdown = record.get("touchdown_utc")
     return {
         "id": record["id"],
-        "name": record.get("mission") or record.get("name", record["id"]),
-        "category": record.get("category", "clps"),
+        "name": record["mission"],
+        "category": record.get("category"),
         "provider": record.get("provider"),
         "lander": record.get("lander"),
-        "status": record.get("status", "planned"),
+        "status": record.get("status"),
         "target_site": record.get("target_site"),
-        "lat": site.get("latitude_deg") if "latitude_deg" in site else record.get("lat"),
-        "lon": site.get("longitude_deg") if "longitude_deg" in site else record.get("lon"),
-        "coordinate_type": site.get("coordinate_type") or record.get("coordinate_type"),
+        "lat": site.get("latitude_deg"),
+        "lon": site.get("longitude_deg"),
+        "coordinate_type": site.get("coordinate_type"),
         "target_feature": record.get("target_feature"),
-        "start_date": touchdown[:10] if touchdown else _full_date(record.get("target_date")) or record.get("start_date"),
+        "start_date": touchdown[:10] if touchdown else _full_date(record.get("target_date")),
         "touchdown_utc": touchdown,
-        "landing_ellipse": ellipse if ellipse is not None else record.get("landing_ellipse"),  # null = unknown; never default it
+        "landing_ellipse": ellipse,  # null = unknown; never default it
         "payload_summary": record.get("payload_summary"),
         "payload_instruments": [{"name": p["name"], "type": ", ".join(p.get("purpose", []))}
-                                for p in record.get("payloads", [])] if record.get("payloads") else record.get("payload_instruments", []),
-        "has_precomputed_track": (TRACK_DIR / f"{record['id']}.json").is_file() if "has_precomputed_track" not in record else record["has_precomputed_track"],
+                                for p in record.get("payloads", [])],
+        "has_precomputed_track": (TRACK_DIR / f"{record['id']}.json").is_file(),
         "sources": record.get("sources", []),
     }
 
@@ -98,17 +99,30 @@ def _clean(value: Any) -> Any:
 
 
 def _terrain_summary(terrain: dict[str, Any]) -> dict[str, Any]:
-    keys = ("elevation_m", "dem_product", "dem_resolution_m", "horizon_model",
+    keys = ("elevation_m", "regional_slope_deg", "regional_slope_baseline_m",
+            "dem_product", "dem_resolution_m", "horizon_model",
             "horizon_incomplete_azimuths", "horizon_azimuths_filled_from_global", "status")
     return {k: terrain.get(k) for k in keys}
 
 
 def site_geometry(latitude_deg: float, longitude_deg: float, utc: str, *,
-                  include_psr: bool = True, duration_days: float = 29.530589) -> dict[str, Any]:
-    """Instantaneous Sun/Earth geometry, countdowns, DTE and PSR context for any point."""
+                  include_psr: bool = True, include_track: bool = False,
+                  duration_days: float = 29.530589) -> dict[str, Any]:
+    """Instantaneous Sun/Earth geometry, countdowns, DTE and PSR context for any point.
+
+    ``include_track=True`` adds ``track`` (the scrubber's column arrays over
+    ``duration_days``, same shape as a precomputed mission track) and
+    ``track_summary`` (same keys as ``mission_geometry``). The readout fields
+    are identical either way, so ``/sites/custom`` and ``/sites/geometry``
+    can share one parser.
+    """
     from .site_evaluation import evaluate_custom_site
     result = evaluate_custom_site(latitude_deg, longitude_deg, utc, duration_days=duration_days,
-                                  include_psr=include_psr, include_track=False)
+                                  include_psr=include_psr, include_track=include_track)
+    extra: dict[str, Any] = {}
+    if include_track:
+        track = result["track"]
+        extra = {"track": track, "track_summary": {k: track.get(k) for k in TRACK_SUMMARY_KEYS}}
     return _clean({
         "schema": SCHEMA,
         "source": "engine",
@@ -121,6 +135,7 @@ def site_geometry(latitude_deg: float, longitude_deg: float, utc: str, *,
         "psr": result["psr"],
         "horizon_model": result["horizon_model"],
         "terrain": _terrain_summary(result["terrain"]),
+        **extra,
     })
 
 
@@ -158,8 +173,7 @@ def mission_geometry(site_id: str, *, track_dir: str | Path = TRACK_DIR) -> dict
         "psr": track.get("psr") or {"status": "not_in_track"},
         "horizon_model": track["track"]["horizon_model"],
         "terrain": _terrain_summary(track.get("terrain") or {}),
-        "track_summary": {k: track["track"][k] for k in (
-            "sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction")},
+        "track_summary": {k: track["track"][k] for k in TRACK_SUMMARY_KEYS},
     })
 
 
