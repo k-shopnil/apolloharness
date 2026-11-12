@@ -422,6 +422,39 @@ def extract_horizon_mask_fast(
 
 
 POLAR_DEM_PRODUCT = "LOLA LDEM_80S_80MPP_ADJ (PGDA product 90)"
+_NO_SLOPE = {"regional_slope_deg": None, "regional_slope_baseline_m": None}
+
+
+def regional_slope(latitude_deg: float, longitude_deg: float,
+                   dem_path: str | Path = DEFAULT_DEM) -> dict[str, float | None]:
+    """Terrain slope from central differences one DEM pixel either side.
+
+    The baseline is two pixels: 160 m on the 80 m polar DEM, ~950 m on a
+    global LDEM_64 tile. This is a **regional** slope. It describes the
+    landscape, not the ground under a lander's feet, which needs metre-scale
+    data and is usually steeper; it must never be shown as a landing-safety
+    verdict. Same arithmetic as ``regional.DemArray.slope_deg``.
+    """
+    require(dem_path, "LOLA DEM")
+    with rasterio.open(dem_path) as ds:
+        _validate_dem_crs(ds)
+        x, y = cached_transformer(MOON_GEOGRAPHIC, ds.crs).transform(longitude_deg, latitude_deg)
+        pixel = float(min(abs(ds.transform.a), abs(ds.transform.e)))
+        xs = np.array([x + pixel, x - pixel, x, x])
+        ys = np.array([y, y, y + pixel, y - pixel])
+        rows, cols = _fractional_index(ds, xs, ys)
+        r0, c0 = max(int(np.floor(rows.min())) - 1, 0), max(int(np.floor(cols.min())) - 1, 0)
+        r1 = min(int(np.ceil(rows.max())) + 2, ds.height)
+        c1 = min(int(np.ceil(cols.max())) + 2, ds.width)
+        if r1 <= r0 or c1 <= c0:
+            return dict(_NO_SLOPE)
+        z = _Grid.from_window(ds, Window(c0, r0, c1 - c0, r1 - r0)).sample(xs, ys)
+    if not np.isfinite(z).all():
+        return dict(_NO_SLOPE)
+    dzdx = (z[0] - z[1]) / (2 * pixel)
+    dzdy = (z[2] - z[3]) / (2 * pixel)
+    return {"regional_slope_deg": round(float(np.degrees(np.arctan(np.hypot(dzdx, dzdy)))), 2),
+            "regional_slope_baseline_m": round(2 * pixel, 1)}
 
 
 def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
@@ -436,8 +469,13 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
     ``spherical_horizon`` so downstream countdowns state their weaker basis.
     """
     from . import global_terrain as gt
-    elevation = interpolate_elevation(latitude_deg, longitude_deg, dem_path)
-    product: str | None = POLAR_DEM_PRODUCT if elevation["status"] == "complete" else None
+    if is_installed(dem_path):
+        elevation = interpolate_elevation(latitude_deg, longitude_deg, dem_path)
+        product: str | None = POLAR_DEM_PRODUCT if elevation["status"] == "complete" else None
+    else:
+        elevation = {"elevation_m": None, "status": "product_not_installed"}
+        product = None
+    terrain_source: str | Path | None = dem_path if product is not None else None
     mask: HorizonMask | None = None
     status = elevation["status"]
     filled = 0
@@ -467,6 +505,7 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
                     coarse = None
             if coarse is not None and mask is None:
                 elevation, mask, product, status = coarse_elevation, coarse, gt.PRODUCT_NAME, "complete"
+                terrain_source = tile
                 if on_the_fly:
                     elevation["source_dataset"] = "ldem_64.img (on-the-fly site tile)"
             elif coarse is not None and np.array_equal(coarse.azimuth_deg, mask.azimuth_deg):
@@ -478,8 +517,12 @@ def evaluate_site_terrain(latitude_deg: float, longitude_deg: float,
                                    np.where(gaps, coarse.elevation_deg, mask.elevation_deg))
                 product = f"{POLAR_DEM_PRODUCT} + {gt.PRODUCT_NAME} (edge fill)"
     incomplete = 0 if mask is None else int(np.count_nonzero(~np.isfinite(mask.elevation_deg)))
+    slope = (regional_slope(latitude_deg, longitude_deg, terrain_source)
+             if terrain_source is not None and elevation.get("elevation_m") is not None
+             else dict(_NO_SLOPE))
     return {
         **elevation,
+        **slope,
         "status": status,
         "dem_product": product,
         "horizon_model": "lola_terrain_mask" if mask is not None else "spherical_horizon",

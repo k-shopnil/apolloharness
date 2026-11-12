@@ -200,3 +200,47 @@ class ArtemisRegionTests(unittest.TestCase):
         from src.compute.api_payloads import artemis_regions
         mouton = next(r for r in artemis_regions()["regions"] if r["name"] == "Mons Mouton")
         self.assertIn("clps-prime-1-im2", [s["id"] for s in mouton["catalog_sites_near_anchor"]])
+
+
+@unittest.skipUnless(REAL_DEM, "80 m polar DEM not present (run `git lfs pull`)")
+class SiteGeometryTrackAndSlopeTests(unittest.TestCase):
+    def test_include_track_adds_track_without_changing_the_readout(self) -> None:
+        args = (-84.79, 29.2, "2026-12-01T00:00:00Z")
+        plain = site_geometry(*args, include_psr=False)
+        tracked = site_geometry(*args, include_psr=False, include_track=True, duration_days=3)
+        self.assertNotIn("track", plain)
+        self.assertEqual(set(tracked) - set(plain), {"track", "track_summary"})
+        for key in ("sun", "earth", "terrain", "horizon_model", "utc", "schema"):
+            self.assertEqual(plain[key] if key not in ("sun", "earth") else plain[key]["elevation_deg"],
+                             tracked[key] if key not in ("sun", "earth")
+                             else tracked[key]["elevation_deg"], key)
+        columns = tracked["track"]["columns"]
+        self.assertEqual(len(columns["sun_unit_moon_pa"]), len(columns["utc"]))
+        self.assertEqual(set(tracked["track_summary"]),
+                         {"sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction"})
+        json.dumps(tracked, allow_nan=False)
+
+    def test_regional_slope_is_labelled_and_matches_vectorized_engine(self) -> None:
+        from src.compute.regional import DemArray
+        from src.compute.terrain import regional_slope
+        dem = DemArray()
+        for lat, lon in ((-84.79, 29.2), (-85.3, 53.3), (-89.45, -137.31)):
+            single = regional_slope(lat, lon)
+            self.assertEqual(single["regional_slope_baseline_m"], 160.0)
+            self.assertAlmostEqual(single["regional_slope_deg"],
+                                   float(dem.slope_deg(np.array([lat]), np.array([lon]))[0]), places=2)
+        terrain = site_geometry(-84.79, 29.2, "2026-12-01T00:00:00Z", include_psr=False)["terrain"]
+        self.assertEqual(terrain["regional_slope_baseline_m"], 160.0)
+        self.assertNotIn("slope_deg", terrain)  # never an unlabelled "slope" a UI could misread
+
+    def test_missing_polar_dem_falls_back_to_site_tiles(self) -> None:
+        import tempfile
+        from src.compute.terrain import evaluate_site_terrain
+        with tempfile.TemporaryDirectory() as tmp:
+            pointer = Path(tmp) / "LDEM_80S_80MPP_ADJ.TIF"
+            pointer.write_text("version https://git-lfs.github.com/spec/v1\noid sha256:0\nsize 1\n",
+                               encoding="utf-8")
+            result = evaluate_site_terrain(20.1911, 30.7723, pointer)  # Apollo 17 tile
+        self.assertEqual(result["dem_product"], "LOLA GDR LDEM_64")
+        self.assertEqual(result["horizon_model"], "lola_terrain_mask")
+        self.assertIsNotNone(result["regional_slope_deg"])

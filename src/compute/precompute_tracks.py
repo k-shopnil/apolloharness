@@ -70,6 +70,16 @@ def precompute_mission(mission: dict[str, Any], *, duration_days: float,
     }
 
 
+INDEX_PROVENANCE = {
+    "source_catalog": "../../missions.json",
+    "source_catalog_citations": "Per-record sources and coordinate_provenance in data/missions.json",
+    "ephemeris": "NASA/JPL NAIF kernels listed in src/acquire/verify_data.py",
+    "terrain": "NASA LRO LOLA products listed in data/validation/data_provenance.json",
+    "processing": "src/compute/precompute_tracks.py; locally generated Sun/Earth geometry and terrain horizons",
+    "scientific_status": "derived output; human scientific review pending",
+}
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--days", type=float, default=SYNODIC_MONTH_DAYS)
@@ -110,6 +120,7 @@ def main(argv: list[str] | None = None) -> int:
         unload_kernels()
     (args.output / "index.json").write_text(json.dumps({
         "schema": "apolloharness.track_index.v1",
+        "provenance": INDEX_PROVENANCE,
         "duration_days": args.days, "step_minutes": args.step_minutes, "missions": index,
     }, indent=2) + "\n", encoding="utf-8")
     return 0
