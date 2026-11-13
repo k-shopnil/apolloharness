@@ -11,6 +11,7 @@ rasters or the nested catalog schema:
     GET /api/v1/sites/geometry?site_id=     -> mission_geometry(site_id)
     GET /api/v1/sites/sensitivity?lat&lon&utc -> site_sensitivity(lat, lon, utc)
     GET /api/v1/artemis-regions             -> artemis_regions()
+    GET /api/v1/space-weather?site_id=      -> mission_space_weather(site_id)   (optional)
 
 Errors: ``ValueError`` for bad input (map to HTTP 422), ``LookupError`` for an
 unknown site or a site without a published coordinate/date (map to 404).
@@ -29,6 +30,7 @@ from .terrain import DATA_DIR
 
 CATALOG = DATA_DIR / "missions.json"
 ARTEMIS_REGIONS = DATA_DIR / "artemis_iii_regions.json"
+SPACE_WEATHER = DATA_DIR / "space_weather" / "donki_mission_windows.json"
 TRACK_DIR = DATA_DIR / "precomputed" / "tracks"
 SCHEMA = "apolloharness.site_geometry.v1"
 
@@ -84,6 +86,22 @@ def artemis_regions(path: str | Path = ARTEMIS_REGIONS) -> dict[str, Any]:
     ``anchor_relation``. Static file, safe to serve offline.
     """
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def mission_space_weather(site_id: str, *, path: str | Path = SPACE_WEATHER) -> dict[str, Any]:
+    """NASA DONKI space-weather events in a tracked mission's analysis window.
+
+    Static, committed data (``python -m src.acquire.space_weather`` rebuilds
+    it with ``NASA_API_KEY``), so it works offline and needs no key at
+    request time. Context only: catalogued SEP/CME events, not a dose at the
+    site (see ``caveat``). ``LookupError`` (404) for a site without a track.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    record = next((m for m in data["missions"] if m["mission_id"] == site_id), None)
+    if record is None:
+        raise LookupError(f"no space-weather window for {site_id!r} (no precomputed track)")
+    return {"schema": data["schema"], "source": data["source"], "caveat": data["caveat"],
+            "flares": data["flares"], "generated_utc": data["generated_utc"], **record}
 
 
 def _clean(value: Any) -> Any:

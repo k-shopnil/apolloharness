@@ -122,6 +122,7 @@ Exact sizes and SHA-256 values for every file are in
 | Path | What it is | Regenerate with |
 |---|---|---|
 | `data/missions.json` | Sourced mission catalog (16 records) | hand-curated, each fact has a source |
+| `data/space_weather/donki_mission_windows.json` | NASA DONKI SEP/CME events per mission analysis window (context only) | `python -m src.acquire.space_weather` (needs `NASA_API_KEY`) |
 | `data/artemis_iii_regions.json` | NASA's nine Artemis III candidate regions, anchored to IAU features | `python -m src.acquire.artemis_regions` |
 | `data/psr/iau_south_polar_craters.csv` | 176 IAU craters south of 70°S, used to name PSR host craters | `python -m src.acquire.usgs_nomenclature` |
 | `data/lola/tiles/index.json` | Tile centres and extents | `python -m src.compute.global_terrain` |
@@ -163,6 +164,22 @@ what the tests read, so you only need this file to re-run the validation.
 | Path | Size | Source | Get it |
 |---|---|---|---|
 | `cache/usgs/moon_nomenclature.zip` | 23.8 MB | [USGS Gazetteer of Planetary Nomenclature](https://asc-planetarynames-data.s3.us-west-2.amazonaws.com/MOON_nomenclature_center_pts.zip) | `python -m src.acquire.usgs_nomenclature` (downloads, verifies the pinned SHA-256, rebuilds the crater CSV) |
+
+## NASA API key (optional, `.env`)
+
+Only `python -m src.acquire.space_weather` (rebuilding the committed DONKI
+space-weather file) uses a NASA API key. Nothing else, including the API
+server, needs one at runtime.
+
+```sh
+cp .env.example .env      # .env is git-ignored
+# get a free key: https://api.nasa.gov/#signUp, then set NASA_API_KEY=... in .env
+```
+
+Without a key the script falls back to `DEMO_KEY` (30 requests/hour; one
+rebuild uses about 20). Never commit `.env`, never give the key a `VITE_`
+prefix (the frontend bundle is public), and never paste it into issues or
+PRs. Details: [DATA_SOURCES.md §9](DATA_SOURCES.md#9-nasa-api-portal-apinasagov-and-the-api-key).
 
 ## Built automatically on first use (git-ignored)
 
