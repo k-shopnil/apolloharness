@@ -68,8 +68,32 @@ class InventoryTests(unittest.TestCase):
         self.assertTrue(report["entries"])
         self.assertTrue(all(entry["citation_status"] in {"present", "present_as_derived"}
                             for entry in report["entries"]))
-        self.assertTrue(all(entry["human_review_status"] == "pending"
+        self.assertTrue(all(entry["human_review_status"] in {"pending", "accepted"}
                             for entry in report["entries"]))
+
+    def test_human_reviews_are_recorded_and_propagated(self) -> None:
+        """An accepted review needs a reviewer and date, and every artifact must agree with it."""
+        from src.ml.review_status import REVIEW_PATH, review_fields
+        reviews = json.loads(REVIEW_PATH.read_text(encoding="utf-8"))["reviews"]
+        for key, entry in reviews.items():
+            self.assertIn(entry["status"], {"pending", "accepted"}, key)
+            if entry["status"] == "accepted":
+                self.assertTrue(entry.get("reviewer") and entry.get("date"), key)
+        artifacts = {
+            "annual_illumination_validation": ("automated_comparison",),
+            "earth_visibility_validation": ("automated_comparison",),
+            "horizons_crosscheck": ("methodology",),
+        }
+        for name, keys in artifacts.items():
+            block = json.loads(Path(f"data/validation/{name}.json").read_text(encoding="utf-8"))
+            for k in keys:
+                block = block[k]
+            for field, value in review_fields(name).items():
+                self.assertEqual(block.get(field), value, f"{name}.{field}")
+        provenance = json.loads(Path("data/validation/data_provenance.json").read_text(encoding="utf-8"))
+        expected = review_fields("data_provenance")["human_review_status"]
+        self.assertEqual(provenance["review_policy"]["human_scientific_review"], expected)
+        self.assertTrue(all(e["human_review_status"] == expected for e in provenance["entries"]))
 
 
 class PointerHandlingTests(unittest.TestCase):

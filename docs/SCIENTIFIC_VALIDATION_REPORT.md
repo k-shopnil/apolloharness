@@ -13,11 +13,11 @@ their machine-readable outputs are in [`data/validation/`](../data/validation/).
 | Item | Status | Date |
 |---|---|---|
 | JPL Horizons ephemeris spot-check (Apollo 11, Chandrayaan-3, IM-2) | **Passed** | 2026-11-12 |
-| Horizons batch cross-check, 13 sites (`horizons_crosscheck.json`) | Pending review | |
-| NASA PGDA annual solar illumination comparison | Pending review | |
-| NASA PGDA Earth visibility comparison | Pending review | |
-| Data provenance audit, 11 datasets (`data_provenance.json`) | Pending review | |
-| CP-12 termination citation (secondary source: SpaceNews) | Pending decision | |
+| Horizons batch cross-check, 13 sites (`horizons_crosscheck.json`) | **Accepted** | 2026-11-12 |
+| NASA PGDA annual solar illumination comparison | **Accepted** | 2026-11-12 |
+| NASA PGDA Earth visibility comparison | **Accepted** | 2026-11-12 |
+| Data provenance audit, 11 datasets (`data_provenance.json`) | **Accepted** | 2026-11-12 |
+| CP-12 termination citation (secondary source: SpaceNews) | **Accepted** (secondary source; no NASA release located) | 2026-11-12 |
 | Simple Mode "50 km shadow" copy (≈115 km at 1° for a 2,000 m rim) | Pending decision | |
 
 ## 1. JPL Horizons ephemeris spot-check
@@ -105,19 +105,30 @@ Pipeline:
 python -c "from src.compute.spice_engine import *; load_kernels(); print(calculate_geometry(0.67416, 23.47314, '1969-07-20T20:17:00Z'))"
 ```
 
-## 2. Remaining review items
+## 2. Validation and provenance review
 
-These sections are filled in as each review is completed.
+Reviewed 2026-11-12 by `@Thirtha17`.
 
-- **Horizons batch cross-check:** review the query configuration and
-  residuals in [`horizons_crosscheck.json`](../data/validation/horizons_crosscheck.json).
-- **NASA PGDA comparisons:** review the method and limitations in
-  [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md), and the files
-  [`annual_illumination_validation.json`](../data/validation/annual_illumination_validation.json)
-  and [`earth_visibility_validation.json`](../data/validation/earth_visibility_validation.json).
-- **Data provenance:** review [DATA_SOURCES.md](DATA_SOURCES.md) and
-  [`data_provenance.json`](../data/validation/data_provenance.json),
-  including the SpaceNews-only citation for the CP-12 termination.
+- **Horizons batch cross-check: accepted.** The query configuration,
+  geometric-vs-apparent assumption and residuals in
+  [`horizons_crosscheck.json`](../data/validation/horizons_crosscheck.json)
+  agree with the manual spot-check in section 1.
+- **NASA PGDA solar illumination and Earth visibility: accepted.** The method,
+  results (test-set MAE 1.45 pp and 1.40 pp; R² 0.951 and 0.953) and stated
+  limitations in [ML_VALIDATION_REPORT.md](ML_VALIDATION_REPORT.md) are
+  accepted. The validation covers 85–90°S only. Sites north of 80°S use
+  `LDEM_64` and are outside its scope.
+- **Data provenance: accepted.** Every dataset in [DATA_SOURCES.md](DATA_SOURCES.md)
+  and [`data_provenance.json`](../data/validation/data_provenance.json) has a
+  cited source. The CP-12 termination remains sourced from SpaceNews, a
+  secondary source; this is accepted because no NASA release was located.
+
+Sign-offs are recorded in [`human_review.json`](../data/validation/human_review.json).
+The validation scripts read their review status from that file, so re-running
+them does not reset a review.
+
+### Still open
+
 - **Simple Mode copy:** decide whether to correct the "50 km shadow" text, or
   to compute shadow length as `height / tan(sun elevation)`.
 

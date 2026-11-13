@@ -1,0 +1,30 @@
+{
+  "schema": "apolloharness.human_review.v1",
+  "purpose": "Human scientific sign-off. Validation generators read their review status from here, so re-running them never resets a review. Statuses: pending | accepted.",
+  "reviews": {
+    "horizons_crosscheck": {
+      "status": "accepted",
+      "reviewer": "@Thirtha17",
+      "date": "2026-11-12",
+      "notes": "Manual Horizons spot-check of Apollo 11, Chandrayaan-3 and IM-2 agrees within 0.006 deg; batch cross-check methodology accepted. See docs/SCIENTIFIC_VALIDATION_REPORT.md."
+    },
+    "annual_illumination_validation": {
+      "status": "accepted",
+      "reviewer": "@Thirtha17",
+      "date": "2026-11-12",
+      "notes": "Method, results and stated limitations in docs/ML_VALIDATION_REPORT.md accepted."
+    },
+    "earth_visibility_validation": {
+      "status": "accepted",
+      "reviewer": "@Thirtha17",
+      "date": "2026-11-12",
+      "notes": "Method, results and stated limitations in docs/ML_VALIDATION_REPORT.md accepted."
+    },
+    "data_provenance": {
+      "status": "accepted",
+      "reviewer": "@Thirtha17",
+      "date": "2026-11-12",
+      "notes": "Source inventory in docs/DATA_SOURCES.md accepted. CP-12 termination: SpaceNews secondary citation accepted; no NASA release located."
+    }
+  }
+}

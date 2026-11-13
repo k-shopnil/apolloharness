@@ -53,8 +53,9 @@
     "reference_values": "Cached Horizons azimuth/elevation for each site/body/time.",
     "generated_values": "Production geometric positions and a separate SPICE apparent reproduction.",
     "difference": "Angular separation of unit vectors; geometric elevation absolute error and above-horizon sign agreement are also reported.",
-    "human_review_status": "pending",
-    "human_reviewer": "@Thirtha17"
+    "human_review_status": "accepted",
+    "human_reviewer": "@Thirtha17",
+    "human_review_date": "2026-11-12"
   },
   "automated_criteria": {
     "geometric_sun_max_separation_deg": 0.007,
