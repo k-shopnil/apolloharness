@@ -12,9 +12,9 @@
  "window_start_basis": "target_date",
  "frame": "MOON_PA; unit vectors point from the site to the body",
  "sun": {
-  "azimuth_deg": 90.23873835359348,
-  "elevation_deg": -0.7115635461942502,
-  "terrain_horizon_deg": -0.011041532196399431,
+  "azimuth_deg": 90.23873835360074,
+  "elevation_deg": -0.7115635461726494,
+  "terrain_horizon_deg": -0.011041532196144583,
   "is_lit": false,
   "time_to_sunset_hours": null,
   "time_to_sunset_formatted": null,
@@ -22,18 +22,18 @@
   "time_to_sunrise_formatted": "1h 28m",
   "countdown_status": "complete",
   "fraction_of_window_up": 0.4996476391825229,
-  "angular_radius_deg": 0.26943789229519804,
+  "angular_radius_deg": 0.269437892295198,
   "disk_visible_fraction": 0.0,
   "unit_vector_moon_pa": [
-   -0.8860896760885892,
-   0.4634405836033952,
-   -0.0082408372489352
+   -0.8860896760884048,
+   0.4634405836037476,
+   -0.008240837248935201
   ]
  },
  "earth": {
-  "azimuth_deg": 259.1693885683668,
-  "elevation_deg": 25.42137373841424,
-  "terrain_horizon_deg": 0.15836034711383803,
+  "azimuth_deg": 259.169388568376,
+  "elevation_deg": 25.42137373839297,
+  "terrain_horizon_deg": 0.1583603471138481,
   "direct_los": true,
   "time_to_earthset_hours": null,
   "time_to_earthset_formatted": null,
@@ -41,14 +41,14 @@
   "time_to_earthrise_formatted": null,
   "countdown_status": "no_earthset_within_window",
   "fraction_of_window_up": 1.0,
-  "angular_radius_deg": 1.0105934617305896,
+  "angular_radius_deg": 1.0105934617305883,
   "disk_visible_fraction": 1.0,
-  "range_km": 361223.72942491807,
-  "round_trip_light_time_s": 2.409825329394498,
+  "range_km": 361223.7294249186,
+  "round_trip_light_time_s": 2.4098253293945016,
   "unit_vector_moon_pa": [
-   0.9996292945226986,
-   -0.013098334456128657,
-   -0.023868539262540723
+   0.9996292945226933,
+   -0.013098334456527257,
+   -0.023868539262540654
   ]
  },
  "events": [
@@ -73,6 +73,8 @@
  "horizon_model": "lola_terrain_mask",
  "terrain": {
   "elevation_m": -3650.614013671875,
+  "regional_slope_deg": 0.05,
+  "regional_slope_baseline_m": 947.6,
   "dem_product": "LOLA GDR LDEM_64",
   "dem_resolution_m": 473.802,
   "horizon_model": "lola_terrain_mask",

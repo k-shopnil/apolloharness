@@ -12,9 +12,9 @@
  "window_start_basis": "touchdown_utc",
  "frame": "MOON_PA; unit vectors point from the site to the body",
  "sun": {
-  "azimuth_deg": 50.711835786659634,
-  "elevation_deg": 31.49320368971504,
-  "terrain_horizon_deg": 1.732149868329853,
+  "azimuth_deg": 50.71183578665883,
+  "elevation_deg": 31.49320368971548,
+  "terrain_horizon_deg": 1.7321498683298038,
   "is_lit": true,
   "time_to_sunset_hours": 258.7354736328125,
   "time_to_sunset_formatted": "10d 18h",
@@ -25,15 +25,15 @@
   "angular_radius_deg": 0.27158762579213014,
   "disk_visible_fraction": 1.0,
   "unit_vector_moon_pa": [
-   -0.7785745390445696,
-   -0.6275222647126714,
-   0.006123270483660127
+   -0.7785745390445785,
+   -0.6275222647126603,
+   0.0061232704836601095
   ]
  },
  "earth": {
-  "azimuth_deg": 190.33624366460523,
-  "elevation_deg": -39.18871839834252,
-  "terrain_horizon_deg": 1.1580142263026036,
+  "azimuth_deg": 190.3362436646042,
+  "elevation_deg": -39.18871839834262,
+  "terrain_horizon_deg": 1.1580142263026687,
   "direct_los": false,
   "time_to_earthset_hours": null,
   "time_to_earthset_formatted": null,
@@ -46,9 +46,9 @@
   "range_km": 395817.38912480447,
   "round_trip_light_time_s": 2.6406093853422057,
   "unit_vector_moon_pa": [
-   0.9917129592280786,
-   0.0971098190334699,
-   -0.08411355150256136
+   0.9917129592280799,
+   0.09710981903345581,
+   -0.08411355150256139
   ]
  },
  "events": [

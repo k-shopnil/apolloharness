@@ -12,9 +12,9 @@
  "window_start_basis": "touchdown_utc",
  "frame": "MOON_PA; unit vectors point from the site to the body",
  "sun": {
-  "azimuth_deg": 81.63648764078094,
-  "elevation_deg": 37.20511707484804,
-  "terrain_horizon_deg": 5.60119025579442,
+  "azimuth_deg": 81.63648764077504,
+  "elevation_deg": 37.205117074864916,
+  "terrain_horizon_deg": 5.601190255794805,
   "is_lit": true,
   "time_to_sunset_hours": 277.3043212890625,
   "time_to_sunset_formatted": "11d 13h",
@@ -25,15 +25,15 @@
   "angular_radius_deg": 0.27059155335616236,
   "disk_visible_fraction": 1.0,
   "unit_vector_moon_pa": [
-   0.22050249601256675,
-   0.9750276895734046,
-   -0.026450970064950813
+   0.22050249601286476,
+   0.9750276895733372,
+   -0.026450970064950806
   ]
  },
  "earth": {
-  "azimuth_deg": 296.32051612646006,
-  "elevation_deg": 68.1672502860214,
-  "terrain_horizon_deg": 3.981410823841847,
+  "azimuth_deg": 296.3205161264371,
+  "elevation_deg": 68.16725028600605,
+  "terrain_horizon_deg": 3.981410823839737,
   "direct_los": true,
   "time_to_earthset_hours": null,
   "time_to_earthset_formatted": null,
@@ -41,14 +41,14 @@
   "time_to_earthrise_formatted": null,
   "countdown_status": "no_earthset_within_window",
   "fraction_of_window_up": 1.0,
-  "angular_radius_deg": 0.9628568819412859,
+  "angular_radius_deg": 0.9628568819412856,
   "disk_visible_fraction": 1.0,
-  "range_km": 379130.6891368824,
-  "round_trip_light_time_s": 2.529287705675921,
+  "range_km": 379130.6891368826,
+  "round_trip_light_time_s": 2.529287705675922,
   "unit_vector_moon_pa": [
-   0.9936047907102581,
-   0.09972368273391856,
-   -0.05295948432159402
+   0.9936047907102886,
+   0.09972368273361362,
+   -0.052959484321594
   ]
  },
  "events": [
@@ -72,7 +72,7 @@
  },
  "horizon_model": "lola_terrain_mask",
  "terrain": {
-  "elevation_m": -913.1741638183521,
+  "elevation_m": -913.1741638183553,
   "regional_slope_deg": 7.22,
   "regional_slope_baseline_m": 947.6,
   "dem_product": "LOLA GDR LDEM_64",
