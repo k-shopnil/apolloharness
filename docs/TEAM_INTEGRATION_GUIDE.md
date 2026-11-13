@@ -571,8 +571,9 @@ Chandrayaan-3's computed local sunset (12d 3h after touchdown, about
   fixed ellipse.
 - Shadow length: a 2,000 m rim at 1° Sun elevation casts
   `2000 / tan(1°) ≈ 115 km` on flat ground. The Issue #8 "50 km shadow" text
-  corresponds to about 2.3°. Fix the copy, or tie the slider to `tan`
-  directly.
+  corresponds to about 2.3°. Resolved in the science review: the app does
+  not use the 50 km figure, and any shadow feature must compute
+  `height / tan(sun elevation)` directly.
 
 ## Downloading the global LOLA DEM (LDEM_64)
 
@@ -675,7 +676,7 @@ Items in the Issue #8 text that the pipeline deliberately does **not** follow
 | *(not in the issue)* Blue Moon MK1 "Endurance" | Added as `clps-blue-moon-mk1-endurance`: Shackleton Connecting Ridge, SCALPSS + LRA; no published coordinate or current date | NASA Moon Base page |
 | SLIM "proved the need for slope envelopes" | Reworded | SLIM tipped over because a main engine lost thrust during descent; the slope was a contributing factor, not the cause |
 | Apollo 11 "> 98% Earth visibility" | Not stated | Geometrically, Earth is visible 100% of the time at Tranquility Base; the pipeline reports the computed value |
-| "50 km shadow" at 1° | Flagged for the science review | See above |
+| "50 km shadow" at 1° | **Wrong.** About 115 km for a 2,000 m rim (50 km corresponds to ~2.3°). Not used in the app | `height / tan(sun elevation)`; science review resolved 2026-11-12 ([SCIENTIFIC_VALIDATION_REPORT.md](SCIENTIFIC_VALIDATION_REPORT.md)) |
 
 Pipeline limitations:
 

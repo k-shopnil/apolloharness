@@ -18,7 +18,7 @@ their machine-readable outputs are in [`data/validation/`](../data/validation/).
 | NASA PGDA Earth visibility comparison | **Accepted** | 2026-11-12 |
 | Data provenance audit, 11 datasets (`data_provenance.json`) | **Accepted** | 2026-11-12 |
 | CP-12 termination citation (secondary source: SpaceNews) | **Accepted** (secondary source; no NASA release located) | 2026-11-12 |
-| Simple Mode "50 km shadow" copy (≈115 km at 1° for a 2,000 m rim) | Pending decision | |
+| Simple Mode "50 km shadow" copy (≈115 km at 1° for a 2,000 m rim) | **Resolved**: not used in the app | 2026-11-12 |
 
 ## 1. JPL Horizons ephemeris spot-check
 
@@ -127,14 +127,16 @@ Sign-offs are recorded in [`human_review.json`](../data/validation/human_review.
 The validation scripts read their review status from that file, so re-running
 them does not reset a review.
 
-### Still open
-
-- **Simple Mode copy:** decide whether to correct the "50 km shadow" text, or
-  to compute shadow length as `height / tan(sun elevation)`.
+- **"50 km shadow" (Issue #8): resolved.** The figure appears only in the
+  Issue #8 brief. It does not appear in the app on `main` or on
+  `feature/frontend-systems`. The correct relation is
+  `shadow length = height / tan(sun elevation)`, which gives about 115 km for a
+  2,000 m rim at 1° (50 km corresponds to about 2.3°). Any future shadow
+  feature must compute the length this way and not reuse the Issue #8 number.
 
 ## Sign-off
 
 Final sign-off is given when every row in the status table reads "Passed"
 or "Accepted".
 
-Reviewer: `@Thirtha17` — Date: ________
+Reviewer: `@Thirtha17` — Date: 2026-11-12 — **All items passed or accepted.**

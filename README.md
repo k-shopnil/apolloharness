@@ -261,7 +261,7 @@ On day one, check the newly released resources against our data with
 
 #### 4. Scientific Review (`feature/research`) — `@Thirtha17`
 * [x] **JPL Horizons Ephemeris Spot-Check:** Cross-check SPICE Sun and Earth elevations for Apollo 11, Chandrayaan-3, and IM-2 against NASA JPL Horizons (target Δ < 0.1°). ✅ Done 2026-11-12: all 12 values agree within 0.006° (see [docs/SCIENTIFIC_VALIDATION_REPORT.md](docs/SCIENTIFIC_VALIDATION_REPORT.md)).
-* [ ] **Documentation Sign-off:** Complete review in `docs/SCIENTIFIC_VALIDATION_REPORT.md`.
+* [x] **Documentation Sign-off:** Complete review in `docs/SCIENTIFIC_VALIDATION_REPORT.md`. ✅ Signed off 2026-11-12: all validation and provenance items accepted.
 
 #### 5. Deployment / CI Notice
 * Automatic CD deployment to live Firebase Hosting is temporarily halted (`workflow 379013184` disabled manually) until the backend and frontend PRs are integrated and full builds pass cleanly.
