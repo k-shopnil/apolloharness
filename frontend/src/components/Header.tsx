@@ -2,6 +2,7 @@ import type { UIMode } from './SiteHud'
 import brandMark from '../assets/apollo-harness-mark.png'
 import teamEmblem from '../gateway/assets/chhaya_spinning_logo.svg'
 import teamWordmark from '../gateway/assets/chhaya_type.svg'
+import { ThinkingOrb } from 'thinking-orbs'
 import { Icon } from './Icon'
 import { useEngineStatus, wakeEngine, type EngineStatus } from '../data/api'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
@@ -118,7 +119,17 @@ function EngineBadge() {
       onClick={status === 'offline' ? () => void wakeEngine() : undefined}
       disabled={status !== 'offline'}
     >
-      <Icon name={e.icon} className="header__status-icon" />
+      {status === 'waking' ? (
+        <ThinkingOrb
+          state="connecting"
+          size={20}
+          theme="dark"
+          paused={window.matchMedia('(prefers-reduced-motion: reduce)').matches}
+          aria-hidden="true"
+        />
+      ) : (
+        <Icon name={e.icon} className="header__status-icon" />
+      )}
       <span className="header__status-text">{e.text}</span>
     </button>
   )

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
+import { ThinkingOrb } from 'thinking-orbs'
 import { useEngineStatus } from '../data/api'
-import { Icon } from './Icon'
 import './PleaseWait.css'
 
 interface Props {
@@ -28,11 +28,19 @@ export function PleaseWait({ task, live = false, compact = false }: Props) {
 
   const waking = live && engine === 'waking'
   const slow = seconds >= 8
+  const reduced = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   return (
     <div className={`wait${compact ? ' wait--compact' : ''}`} role="status" aria-live="polite">
       <p className="wait__line">
-        <Icon name="waking" className="wait__spin" />
+        <ThinkingOrb
+          className="wait__orb"
+          state={waking ? 'connecting' : live ? 'solving' : 'breathing'}
+          size={20}
+          theme="dark"
+          paused={reduced}
+          aria-hidden="true"
+        />
         <span>
           {waking ? 'Waking up the live engine…' : `${task}…`}
           {seconds >= 2 && <span className="wait__secs"> {seconds}s</span>}

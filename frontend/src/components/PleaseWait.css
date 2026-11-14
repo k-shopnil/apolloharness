@@ -14,13 +14,8 @@
   color: var(--text);
 }
 
-.wait__line .icon {
+.wait__orb {
   flex: none;
-  color: var(--amber);
-}
-
-.wait__spin {
-  animation: wait-spin 1.4s linear infinite;
 }
 
 .wait__secs {
@@ -29,7 +24,7 @@
 }
 
 .wait__why {
-  padding-left: 23px;
+  padding-left: 28px;
   font-size: 12.5px;
   line-height: 19px;
   color: var(--text-muted);
@@ -39,14 +34,3 @@
   font-size: 12.5px;
 }
 
-@keyframes wait-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .wait__spin {
-    animation: none;
-  }
-}
