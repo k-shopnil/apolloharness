@@ -158,6 +158,20 @@
   width: auto;
 }
 
+.header__github {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  margin-left: -6px;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.header__github:hover {
+  color: var(--text);
+}
+
 @keyframes header-swirl {
   to {
     transform: rotate(360deg);
@@ -243,5 +257,34 @@
   .header__tab {
     flex: none;
     font-size: 12.5px;
+  }
+}
+
+/* Small phones: logo, mode switch, engine status, team emblem and GitHub on one row. */
+@media (max-width: 430px) {
+  .header {
+    column-gap: 8px;
+  }
+
+  .header__brand img {
+    height: 18px;
+  }
+
+  .header__end {
+    gap: 6px;
+  }
+
+  .header__end .mode-switch button {
+    padding: 3px 7px;
+    font-size: 11px;
+  }
+
+  .header__team {
+    padding-left: 6px;
+  }
+
+  .header__github {
+    width: 26px;
+    margin-left: -4px;
   }
 }

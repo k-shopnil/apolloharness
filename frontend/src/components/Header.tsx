@@ -74,6 +74,17 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
           <img className="header__team-emblem" src={teamEmblem} alt="" width={22} height={24} />
           <img className="header__team-type" src={teamWordmark} alt="Team Chhayanautical" width={60} height={22} />
         </a>
+
+        <a
+          className="header__github"
+          href="https://github.com/k-shopnil/apolloharness"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Apollo Harness source code on GitHub"
+          title="Source code on GitHub"
+        >
+          <Icon name="github" size={18} />
+        </a>
       </div>
     </header>
   )
