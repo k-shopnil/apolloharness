@@ -110,7 +110,26 @@ p {
   overflow: hidden;
 }
 
-/* Status label: a coloured dot and quiet caps, no box. */
+/* Outlined status icons (components/Icon.tsx). The icon carries the colour
+   cue; the label text stays neutral so it is always easy to read. */
+.icon {
+  flex: none;
+  display: block;
+}
+
+[data-tone='ok'] > .icon {
+  color: var(--ok);
+}
+
+[data-tone='warn'] > .icon {
+  color: var(--amber);
+}
+
+[data-tone='bad'] > .icon {
+  color: var(--bad);
+}
+
+/* Status label: icon + quiet caps, no box. */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -124,16 +143,8 @@ p {
   white-space: nowrap;
 }
 
-.badge::before {
-  content: '';
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.badge--neutral::before {
-  background: var(--text-dim);
+.badge:not([data-tone]) > .icon {
+  color: var(--text-muted);
 }
 
 /* Micro label used for every section heading. */

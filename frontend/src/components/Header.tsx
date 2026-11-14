@@ -2,6 +2,7 @@ import type { UIMode } from './SiteHud'
 import brandMark from '../assets/apollo-harness-mark.png'
 import teamEmblem from '../gateway/assets/chhaya_spinning_logo.svg'
 import teamWordmark from '../gateway/assets/chhaya_type.svg'
+import { Icon } from './Icon'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
 import './Hud.css'
@@ -59,7 +60,7 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
         </div>
 
         <div className="header__status" title="Mission catalog and tracks are bundled with the app; no live server is used">
-          <span className="header__status-dot" />
+          <Icon name="database" className="header__status-icon" />
           <span className="header__status-text">Offline data</span>
         </div>
 

@@ -57,7 +57,7 @@
   color: var(--text-muted);
 }
 
-/* Status: coloured dot + text. */
+/* Status: tone-coloured icon + text (colours from index.css [data-tone]). */
 .hud__badge {
   display: inline-flex;
   align-items: center;
@@ -65,27 +65,6 @@
   align-self: flex-start;
   font-size: 12px;
   color: var(--text-secondary);
-}
-
-.hud__badge::before {
-  content: '';
-  flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.hud__badge[data-tone='ok']::before {
-  background: var(--ok);
-}
-
-.hud__badge[data-tone='warn']::before {
-  background: var(--amber);
-}
-
-.hud__badge[data-tone='bad']::before {
-  background: var(--bad);
 }
 
 .hud--sci {
@@ -217,7 +196,10 @@
 }
 
 .scrub__strip-label {
-  width: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  width: 60px;
   color: var(--text-dim);
   font-size: 11px;
   font-weight: 500;
@@ -328,6 +310,6 @@
   }
 
   .scrub__strip-label {
-    width: 36px;
+    width: 54px;
   }
 }

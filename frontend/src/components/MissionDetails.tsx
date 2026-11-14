@@ -7,6 +7,7 @@ import {
   type Mission,
 } from '../data/missions'
 import { fmtPct, horizonLabel, useTrack } from '../data/tracks'
+import { Icon } from './Icon'
 import './MissionDetails.css'
 
 interface MissionDetailsProps {
@@ -18,6 +19,8 @@ interface MissionDetailsProps {
 }
 
 const UNAVAILABLE = 'Unavailable'
+
+const CATEGORY_ICON = { volatiles: 'droplet', spectrometers: 'spectrum', rovers: 'rover', other: 'gauge' } as const
 
 export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenInspector }: MissionDetailsProps) {
   const lookup = useTrack(mission.id)
@@ -94,7 +97,12 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
         <div className="details__row">
           <h3 className="section-title">Light &amp; contact · 29.5 days</h3>
           {track && (
-            <span className="badge" title="Whether terrain was modelled for the horizon">
+            <span
+              className="badge"
+              data-tone={track.horizon_model === 'lola_terrain_mask' ? 'ok' : 'warn'}
+              title="Whether terrain was modelled for the horizon"
+            >
+              <Icon name="mountain" />
               {horizonLabel(track.horizon_model)}
             </span>
           )}
@@ -146,7 +154,10 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
             <div className="payload" key={p.name}>
               <div className="payload__top">
                 <strong>{p.name}</strong>
-                <span className={`tag tag--${p.category}`}>{categoryLabel[p.category]}</span>
+                <span className={`tag tag--${p.category}`}>
+                  <Icon name={CATEGORY_ICON[p.category]} size={14} />
+                  {categoryLabel[p.category]}
+                </span>
               </div>
               <span>{p.purpose.map((x) => x.replace(/_/g, ' ')).join(' · ')}</span>
             </div>

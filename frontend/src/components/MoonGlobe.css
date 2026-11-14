@@ -179,6 +179,12 @@
   font-weight: 500;
 }
 
+.site-card__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
 .site-card__row i {
   margin-left: 6px;
   font-style: normal;
