@@ -413,7 +413,8 @@
   "automated_comparison": {
     "status": "computed",
     "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
-    "human_review_status": "pending",
-    "human_reviewer": "@Thirtha17"
+    "human_review_status": "accepted",
+    "human_reviewer": "@Thirtha17",
+    "human_review_date": "2026-11-12"
   }
 }

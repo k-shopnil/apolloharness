@@ -32,6 +32,7 @@ from pathlib import Path
 import numpy as np
 
 from src.compute.terrain import DATA_DIR
+from src.ml.review_status import review_fields
 
 API = "https://ssd.jpl.nasa.gov/api/horizons.api"
 API_DOCUMENTATION = "https://ssd.jpl.nasa.gov/api/horizons.api-doc.html"
@@ -246,8 +247,7 @@ def run(*, refresh: bool = False) -> dict:
             "generated_values": "Production geometric positions and a separate SPICE apparent reproduction.",
             "difference": "Angular separation of unit vectors; geometric elevation absolute error "
                           "and above-horizon sign agreement are also reported.",
-            "human_review_status": "pending",
-            "human_reviewer": "@Thirtha17",
+            **review_fields("horizons_crosscheck"),
         },
         "automated_criteria": {
             "geometric_sun_max_separation_deg": 0.007,

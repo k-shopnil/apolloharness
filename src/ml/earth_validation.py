@@ -29,6 +29,7 @@ from ..compute import terrain
 from ..compute.regional import DemArray, body_tracks, horizon_lookup, site_frames, topocentric
 from ..compute.spice_engine import EARTH_RADIUS_KM
 from ..compute.terrain import DATA_DIR, PROJECT_ROOT
+from .review_status import review_fields
 from .validation import (
     _metrics, block_bootstrap, local_truth_range, nasa_illumination, sample_points,
     stratified_epochs, wedge_split,
@@ -113,8 +114,7 @@ def run(*, points: int = 800, epochs: int = 2000, seed: int = 20261031,
         "automated_comparison": {
             "status": "computed",
             "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
-            "human_review_status": "pending",
-            "human_reviewer": "@Thirtha17",
+            **review_fields("earth_visibility_validation"),
         },
     }
     output.parent.mkdir(parents=True, exist_ok=True)

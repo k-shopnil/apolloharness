@@ -40,6 +40,7 @@ from ..compute.regional import BodyTracks, DemArray, body_tracks, site_frames, t
 from ..compute.regional import disk_fraction, horizon_lookup
 from ..compute.spice_engine import SPICE_LOCK, SUN_RADIUS_KM, load_kernels
 from ..compute.terrain import DATA_DIR, MOON_GEOGRAPHIC, PROJECT_ROOT
+from .review_status import review_fields
 
 PRODUCT_85S = DATA_DIR / "illumination" / "AVGVISIB_85S_060M_201608.TIF"
 REPORT_PATH = PROJECT_ROOT / "data" / "validation" / "annual_illumination_validation.json"
@@ -311,8 +312,7 @@ def run_validation(*, points: int = 800, epochs: int = 2000, seed: int = 2026103
         "automated_comparison": {
             "status": "computed",
             "purpose": "Numerical comparison to the cited NASA raster; not scientific approval.",
-            "human_review_status": "pending",
-            "human_reviewer": "@Thirtha17",
+            **review_fields("annual_illumination_validation"),
         },
     }
 
