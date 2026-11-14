@@ -4,6 +4,8 @@ from typing import Optional
 from cachetools import TTLCache
 from fastapi import APIRouter, HTTPException, Query
 
+from backend.core.engine_gate import ENGINE_GATE
+
 from backend.api.v1.endpoints.geometry import (
     router as geometry_router,
     cached_site_geometry,
@@ -38,7 +40,8 @@ def custom_site(
     utc_str = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     try:
         from src.compute.api_payloads import site_geometry
-        return site_geometry(lat, lon, utc_str, include_psr=include_psr, include_track=include_track)
+        with ENGINE_GATE:
+            return site_geometry(lat, lon, utc_str, include_psr=include_psr, include_track=include_track)
     except ValueError as exc:
         raise HTTPException(422, detail=str(exc))
     except Exception as exc:
@@ -63,7 +66,8 @@ def compare_dates(
         raise HTTPException(404, detail=f"{site_id} has no published landing coordinate")
     try:
         from src.compute.site_evaluation import compare_launch_dates
-        return compare_launch_dates(lat, lon, date_a, date_b, duration_days=duration_days)
+        with ENGINE_GATE:
+            return compare_launch_dates(lat, lon, date_a, date_b, duration_days=duration_days)
     except ValueError as exc:
         raise HTTPException(422, detail=str(exc))
     except Exception as exc:
@@ -82,7 +86,8 @@ def sensitivity(
         return _SENSITIVITY_CACHE[cache_key]
     try:
         from src.compute.api_payloads import site_sensitivity
-        res = site_sensitivity(lat, lon, utc_str)
+        with ENGINE_GATE:
+            res = site_sensitivity(lat, lon, utc_str)
         _SENSITIVITY_CACHE[cache_key] = res
         return res
     except ValueError as exc:

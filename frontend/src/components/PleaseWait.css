@@ -1,0 +1,52 @@
+.wait {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 520px;
+}
+
+.wait__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.wait__line .icon {
+  flex: none;
+  color: var(--amber);
+}
+
+.wait__spin {
+  animation: wait-spin 1.4s linear infinite;
+}
+
+.wait__secs {
+  font-weight: 400;
+  color: var(--text-dim);
+}
+
+.wait__why {
+  padding-left: 23px;
+  font-size: 12.5px;
+  line-height: 19px;
+  color: var(--text-muted);
+}
+
+.wait--compact .wait__line {
+  font-size: 12.5px;
+}
+
+@keyframes wait-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wait__spin {
+    animation: none;
+  }
+}

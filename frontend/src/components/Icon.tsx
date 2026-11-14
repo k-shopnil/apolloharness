@@ -22,6 +22,18 @@ const PATHS = {
   level: 'M5 9.5h14M5 14.5h14',
   none: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM5.6 5.6l12.8 12.8',
   check: 'M4.5 12.5l4.5 4.5L19.5 6.5',
+  // Live engine: server with a status light
+  server: 'M4 4h16v6H4zM4 14h16v6H4zM8 7h.01M8 17h.01M12 7h4M12 17h4',
+  // Waking: circular arrow
+  waking: 'M20 12a8 8 0 1 1-2.3-5.7M20 4v4.5h-4.5',
+  // Custom point: map pin
+  pin: 'M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21zM12 7.5a2.3 2.3 0 1 0 0 4.6 2.3 2.3 0 0 0 0-4.6z',
+  // Dates
+  calendar: 'M4 6h16v14H4zM4 10h16M8 3.5V7M16 3.5V7',
+  // Events: rise / set arrows on a horizon
+  rise: 'M3 18h18M12 15V5M8 9l4-4 4 4',
+  set: 'M3 18h18M12 5v10M8 11l4 4 4-4',
+  close: 'M6 6l12 12M18 6L6 18',
 } as const
 
 export type IconName = keyof typeof PATHS

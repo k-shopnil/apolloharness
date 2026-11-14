@@ -58,6 +58,7 @@ const MOUSE_HINTS: [string, string][] = [
   ['Ctrl + drag  ·  Middle-drag', 'Tilt towards the horizon'],
   ['Shift + drag', 'Look around from where you are'],
   ['Click a pin', 'Open that mission'],
+  ['Click empty surface', 'Analyse that spot (live)'],
 ]
 
 const TOUCH_HINTS: [string, string][] = [
@@ -65,6 +66,7 @@ const TOUCH_HINTS: [string, string][] = [
   ['Pinch', 'Zoom'],
   ['Two fingers up / down', 'Tilt towards the horizon'],
   ['Tap a pin', 'Open that mission'],
+  ['Tap empty surface', 'Analyse that spot (live)'],
 ]
 
 interface Props {

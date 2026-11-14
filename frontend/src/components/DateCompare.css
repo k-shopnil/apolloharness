@@ -1,0 +1,229 @@
+
+.dates {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dates__lead {
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 24px;
+  color: var(--text-secondary);
+}
+
+.dates__form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px 18px;
+}
+
+.dates__field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dates__field--site {
+  flex: 1 1 280px;
+}
+
+.dates__field select,
+.dates__field input {
+  padding: 9px 12px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border-strong);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  color-scheme: dark;
+}
+
+.dates__go {
+  padding: 10px 18px;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.dates__go:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dates__note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 760px;
+  font-size: 12.5px;
+  line-height: 19px;
+  color: var(--text-dim);
+}
+
+.dates__note--error {
+  color: #fca5a5;
+}
+
+.dates__note .icon {
+  color: var(--amber);
+}
+
+.dates__spin {
+  animation: dates-spin 1.4s linear infinite;
+}
+
+@keyframes dates-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dates__result {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.dates__summary {
+  max-width: 760px;
+  font-size: 17px;
+  line-height: 28px;
+  color: #e4e4e7;
+}
+
+.dates__cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dates__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+}
+
+.dates__card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dates__card-label .icon {
+  color: var(--text-muted);
+}
+
+.dates__figures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.dates__figures div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dates__figures span {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dates__figures strong {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.dates__start {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 12.5px;
+  color: var(--text-secondary);
+}
+
+.dates__start span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dates__strips {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dates__axis {
+  display: flex;
+  justify-content: space-between;
+  padding-left: 70px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.dates__delta {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border: 1px solid var(--border-subtle);
+}
+
+.dates__delta div {
+  padding: 14px 18px;
+  border-left: 1px solid var(--border-subtle);
+}
+
+.dates__delta div:first-child {
+  border-left: 0;
+}
+
+.dates__delta dt {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.dates__delta dd {
+  margin: 4px 0 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@media (max-width: 800px) {
+  .dates__cards,
+  .dates__delta {
+    grid-template-columns: 1fr;
+  }
+
+  .dates__delta div {
+    border-left: 0;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  .dates__delta div:first-child {
+    border-top: 0;
+  }
+
+  .dates__field,
+  .dates__go {
+    flex: 1 1 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dates__spin {
+    animation: none;
+  }
+}

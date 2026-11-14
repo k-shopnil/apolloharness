@@ -36,6 +36,22 @@ static image shows.
 - `null` is shown as "Unavailable", never as 0. Only `actual_landing` coordinates are labelled as landing fixes.
 - No science value is hard-coded in the UI.
 
+## Live engine
+
+Precomputed data (catalog, mission tracks) is bundled with the site. The live engine on Render
+(`https://apolloharness-api.onrender.com`, FastAPI in `backend/`) is called only for work nobody
+precomputed:
+
+- **Custom point:** click empty lunar surface, or **Analyse a point** to type coordinates →
+  `/api/v1/sites/custom` (readout, events, terrain, PSR distance and a 29.5-day track for the HUD and scrubber).
+- **Two launch dates** (Compare tab) → `/api/v1/sites/compare-dates`.
+
+The header shows **Live engine**, **Starting live engine…** or **Offline data**. The lobby wakes the engine
+when the site opens, because the free instance sleeps after 15 idle minutes. Slow steps show a "please wait"
+with a timer; a cold start says so. With the engine unreachable, everything bundled keeps working.
+The URL is the default in `src/data/api.ts`; override it at build time with `VITE_API_URL`, or set it empty
+for an offline-only build.
+
 ## Offline
 
 Apart from the gateway backdrop (above): fonts, Cesium assets, coarse Moon tiles (levels 0-3), the catalog and the tracks are all bundled, so the app
@@ -50,4 +66,4 @@ they fail quietly when offline.
 - `src/Root.tsx` gateway / interface routing; `src/gateway/` the lobby and takeoff sequence
 - `src/components/` globe, HUD (`SiteHud`), scrubber (`TimelineScrubber`), compare, inspector
 
-Not built yet (needs the backend): live API client, click-to-pin, Date A vs Date B.
+- `src/data/api.ts` live-engine client and status; `src/components/CustomSiteDetails.tsx`, `PointForm.tsx`, `DateCompare.tsx`

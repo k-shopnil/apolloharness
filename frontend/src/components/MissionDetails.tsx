@@ -46,8 +46,10 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
 
   const psr = data?.psr
   const psrText =
-    psr?.distance_km === null || psr?.distance_km === undefined
-      ? UNAVAILABLE
+    psr?.status === 'outside_product_coverage'
+      ? 'Not covered (PSR map spans 80–90°S)'
+      : psr?.distance_km === null || psr?.distance_km === undefined
+        ? UNAVAILABLE
       : psr.inside_psr
         ? 'Inside a PSR'
         : `${psr.distance_km.toFixed(2)} km`

@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { MissionDetails } from './MissionDetails'
 import type { Mission } from '../data/missions'
 import './MissionDrawer.css'
@@ -10,9 +10,11 @@ interface MissionDrawerProps {
   onCompare: (mission: Mission) => void
   onOpenProvenance: () => void
   onOpenInspector?: (mission: Mission) => void
+  /** Shown instead of the mission details when the drawer holds a custom point. */
+  customPanel?: ReactNode
 }
 
-export function MissionDrawer({ mission, onClose, onCompare, onOpenProvenance, onOpenInspector }: MissionDrawerProps) {
+export function MissionDrawer({ mission, onClose, onCompare, onOpenProvenance, onOpenInspector, customPanel }: MissionDrawerProps) {
   const open = mission !== null
 
   useEffect(() => {
@@ -30,7 +32,8 @@ export function MissionDrawer({ mission, onClose, onCompare, onOpenProvenance, o
         </button>
       </div>
       <div className="drawer__scroll">
-        {mission && (
+        {mission?.kind === 'custom' && customPanel}
+        {mission && mission.kind !== 'custom' && (
           <MissionDetails
             key={mission.id}
             mission={mission}

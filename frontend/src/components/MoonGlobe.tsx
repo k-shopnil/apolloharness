@@ -4,6 +4,7 @@ import {
   Cartesian2,
   CallbackProperty,
   Cartesian3,
+  Cartographic,
   Color,
   Credit,
   Ellipsoid,
@@ -80,6 +81,10 @@ interface MoonGlobeProps {
   drawerOpen: boolean
   onSelect: (id: string) => void
   onCompare: () => void
+  /** Click on empty lunar surface: analyse that point (live engine). */
+  onPickPoint?: (lat: number, lon: number) => void
+  /** Opens the coordinate form (typed latitude / longitude). */
+  onOpenPointForm?: () => void
   /** Phone layout: smaller resolution, fewer labels, bigger tap targets. */
   compact: boolean
   hud: { target: string; readout: string }
@@ -236,6 +241,8 @@ export function MoonGlobe({
   drawerOpen,
   onSelect,
   onCompare,
+  onPickPoint,
+  onOpenPointForm,
   compact,
   hud,
   sample,
@@ -245,6 +252,8 @@ export function MoonGlobe({
   const viewerRef = useRef<Viewer | null>(null)
   const selectRef = useRef(onSelect)
   selectRef.current = onSelect
+  const pickRef = useRef(onPickPoint)
+  pickRef.current = onPickPoint
   const activeRef = useRef(activeId)
   activeRef.current = activeId
   const mounted = useRef(false)
@@ -310,7 +319,16 @@ export function MoonGlobe({
     handler.setInputAction((click: { position: Cartesian2 }) => {
       const picked = scene.pick(click.position)
       const id = defined(picked) ? picked.id?.id : undefined
-      if (typeof id === 'string' && /^(mission|pulse):/.test(id)) selectRef.current(id.slice(id.indexOf(':') + 1))
+      if (typeof id === 'string' && /^(mission|pulse):/.test(id)) {
+        selectRef.current(id.slice(id.indexOf(':') + 1))
+        return
+      }
+      // Empty lunar surface (not a pin, the Earth/Sun markers or a line): analyse that point.
+      if (defined(picked) || !pickRef.current) return
+      const surface = viewer.camera.pickEllipsoid(click.position, scene.globe.ellipsoid)
+      if (!surface) return
+      const c = Cartographic.fromCartesian(surface, scene.globe.ellipsoid)
+      pickRef.current(CesiumMath.toDegrees(c.latitude), CesiumMath.toDegrees(c.longitude))
     }, ScreenSpaceEventType.LEFT_CLICK)
 
     // Hovering a pin reveals its label; the selected pin's label is always on.
@@ -420,7 +438,7 @@ export function MoonGlobe({
         },
         label: {
           show: lit && active, // others label on hover only, to keep the globe readable
-          text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : ' (target)'}`,
+          text: m.kind === 'custom' ? `${m.name}\n${m.targetSite}` : `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : ' (target)'}`,
           font: `${active ? 600 : 500} ${12 * LABEL_SS}px Inter, system-ui, sans-serif`,
           scale: LABEL_SCALE,
           fillColor: active ? Color.WHITE : Color.fromCssColorString('#b4b4bb'),
@@ -639,9 +657,16 @@ export function MoonGlobe({
         }}
       />
       {children && <div className="globe__dock">{children}</div>}
-      <button type="button" className="globe__compare" onClick={onCompare}>
-        Compare sites
-      </button>
+      <div className="globe__actions">
+        {onOpenPointForm && (
+          <button type="button" className="globe__compare" onClick={onOpenPointForm}>
+            Analyse a point
+          </button>
+        )}
+        <button type="button" className="globe__compare" onClick={onCompare}>
+          Compare
+        </button>
+      </div>
       <p className="globe__readout">{hud.readout}</p>
     </div>
   )

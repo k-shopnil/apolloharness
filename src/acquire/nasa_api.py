@@ -21,6 +21,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+from .tls import context as _tls_context
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENV_FILE = PROJECT_ROOT / ".env"
@@ -76,7 +77,7 @@ def get_json(path: str, *, timeout: float = 90.0, env_file: Path = ENV_FILE,
     url = f"{shown}&{urllib.parse.urlencode({'api_key': key})}"
     request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
     try:
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout, context=_tls_context()) as response:
             body = response.read()
             remaining = response.headers.get("X-RateLimit-Remaining")
             return ApiResponse(json.loads(body) if body.strip() else [], response.status,

@@ -32,6 +32,7 @@ from pathlib import Path
 import numpy as np
 
 from src.compute.terrain import DATA_DIR
+from src.acquire.tls import context as _tls_context
 
 API = "https://ssd.jpl.nasa.gov/api/horizons.api"
 API_DOCUMENTATION = "https://ssd.jpl.nasa.gov/api/horizons.api-doc.html"
@@ -71,7 +72,7 @@ def _query(site: dict, body: str) -> str:
     }
     url = f"{API}?{urllib.parse.urlencode(params)}"
     request = urllib.request.Request(url, headers={"User-Agent": "ApolloHarness/1.0"})
-    with urllib.request.urlopen(request, timeout=120) as response:
+    with urllib.request.urlopen(request, timeout=120, context=_tls_context()) as response:
         return response.read().decode("utf-8")
 
 

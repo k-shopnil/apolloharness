@@ -16,6 +16,7 @@ import hashlib
 import shutil
 import urllib.request
 from pathlib import Path
+from .tls import context as _tls_context
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 URL = "https://asc-planetarynames-data.s3.us-west-2.amazonaws.com/MOON_nomenclature_center_pts.zip"
@@ -40,7 +41,7 @@ def ensure_archive(path: Path = ARCHIVE, *, allow_new_release: bool = False) -> 
         path.parent.mkdir(parents=True, exist_ok=True)
         partial = path.with_suffix(".partial")
         request = urllib.request.Request(URL, headers={"User-Agent": "ApolloHarness/1.0"})
-        with urllib.request.urlopen(request, timeout=60) as response, partial.open("wb") as out:
+        with urllib.request.urlopen(request, timeout=60, context=_tls_context()) as response, partial.open("wb") as out:
             shutil.copyfileobj(response, out, 1 << 20)
         partial.replace(path)
     actual = _sha256(path)
