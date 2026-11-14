@@ -3,8 +3,9 @@ name: Deploy Apollo Harness to Firebase
 # Builds the prototype app from frontend/ (Issue #8 §4.3) and deploys it to the
 # apolloharness Hosting site only. The team website (chhayanautical) deploys
 # from the team-website branch and is not touched by this workflow.
-# This workflow is currently disabled in the Actions tab; re-enable it once the
-# frontend PR is merged and the PR checks are green.
+# Every push to main ships to https://apolloharness.web.app (live channel).
+# Only the apolloharness site is deployed (--only via `target`), so the
+# chhayanautical team site is never touched from here.
 
 on:
   push:
