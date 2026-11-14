@@ -1,4 +1,5 @@
 import type { UIMode } from './SiteHud'
+import brandMark from '../assets/apollo-harness-mark.png'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
 import './Hud.css'
@@ -11,14 +12,25 @@ interface HeaderProps {
   onFilterChange: (filter: MissionFilter) => void
 }
 
+const MODE_LABEL: Record<UIMode, string> = { simple: 'Simple', scientific: 'Scientific' }
+
 export function Header({ mode, onModeChange, missions, filter, onFilterChange }: HeaderProps) {
   return (
     <header className="header">
-      <div className="header__brand">
-        <span className="header__dot" />
-        <span className="header__name">HARNESSAPOLLO</span>
-        <span className="header__tag">{'// CLPS LUNAR BROWSER'}</span>
-      </div>
+      <a
+        className="header__brand"
+        href="/"
+        aria-label="Apollo Harness: back to the lobby"
+        onClick={(e) => {
+          // Client-side: Root listens for popstate and swaps back to the gateway.
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
+          e.preventDefault()
+          window.history.pushState(null, '', '/')
+          window.dispatchEvent(new PopStateEvent('popstate'))
+        }}
+      >
+        <img src={brandMark} alt="Apollo Harness" width={157} height={28} />
+      </a>
 
       <nav className="header__tabs" aria-label="Mission filter">
         {filterTabs.map((tab) => (
@@ -29,22 +41,25 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
             aria-pressed={filter === tab.id}
             onClick={() => onFilterChange(tab.id)}
           >
-            {tab.label} ({missionsFor(missions, tab.id).length})
+            {tab.label}
+            <span className="header__count">{missionsFor(missions, tab.id).length}</span>
           </button>
         ))}
       </nav>
 
-      <div className="mode-switch" role="group" aria-label="Interface mode">
-        {(['simple', 'scientific'] as const).map((m) => (
-          <button key={m} type="button" aria-pressed={mode === m} onClick={() => onModeChange(m)}>
-            {m.toUpperCase()}
-          </button>
-        ))}
-      </div>
+      <div className="header__end">
+        <div className="mode-switch" role="group" aria-label="Interface mode">
+          {(['simple', 'scientific'] as const).map((m) => (
+            <button key={m} type="button" aria-pressed={mode === m} onClick={() => onModeChange(m)}>
+              {MODE_LABEL[m]}
+            </button>
+          ))}
+        </div>
 
-      <div className="header__status" title="Mission catalog and tracks are bundled with the app; no live server is used">
-        <span className="header__status-dot" />
-        <span className="header__status-text">BUNDLED DATA · OFFLINE</span>
+        <div className="header__status" title="Mission catalog and tracks are bundled with the app; no live server is used">
+          <span className="header__status-dot" />
+          <span className="header__status-text">Offline data</span>
+        </div>
       </div>
     </header>
   )

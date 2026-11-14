@@ -1,27 +1,33 @@
+/* Design system: one typeface (Inter, the lobby countdown face), black canvas,
+   hairline borders, sharp corners, colour only where it carries meaning. */
 :root {
   --bg: #000;
-  --surface: #09090b;
-  --surface-raised: #0e0e10;
-  --surface-control: #121214;
-  --surface-active: #0a0a0a;
-  --border: #27272a;
-  --border-subtle: #18181b;
-  --border-strong: #3f3f46;
+  --surface: #070708;
+  --surface-raised: #0c0c0e;
+  --surface-control: rgba(12, 12, 14, 0.78);
+  --surface-active: rgba(255, 255, 255, 0.045);
+  --border: rgba(255, 255, 255, 0.1);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.22);
   --text: #fff;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
-  --text-dim: #52525b;
+  --text-secondary: #b4b4bb;
+  --text-muted: #8a8a93;
+  --text-dim: #6b6b74;
   --accent: #ff4d00;
-  --ok: #22c55e;
-  --cyan: #00cfff;
-  --amber: #d4a017;
-  --signal: #4ade80;
+  --ok: #34d399;
+  --cyan: #38bdf8;
+  --amber: #fbbf24;
+  --signal: #34d399;
+  --bad: #f87171;
 
-  --font-ui: 'Liberation Mono', 'Courier New', ui-monospace, monospace;
-  --font-data: 'JetBrains Mono', ui-monospace, monospace;
-  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-ui: var(--font-sans);
+  --font-data: var(--font-sans);
 
-  --header-h: 48px;
+  --label-size: 10.5px;
+  --label-track: 0.08em;
+
+  --header-h: 56px;
   --sidebar-w: 360px;
 }
 
@@ -41,9 +47,22 @@ body,
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: var(--font-ui);
-  font-size: 11px;
+  font-family: var(--font-sans);
+  font-size: 12.5px;
+  line-height: 1.5;
+  font-feature-settings: 'cv11', 'ss01';
+  font-variant-numeric: tabular-nums;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
 button {
@@ -53,6 +72,21 @@ button {
   border: 0;
   padding: 0;
   cursor: pointer;
+}
+
+:focus-visible {
+  outline: 1px solid #fff;
+  outline-offset: 2px;
+}
+
+a {
+  color: inherit;
+  text-decoration-color: rgba(255, 255, 255, 0.3);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  text-decoration-color: #fff;
 }
 
 p {
@@ -76,29 +110,41 @@ p {
   overflow: hidden;
 }
 
+/* Status label: a coloured dot and quiet caps, no box. */
 .badge {
-  display: inline-block;
-  border: 1px solid var(--accent);
-  border-radius: 2px;
-  padding: 3px 7px;
-  font-size: 9px;
-  line-height: 13.5px;
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--label-size);
+  font-weight: 600;
+  line-height: 16px;
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
-.badge--neutral {
-  border-color: var(--border-strong);
-  color: var(--text-secondary);
+.badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
+.badge--neutral::before {
+  background: var(--text-dim);
+}
+
+/* Micro label used for every section heading. */
 .section-title {
-  font-weight: 700;
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 0.8px;
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--label-size);
+  line-height: 16px;
+  letter-spacing: var(--label-track);
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--text-muted);
 }
 
 .app {
@@ -112,8 +158,9 @@ p {
   flex: 1;
   min-width: 0;
   background: var(--bg);
-  font-size: 10px;
-  letter-spacing: 0.8px;
+  font-size: var(--label-size);
+  font-weight: 500;
+  letter-spacing: var(--label-track);
   color: var(--text-dim);
 }
 

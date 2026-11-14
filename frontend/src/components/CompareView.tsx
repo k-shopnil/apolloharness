@@ -25,13 +25,13 @@ export function CompareView({ missions, aId, bId, onChange, onBack }: CompareVie
       <div className="compare__inner">
         <div className="compare__bar">
           <button type="button" className="compare__back" onClick={onBack}>
-            ◀ BACK TO FLEET
+            ← All missions
           </button>
 
           <div className="compare__pickers">
-            <Picker missions={missions} label="SITE A" value={aId} other={bId} onChange={(id) => onChange(id, bId)} />
-            <span className="compare__vs">VS</span>
-            <Picker missions={missions} label="SITE B" value={bId} other={aId} onChange={(id) => onChange(aId, id)} />
+            <Picker missions={missions} label="Site A" value={aId} other={bId} onChange={(id) => onChange(id, bId)} />
+            <span className="compare__vs">vs</span>
+            <Picker missions={missions} label="Site B" value={bId} other={aId} onChange={(id) => onChange(aId, id)} />
           </div>
         </div>
 
@@ -42,12 +42,12 @@ export function CompareView({ missions, aId, bId, onChange, onBack }: CompareVie
 
         <div className="compare__matrix" role="table" aria-label="Comparison matrix">
           <div className="matrix__row matrix__row--head" role="row">
-            <span className="matrix__metric">METRIC</span>
+            <span className="matrix__metric">Metric</span>
             <span className="matrix__cell matrix__cell--head matrix__cell--accent">
-              {a.mission.name.toUpperCase()} · {a.mission.targetSite.toUpperCase()}
+              {a.mission.name}
             </span>
             <span className="matrix__cell matrix__cell--head">
-              {b.mission.name.toUpperCase()} · {b.mission.targetSite.toUpperCase()}
+              {b.mission.name}
             </span>
           </div>
           {rows.map((row, i) => (
@@ -58,7 +58,7 @@ export function CompareView({ missions, aId, bId, onChange, onBack }: CompareVie
         <section className="compare__brief">
           <header>
             <span className="compare__brief-dot" />
-            <h3>06 // PLAIN-LANGUAGE SCIENCE BRIEF</h3>
+            <h3>In plain language</h3>
           </header>
           <p>{brief}</p>
           <footer>
@@ -97,6 +97,8 @@ function Picker({
   )
 }
 
+const BADGE_TEXT: Record<string, string> = { LEADS: 'Leads', TRAILS: 'Trails', LEVEL: 'Level', 'NO TRACK': 'No track' }
+
 function MissionCard({ side, winner }: { side: CompareSide; winner: boolean }) {
   const { mission } = side
   return (
@@ -107,7 +109,7 @@ function MissionCard({ side, winner }: { side: CompareSide; winner: boolean }) {
           <h2>{mission.name}</h2>
           <p className="mission__target">{side.target}</p>
         </div>
-        <span className={`mission__badge${winner ? ' mission__badge--winner' : ''}`}>{side.badge}</span>
+        <span className={`mission__badge${winner ? ' mission__badge--winner' : ''}`}>{BADGE_TEXT[side.badge] ?? side.badge}</span>
       </div>
       {side.trackNote && <p className="mission__target">{side.trackNote}</p>}
     </article>
@@ -130,7 +132,7 @@ function MatrixRow({ row, tinted }: { row: CompareRow; tinted: boolean }) {
               <span className={won ? 'matrix__value--win' : undefined}>
                 {cell.value} <em>{cell.note}</em>
               </span>
-              {won && <span className="matrix__win">WIN</span>}
+              {won && <span className="matrix__win">Better</span>}
             </div>
             <div className="track track--thin">
               <div

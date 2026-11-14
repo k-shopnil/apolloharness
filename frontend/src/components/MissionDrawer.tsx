@@ -26,7 +26,7 @@ export function MissionDrawer({ mission, onClose, onCompare, onOpenProvenance, o
     <aside className={`drawer${open ? ' drawer--open' : ''}`} aria-hidden={!open} aria-label="Mission detail">
       <div className="drawer__bar">
         <button type="button" className="drawer__close" onClick={onClose} tabIndex={open ? 0 : -1}>
-          ◀ BACK TO FLEET
+          ← All missions
         </button>
       </div>
       <div className="drawer__scroll">

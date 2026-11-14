@@ -151,9 +151,10 @@
   opacity: 0;
 }
 
-/* ---- Countdown ---- */
+/* ---- Countdown: stacked vertically (T± over D / H / M / S), as on the live lobby ---- */
 .gw-countdown {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   gap: clamp(4px, 1vh, 14px);
   font-variant-numeric: tabular-nums;
@@ -451,18 +452,17 @@
     gap: 4px;
   }
 
-  /* Scale with the viewport so T± DD HH MM SS always fits on one line. */
   .gw-countdown__t {
-    font-size: min(40px, 7.4vw);
+    font-size: 40px;
   }
 
   .gw-countdown__val,
   .gw-countdown__unit {
-    font-size: min(48px, 9vw);
+    font-size: 48px;
   }
 
   .gw-countdown__val {
-    min-width: 1.32em;
+    min-width: 64px;
   }
 
   .gw-footer {
@@ -520,6 +520,19 @@
 
   .gw-countdown {
     gap: 3px;
+  }
+
+  .gw-countdown__t {
+    font-size: 34px;
+  }
+
+  .gw-countdown__val,
+  .gw-countdown__unit {
+    font-size: 42px;
+  }
+
+  .gw-countdown__val {
+    min-width: 56px;
   }
 
   .gw-brand__swirl {

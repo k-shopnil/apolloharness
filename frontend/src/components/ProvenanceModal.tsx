@@ -56,17 +56,17 @@ export function ProvenanceModal({ mission, onClose }: ProvenanceModalProps) {
       <div className="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="pds-title">
         <header className="modal__header">
           <div>
-            <p className="modal__eyebrow">EVIDENCE &amp; DATA PROVENANCE</p>
+            <p className="modal__eyebrow">Evidence &amp; data provenance</p>
             <h2 id="pds-title">{`// ${mission.name.toUpperCase()}`}</h2>
           </div>
           <button type="button" className="modal__close" onClick={onClose}>
-            [ ✕ CLOSE ]
+            Close
           </button>
         </header>
 
         <div className="modal__body">
           <section className="panel">
-            <h3>A // SUN &amp; EARTH ELEVATION (29.5-DAY WINDOW)</h3>
+            <h3>Sun &amp; Earth elevation · 29.5 days</h3>
             <p>
               {data
                 ? `Computed from SPICE ephemeris at ${mission.targetSite}. Cyan = Earth, amber = Sun; dashed line is 0° (horizon).`
@@ -77,36 +77,36 @@ export function ProvenanceModal({ mission, onClose }: ProvenanceModalProps) {
             {data && (
               <div className="chart chart--short">
                 <ElevationChart track={data.track} />
-                <span className="chart__label chart__label--bl">0° HORIZON</span>
-                <span className="chart__label chart__label--br">+29.5 DAYS</span>
+                <span className="chart__label chart__label--bl">0° horizon</span>
+                <span className="chart__label chart__label--br">+29.5 days</span>
               </div>
             )}
           </section>
 
           <section className="ids">
             <div className="ids__head">
-              <h3>B // DATA SOURCES</h3>
-              <span>{data ? horizonLabel(data.track.horizon_model).toUpperCase() : 'NO TRACK'}</span>
+              <h3>Data sources</h3>
+              <span>{data ? horizonLabel(data.track.horizon_model) : 'No track'}</span>
             </div>
             {data?.terrain.dem_product && (
               <div className="ids__row">
-                <strong>TERRAIN</strong>
+                <strong>Terrain</strong>
                 <span>{data.terrain.dem_product}</span>
               </div>
             )}
             {data?.terrain.source_dataset && (
               <div className="ids__row">
-                <strong>DEM FILE</strong>
+                <strong>DEM file</strong>
                 <span>{data.terrain.source_dataset}</span>
               </div>
             )}
             <div className="ids__row">
-              <strong>COORDINATE</strong>
+              <strong>Coordinate</strong>
               <span>{mission.coordinateProvenance}</span>
             </div>
             {mission.sources.map((s) => (
               <div className="ids__row" key={s.url}>
-                <strong>{s.publisher.toUpperCase()}</strong>
+                <strong>{s.publisher}</strong>
                 <span>
                   <a href={s.url} target="_blank" rel="noreferrer">
                     {s.title}

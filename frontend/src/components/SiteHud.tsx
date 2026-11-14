@@ -46,49 +46,49 @@ function SimplePanel({
 }) {
   const solar =
     s.sunLit === null
-      ? { tone: 'warn', text: 'UNKNOWN' }
+      ? { tone: 'warn', text: 'Unknown' }
       : !s.sunLit
-        ? { tone: 'bad', text: 'NO SUN' }
+        ? { tone: 'bad', text: 'No sun' }
         : s.sunDiskFraction !== null && s.sunDiskFraction < 1
-          ? { tone: 'warn', text: `PARTIAL (${pct(s.sunDiskFraction)} of the Sun visible)` }
-          : { tone: 'ok', text: 'FULL' }
+          ? { tone: 'warn', text: `Partial, ${pct(s.sunDiskFraction)} of the disc` }
+          : { tone: 'ok', text: 'Full' }
   const radio =
     s.earthLos === null
-      ? { tone: 'warn', text: 'UNKNOWN' }
+      ? { tone: 'warn', text: 'Unknown' }
       : !s.earthLos
-        ? { tone: 'bad', text: 'BLOCKED (Earth below the horizon)' }
+        ? { tone: 'bad', text: 'Blocked, Earth below the horizon' }
         : s.earthDiskFraction !== null && s.earthDiskFraction < 1
-          ? { tone: 'warn', text: 'MARGINAL (Earth partly behind terrain)' }
-          : { tone: 'ok', text: 'ACTIVE' }
+          ? { tone: 'warn', text: 'Marginal, Earth partly behind terrain' }
+          : { tone: 'ok', text: 'Active' }
   return (
     <div className="hud" data-mode="simple">
       <div className="hud__cell">
-        <span className="hud__label">SUNLIGHT</span>
+        <span className="hud__label">Sunlight</span>
         <strong className="hud__big">
           {sun.now === null
             ? 'Unavailable'
             : sun.now
-              ? `${when(sun.hoursToChange, left)} of sunlight remaining`
+              ? `${when(sun.hoursToChange, left)} of sunlight left`
               : `Sunrise in ${when(sun.hoursToChange, left)}`}
         </strong>
         <span className="hud__badge" data-tone={solar.tone}>
-          SOLAR POWER: {solar.text}
+          Solar power · {solar.text}
         </span>
       </div>
       <div className="hud__cell">
-        <span className="hud__label">EARTH CONTACT</span>
+        <span className="hud__label">Earth contact</span>
         <strong className="hud__big">
           {earth.now === null
             ? 'Unavailable'
             : earth.now
-              ? `Direct Earth contact: ACTIVE · ends in ${when(earth.hoursToChange, left)}`
-              : `Direct Earth contact: LOST · returns in ${when(earth.hoursToChange, left)}`}
+              ? `In contact for ${when(earth.hoursToChange, left)}`
+              : `Earth returns in ${when(earth.hoursToChange, left)}`}
         </strong>
         <span className="hud__badge" data-tone={radio.tone}>
-          RADIO LINK: {radio.text}
+          Radio link · {radio.text}
         </span>
         <span className="hud__sub">
-          Round-trip ping: {s.roundTripS === null ? 'Unavailable' : `${s.roundTripS.toFixed(2)} s`}
+          Round trip {s.roundTripS === null ? 'Unavailable' : `${s.roundTripS.toFixed(2)} s`}
         </span>
       </div>
     </div>
@@ -98,24 +98,24 @@ function SimplePanel({
 function ScientificPanel({ mission, data, sample: s }: { mission: Mission; data: TrackFile; sample: TrackSample }) {
   const vec = (v: [number, number, number] | null) => (v ? v.map((x) => x.toFixed(4)).join(', ') : 'Unavailable')
   const rows: [string, string][] = [
-    ['SUN AZ / EL', `${deg(s.sunAzimuthDeg)} / ${deg(s.sunElevationDeg, 2)}`],
-    ['SUN HORIZON', deg(s.sunHorizonDeg, 2)],
-    ['SUN MARGIN', deg(s.sunMarginDeg, 2)],
-    ['SUN DISC VISIBLE', pct(s.sunDiskFraction)],
-    ['EARTH AZ / EL', `${deg(s.earthAzimuthDeg)} / ${deg(s.earthElevationDeg, 2)}`],
-    ['EARTH HORIZON', deg(s.earthHorizonDeg, 2)],
-    ['EARTH MARGIN', deg(s.earthMarginDeg, 2)],
-    ['EARTH DISC VISIBLE', pct(s.earthDiskFraction)],
+    ['Sun az / el', `${deg(s.sunAzimuthDeg)} / ${deg(s.sunElevationDeg, 2)}`],
+    ['Sun horizon', deg(s.sunHorizonDeg, 2)],
+    ['Sun margin', deg(s.sunMarginDeg, 2)],
+    ['Sun disc visible', pct(s.sunDiskFraction)],
+    ['Earth az / el', `${deg(s.earthAzimuthDeg)} / ${deg(s.earthElevationDeg, 2)}`],
+    ['Earth horizon', deg(s.earthHorizonDeg, 2)],
+    ['Earth margin', deg(s.earthMarginDeg, 2)],
+    ['Earth disc visible', pct(s.earthDiskFraction)],
     [
-      'RANGE / RTT',
+      'Range / RTT',
       s.earthRangeKm === null || s.roundTripS === null
         ? 'Unavailable'
         : `${Math.round(s.earthRangeKm).toLocaleString('en-US')} km / ${s.roundTripS.toFixed(3)} s`,
     ],
-    ['SUN VECTOR (MOON_PA)', vec(s.sunUnit)],
-    ['EARTH VECTOR (MOON_PA)', vec(s.earthUnit)],
-    ['HORIZON MODEL', horizonLabel(data.track.horizon_model)],
-    ['DEM PRODUCT', data.terrain.dem_product ?? 'Unavailable'],
+    ['Sun vector (MOON_PA)', vec(s.sunUnit)],
+    ['Earth vector (MOON_PA)', vec(s.earthUnit)],
+    ['Horizon model', horizonLabel(data.track.horizon_model)],
+    ['DEM product', data.terrain.dem_product ?? 'Unavailable'],
   ]
   return (
     <div className="hud hud--sci" data-mode="scientific" aria-label={`Telemetry for ${mission.name}`}>

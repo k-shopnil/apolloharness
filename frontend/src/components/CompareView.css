@@ -3,16 +3,15 @@
   min-width: 0;
   overflow-y: auto;
   background: var(--bg);
-  font-family: var(--font-data);
 }
 
 .compare__inner {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 24px;
+  padding: 32px 40px 48px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 28px;
 }
 
 .compare__bar {
@@ -30,8 +29,9 @@
 }
 
 .compare__vs {
-  font-size: 10px;
-  letter-spacing: 1px;
+  align-self: flex-end;
+  padding-bottom: 9px;
+  font-size: 13px;
   color: var(--text-dim);
 }
 
@@ -39,43 +39,38 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-family: var(--font-ui);
 }
 
 .picker span {
-  font-size: 9px;
-  letter-spacing: 0.8px;
+  font-size: 12px;
   color: var(--text-dim);
 }
 
 .picker select {
-  min-width: 240px;
-  padding: 7px 10px;
-  background: var(--surface-control);
+  min-width: 260px;
+  padding: 9px 12px;
+  background: var(--surface-raised);
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-family: var(--font-ui);
-  font-size: 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 0;
+  font-family: inherit;
+  font-size: 13px;
 }
 
 .picker select:focus-visible {
-  outline: 1px solid var(--accent);
+  outline: 1px solid #fff;
 }
 
 .compare__back {
   align-self: flex-start;
-  padding: 7px 13px;
-  background: var(--surface-control);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  letter-spacing: 0.44px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
 }
 
 .compare__back:hover {
-  border-color: var(--border-strong);
+  color: var(--text);
 }
 
 .compare__cards {
@@ -89,14 +84,14 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: 32px;
-  padding: 25px;
+  gap: 16px;
+  padding: 24px 28px;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
 }
 
 .mission--winner {
-  border-color: var(--accent);
+  border-color: var(--border-strong);
 }
 
 .mission__top {
@@ -114,48 +109,49 @@
 }
 
 .mission__eyebrow {
-  font-weight: 600;
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 1px;
+  font-size: 13px;
   color: var(--text-muted);
-}
-
-.mission--winner .mission__eyebrow {
-  color: var(--accent);
 }
 
 .mission h2 {
   margin: 0;
   padding-top: 2px;
-  font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 24px;
+  font-size: 26px;
   line-height: 32px;
-  letter-spacing: -0.6px;
+  letter-spacing: -0.025em;
 }
 
 .mission__target {
-  font-size: 12px;
-  line-height: 16px;
-  color: var(--text-secondary);
-}
-
-.mission__badge {
-  padding: 5px 11px;
-  background: #000;
-  border: 1px solid var(--border);
-  font-weight: 700;
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 1px;
+  font-size: 13px;
+  line-height: 19px;
   color: var(--text-muted);
 }
 
+.mission__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 500;
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.mission__badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
 .mission__badge--winner {
-  background: rgba(255, 77, 0, 0.1);
-  border-color: var(--accent);
-  color: var(--accent);
+  color: var(--text);
+}
+
+.mission__badge--winner::before {
+  background: var(--accent);
 }
 
 .mission__score {
@@ -195,8 +191,8 @@
 }
 
 .track {
-  height: 6px;
-  background: var(--border);
+  height: 3px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .track__fill {
@@ -204,7 +200,7 @@
 }
 
 .track__fill--accent {
-  background: var(--accent);
+  background: #fff;
 }
 
 .track__fill--white {
@@ -212,14 +208,13 @@
 }
 
 .track__fill--dim {
-  background: var(--text-dim);
+  background: rgba(255, 255, 255, 0.28);
 }
 
 /* Matrix */
 .compare__matrix {
   min-width: 700px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   overflow-x: auto;
 }
 
@@ -227,8 +222,8 @@
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
   align-items: center;
-  padding: 16px 20px 17px;
-  border-bottom: 1px solid var(--border);
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
 }
 
 .matrix__row:last-child {
@@ -236,12 +231,11 @@
 }
 
 .matrix__row--head {
-  padding: 12px 20px 13px;
-  background: #000;
+  padding: 12px 24px;
 }
 
 .matrix__row--tint {
-  background: rgba(255, 77, 0, 0.02);
+  background: rgba(255, 255, 255, 0.015);
 }
 
 .matrix__metric {
@@ -250,24 +244,20 @@
   flex-direction: column;
   gap: 2px;
   padding-right: 16px;
-  font-size: 11px;
-  letter-spacing: 0.55px;
-  color: var(--text-secondary);
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
 .matrix__metric span {
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 0.5px;
-  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--text-dim);
 }
 
 .matrix__metric strong {
-  font-family: var(--font-sans);
   font-weight: 600;
-  font-size: 14px;
-  line-height: 20px;
-  letter-spacing: 0.35px;
+  font-size: 15px;
+  line-height: 21px;
   color: var(--text);
 }
 
@@ -275,9 +265,9 @@
   grid-column: span 4;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding-left: 21px;
-  border-left: 1px solid var(--border);
+  gap: 10px;
+  padding-left: 24px;
+  border-left: 1px solid var(--border-subtle);
 }
 
 .matrix__cell:nth-child(2) {
@@ -289,44 +279,54 @@
 }
 
 .matrix__cell--head {
-  font-size: 11px;
-  line-height: 16.5px;
-  letter-spacing: 0.55px;
-  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .matrix__cell--accent {
-  font-weight: 700;
-  color: var(--accent);
+  color: var(--text);
 }
 
 .matrix__value {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 12px;
-  line-height: 16px;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 21px;
   color: var(--text-secondary);
 }
 
 .matrix__value em {
+  margin-left: 6px;
   font-style: normal;
-  color: var(--text-muted);
+  font-weight: 400;
+  font-size: 12px;
+  color: var(--text-dim);
 }
 
 .matrix__value--win {
-  font-weight: 500;
   color: var(--text);
 }
 
 .matrix__win {
-  padding: 3px 7px;
-  border: 1px solid var(--accent);
-  font-weight: 700;
-  font-size: 9px;
-  line-height: 13.5px;
-  letter-spacing: 0.45px;
-  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.matrix__win::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
 }
 
 /* Brief */
@@ -334,51 +334,45 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  gap: 14px;
+  padding: 4px 0 0;
 }
 
 .compare__brief header {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding-bottom: 13px;
-  border-bottom: 1px solid var(--border);
 }
 
 .compare__brief-dot {
-  width: 8px;
-  height: 8px;
-  background: var(--accent);
+  display: none;
 }
 
 .compare__brief h3 {
   margin: 0;
-  font-weight: 700;
-  font-size: 12px;
+  font-weight: 600;
+  font-size: var(--label-size);
   line-height: 16px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
+  color: var(--text-muted);
 }
 
 .compare__brief p {
-  max-width: 1024px;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  line-height: 22.75px;
-  color: #d4d4d8;
+  max-width: 760px;
+  font-size: 17px;
+  line-height: 28px;
+  color: #e4e4e7;
 }
 
 .compare__brief footer {
   display: flex;
   justify-content: space-between;
   gap: 16px;
-  padding-top: 17px;
-  border-top: 1px solid var(--border);
-  font-size: 11px;
-  line-height: 16px;
-  color: var(--text-muted);
+  max-width: 760px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--text-dim);
 }
 
 .compare__brief footer em {
@@ -388,8 +382,8 @@
 
 @media (max-width: 800px) {
   .compare__inner {
-    padding: 12px;
-    gap: 16px;
+    padding: 16px;
+    gap: 20px;
   }
 
   .compare__bar {
@@ -470,8 +464,8 @@
   }
 
   .matrix__cell--head {
-    font-size: 9px;
-    line-height: 13px;
+    font-size: 12px;
+    line-height: 16px;
   }
 
   .matrix__value {

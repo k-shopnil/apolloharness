@@ -27,20 +27,14 @@ const MoonGlobe = lazy(() => import('./components/MoonGlobe').then((m) => ({ def
 
 type Screen = 'fleet' | 'site' | 'compare'
 
-const FILTER_NOTE: Record<MissionFilter, string> = {
-  all: '',
-  volatiles: ' // VOLATILE PAYLOAD FILTER',
-  spectrometers: ' // SPECTROMETER PAYLOAD FILTER',
-  rovers: ' // ROVER PAYLOAD FILTER',
-}
-
 /** Globe HUD text, derived from the selected mission and the catalog only. */
-function hudFor(mission: Mission | null, filter: MissionFilter): { target: string; readout: string } {
-  if (!mission) return { target: `LUNAR MISSION CATALOG${FILTER_NOTE[filter]}`, readout: '' }
-  const coord = isLocated(mission) ? formatCoords(mission.lat, mission.lon) : 'NO COORDINATE PUBLISHED'
+function hudFor(mission: Mission | null): { target: string; readout: string } {
+  if (!mission) return { target: 'Lunar mission catalog', readout: '' }
+  const coord = isLocated(mission) ? formatCoords(mission.lat, mission.lon) : 'No coordinate published'
+  const kind = mission.coordinateType.replace(/_/g, ' ')
   return {
-    target: `TARGET: ${mission.targetSite.toUpperCase()}${FILTER_NOTE[filter]}`,
-    readout: `${coord}  |  ${mission.coordinateType.replace(/_/g, ' ').toUpperCase()}`,
+    target: mission.targetSite,
+    readout: `${coord} · ${kind.charAt(0).toUpperCase()}${kind.slice(1)}`,
   }
 }
 
@@ -72,9 +66,9 @@ export default function App() {
     return (
       <div className="app">
         <div className="globe globe--loading" role="alert">
-          COULD NOT LOAD MISSION CATALOG ({loadError}).{' '}
+          Could not load the mission catalog ({loadError}).{' '}
           <button type="button" onClick={() => setAttempt((n) => n + 1)}>
-            RETRY
+            Retry
           </button>
         </div>
       </div>
@@ -83,7 +77,7 @@ export default function App() {
   if (!missions) {
     return (
       <div className="app">
-        <div className="globe globe--loading">LOADING MISSION CATALOG…</div>
+        <div className="globe globe--loading">Loading mission catalog…</div>
       </div>
     )
   }
@@ -149,7 +143,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
       <main className="app__main" data-screen={screen}>
         {screen === 'fleet' && (
           <>
-            <Suspense fallback={<div className="globe globe--loading">LOADING LUNAR SURFACE…</div>}>
+            <Suspense fallback={<div className="globe globe--loading">Loading lunar surface…</div>}>
               <MoonGlobe
                 missions={located}
                 highlightIds={highlightIds}
@@ -158,7 +152,7 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
                 onSelect={selectMission}
                 onCompare={() => openCompare()}
                 compact={compact}
-                hud={hudFor(missions.find((m) => m.id === activeId) ?? null, filter)}
+                hud={hudFor(missions.find((m) => m.id === activeId) ?? null)}
                 sample={isLocated(activeMission!) ? sample : null}
               >
                 {trackData && sample && activeMission && isLocated(activeMission) ? (
@@ -169,10 +163,10 @@ function Workspace({ missions, trackIds }: { missions: Mission[]; trackIds: Read
                 ) : (
                   <div className="hud hud--note">
                     {trackLookup.state === 'loading'
-                      ? 'LOADING TRACK…'
+                      ? 'Loading track…'
                       : trackLookup.state === 'ready'
-                        ? 'NO COORDINATE PUBLISHED · nothing to compute.'
-                        : `UNAVAILABLE · ${trackLookup.reason}`}
+                        ? 'No coordinate published, so there is nothing to compute.'
+                        : `Unavailable: ${trackLookup.reason}`}
                   </div>
                 )}
               </MoonGlobe>

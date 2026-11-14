@@ -62,7 +62,7 @@ export function Root() {
     <Suspense
       fallback={
         <div className="app">
-          <div className="globe globe--loading">PREPARING MISSION INTERFACE…</div>
+          <div className="globe globe--loading">Preparing mission interface…</div>
         </div>
       }
     >

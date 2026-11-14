@@ -358,7 +358,7 @@ export function MoonGlobe({
         position: Cartesian3.fromDegrees(95, lat, 1000),
         label: {
           text: label,
-          font: `${10 * LABEL_SS}px JetBrains Mono, monospace`,
+          font: `500 ${11 * LABEL_SS}px Inter, system-ui, sans-serif`,
           scale: LABEL_SCALE,
           fillColor: Color.WHITE.withAlpha(0.35),
           style: LabelStyle.FILL,
@@ -418,13 +418,13 @@ export function MoonGlobe({
         label: {
           show: lit && active, // others label on hover only, to keep the globe readable
           text: `${m.name}\n${m.targetSite}${m.isLandingFix ? '' : ' (target)'}`,
-          font: `${active ? 'bold ' : ''}${11 * LABEL_SS}px JetBrains Mono, monospace`,
+          font: `${active ? 600 : 500} ${12 * LABEL_SS}px Inter, system-ui, sans-serif`,
           scale: LABEL_SCALE,
-          fillColor: active ? ACCENT : Color.fromCssColorString('#aaaaaa'),
+          fillColor: active ? Color.WHITE : Color.fromCssColorString('#b4b4bb'),
           style: LabelStyle.FILL,
           showBackground: true,
-          backgroundColor: Color.BLACK.withAlpha(0.7),
-          backgroundPadding: new Cartesian2(6 * LABEL_SS, 4 * LABEL_SS),
+          backgroundColor: Color.BLACK.withAlpha(0.72),
+          backgroundPadding: new Cartesian2(8 * LABEL_SS, 5 * LABEL_SS),
           pixelOffset: new Cartesian2(14, -4),
           horizontalOrigin: HorizontalOrigin.LEFT,
           verticalOrigin: VerticalOrigin.CENTER,
@@ -478,8 +478,8 @@ export function MoonGlobe({
       position: bodyPosition(eph.subEarth),
       billboard: { image: bodySprite('earth'), scale: (compact ? 0.55 : 0.7) / SPRITE },
       label: {
-        text: 'EARTH',
-        font: `${10 * LABEL_SS}px JetBrains Mono, monospace`,
+        text: 'Earth',
+        font: `500 ${11 * LABEL_SS}px Inter, system-ui, sans-serif`,
         scale: LABEL_SCALE,
         fillColor: Color.fromCssColorString('#7db8ff'),
         style: LabelStyle.FILL,
@@ -492,8 +492,8 @@ export function MoonGlobe({
         position: bodyPosition(eph.subSolar),
         billboard: { image: bodySprite('sun'), scale: (compact ? 0.55 : 0.75) / SPRITE },
         label: {
-          text: 'SUN',
-          font: `${10 * LABEL_SS}px JetBrains Mono, monospace`,
+          text: 'Sun',
+          font: `500 ${11 * LABEL_SS}px Inter, system-ui, sans-serif`,
           scale: LABEL_SCALE,
           fillColor: SOLAR_AMBER,
           style: LabelStyle.FILL,
@@ -614,7 +614,7 @@ export function MoonGlobe({
             checked={layers.beam}
             onChange={(e) => setLayers((l) => ({ ...l, beam: e.target.checked }))}
           />
-          <span>DTE LoS Beam</span>
+          <span>Earth link beam</span>
         </label>
         <label>
           <input
@@ -622,12 +622,12 @@ export function MoonGlobe({
             checked={layers.solar}
             onChange={(e) => setLayers((l) => ({ ...l, solar: e.target.checked }))}
           />
-          <span>Solar Vectors</span>
+          <span>Sun direction</span>
         </label>
       </div>
       {children && <div className="globe__dock">{children}</div>}
       <button type="button" className="globe__compare" onClick={onCompare}>
-        ⇄ COMPARE SITES
+        Compare sites
       </button>
       <p className="globe__readout">{hud.readout}</p>
     </div>
