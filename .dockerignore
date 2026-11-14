@@ -1,0 +1,12 @@
+# The API image needs only src/, backend/, data/, offline_fixtures/ and requirements.txt.
+.git
+.github
+frontend
+docs
+tests
+cache
+event_resources
+**/__pycache__
+**/*.pyc
+.env
+*.png

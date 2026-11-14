@@ -12,18 +12,6 @@ router = APIRouter()
 _GEOMETRY_CACHE: TTLCache = TTLCache(maxsize=1024, ttl=24 * 3600)
 _GEOMETRY_CACHE_LOCK = RLock()
 
-FRONTEND_TO_CANONICAL_ID = {
-    "im-2": "clps-prime-1-im2",
-    "im-1": "clps-to2-im-im1",
-    "peregrine": "clps-to2-ab-peregrine-1",
-    "griffin-1": "clps-to20a-griffin-1",
-    "bg-1": "clps-to19d-blue-ghost-1",
-    "bg-2": "clps-cp12-draper",
-    "im-3": "clps-cp11-im3",
-    "im-4": "clps-cp22-im4",
-}
-
-
 def _resolve_utc(utc: Optional[str], start_date: Optional[str]) -> str:
     if utc:
         return utc
@@ -59,7 +47,7 @@ def get_site_geometry(
     mode = "offline" if settings.offline else "live"
 
     if site_id:
-        lookup_id = FRONTEND_TO_CANONICAL_ID.get(site_id, site_id)
+        lookup_id = site_id  # canonical IDs from data/missions.json only; no aliases
         if utc and (lat is None or lon is None):
             from src.compute.api_payloads import catalog_records
             rec = next((r for r in catalog_records() if r["id"] == lookup_id), None)
