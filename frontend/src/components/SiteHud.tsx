@@ -1,6 +1,7 @@
 import type { Mission } from '../data/missions'
 import { countdown, formatHours, type Countdown, type TrackSample } from '../data/timeline'
 import { horizonLabel, type TrackFile } from '../data/tracks'
+import { Icon } from './Icon'
 import './Hud.css'
 
 export type UIMode = 'simple' | 'scientific'
@@ -72,6 +73,7 @@ function SimplePanel({
               : `Sunrise in ${when(sun.hoursToChange, left)}`}
         </strong>
         <span className="hud__badge" data-tone={solar.tone}>
+          <Icon name="sun" />
           Solar power · {solar.text}
         </span>
       </div>
@@ -85,6 +87,7 @@ function SimplePanel({
               : `Earth returns in ${when(earth.hoursToChange, left)}`}
         </strong>
         <span className="hud__badge" data-tone={radio.tone}>
+          <Icon name="radio" />
           Radio link · {radio.text}
         </span>
         <span className="hud__sub">

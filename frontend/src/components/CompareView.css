@@ -138,20 +138,20 @@
   white-space: nowrap;
 }
 
-.mission__badge::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-dim);
+.mission__badge > .icon {
+  color: var(--text-dim);
 }
 
 .mission__badge--winner {
   color: var(--text);
 }
 
-.mission__badge--winner::before {
-  background: var(--accent);
+.mission__badge[data-badge='LEADS'] > .icon {
+  color: var(--ok);
+}
+
+.mission__badge[data-badge='NO TRACK'] > .icon {
+  color: var(--amber);
 }
 
 .mission__score {
@@ -321,12 +321,8 @@
   white-space: nowrap;
 }
 
-.matrix__win::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent);
+.matrix__win > .icon {
+  color: var(--ok);
 }
 
 /* Brief */

@@ -59,10 +59,6 @@
   gap: 12px;
 }
 
-.details__row .badge::before {
-  background: var(--ok);
-}
-
 .details__score {
   display: flex;
   align-items: baseline;
@@ -183,7 +179,7 @@
   color: var(--text-muted);
 }
 
-/* Payload category: a coloured dot and a quiet word. */
+/* Payload category: a coloured outlined icon and a quiet word. */
 .tag {
   flex: none;
   display: inline-flex;
@@ -194,24 +190,20 @@
   white-space: nowrap;
 }
 
-.tag::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--text-dim);
+.tag > .icon {
+  color: var(--text-dim);
 }
 
-.tag--volatiles::before {
-  background: var(--accent);
+.tag--volatiles > .icon {
+  color: var(--cyan);
 }
 
-.tag--spectrometers::before {
-  background: var(--cyan);
+.tag--spectrometers > .icon {
+  color: #c4b5fd;
 }
 
-.tag--rovers::before {
-  background: var(--signal);
+.tag--rovers > .icon {
+  color: var(--amber);
 }
 
 .details__block--provenance {

@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { buildComparison, type CompareRow, type CompareSide } from '../data/compare'
 import { isLocated, type Mission } from '../data/missions'
 import { useTrack } from '../data/tracks'
+import { Icon } from './Icon'
 import './CompareView.css'
 
 interface CompareViewProps {
@@ -97,7 +98,12 @@ function Picker({
   )
 }
 
-const BADGE_TEXT: Record<string, string> = { LEADS: 'Leads', TRAILS: 'Trails', LEVEL: 'Level', 'NO TRACK': 'No track' }
+const BADGE: Record<string, { text: string; icon: 'up' | 'down' | 'level' | 'none' }> = {
+  LEADS: { text: 'Leads', icon: 'up' },
+  TRAILS: { text: 'Trails', icon: 'down' },
+  LEVEL: { text: 'Level', icon: 'level' },
+  'NO TRACK': { text: 'No track', icon: 'none' },
+}
 
 function MissionCard({ side, winner }: { side: CompareSide; winner: boolean }) {
   const { mission } = side
@@ -109,7 +115,10 @@ function MissionCard({ side, winner }: { side: CompareSide; winner: boolean }) {
           <h2>{mission.name}</h2>
           <p className="mission__target">{side.target}</p>
         </div>
-        <span className={`mission__badge${winner ? ' mission__badge--winner' : ''}`}>{BADGE_TEXT[side.badge] ?? side.badge}</span>
+        <span className={`mission__badge${winner ? ' mission__badge--winner' : ''}`} data-badge={side.badge}>
+          <Icon name={BADGE[side.badge]?.icon ?? 'level'} />
+          {BADGE[side.badge]?.text ?? side.badge}
+        </span>
       </div>
       {side.trackNote && <p className="mission__target">{side.trackNote}</p>}
     </article>
@@ -132,7 +141,12 @@ function MatrixRow({ row, tinted }: { row: CompareRow; tinted: boolean }) {
               <span className={won ? 'matrix__value--win' : undefined}>
                 {cell.value} <em>{cell.note}</em>
               </span>
-              {won && <span className="matrix__win">Better</span>}
+              {won && (
+                <span className="matrix__win">
+                  <Icon name="check" size={14} />
+                  Better
+                </span>
+              )}
             </div>
             <div className="track track--thin">
               <div

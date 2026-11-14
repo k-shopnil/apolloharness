@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { trackDurationHours } from '../data/timeline'
 import type { Track } from '../data/tracks'
+import { Icon } from './Icon'
 import './Hud.css'
 
 interface Props {
@@ -22,7 +23,10 @@ function Strip({ label, flags }: { label: string; flags: (boolean | null)[] }) {
   }, [flags])
   return (
     <div className="scrub__strip" aria-label={label}>
-      <span className="scrub__strip-label">{label}</span>
+      <span className="scrub__strip-label">
+        <Icon name={label === 'Sun' ? 'sun' : 'earth'} size={13} />
+        {label}
+      </span>
       <div className="scrub__strip-bar">
         {runs.map((r) => (
           <i

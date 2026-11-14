@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
 import type { Mission } from '../data/missions'
 import type { SiteTelemetry } from '../data/ephemeris'
+import { Icon } from './Icon'
 
 interface Props {
   mission: Mission
@@ -20,13 +21,19 @@ export const SiteTelemetryCard = forwardRef<HTMLDivElement, Props>(function Site
     <div ref={ref} className="site-card" style={{ visibility: 'hidden' }}>
       <div className="site-card__title">{mission.targetSite}</div>
       <div className="site-card__row">
-        <span>Sun</span>
+        <span className="site-card__label" data-tone={sunTone}>
+          <Icon name="sun" size={13} />
+          Sun
+        </span>
         <b>
           {fmt(t.sunElevDeg)} <i data-tone={sunTone}>{t.power}</i>
         </b>
       </div>
       <div className="site-card__row">
-        <span>Earth</span>
+        <span className="site-card__label" data-tone={commsTone}>
+          <Icon name="earth" size={13} />
+          Earth
+        </span>
         <b>
           {fmt(t.earthElevDeg)} <i data-tone={commsTone}>{t.comms}</i>
         </b>

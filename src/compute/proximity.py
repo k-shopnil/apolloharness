@@ -40,15 +40,26 @@ def indexed_psr_path(path: str | Path = DEFAULT_PSR) -> Path:
         with _INDEX_LOCK:
             if target.is_file() and target.stat().st_mtime >= source.stat().st_mtime:
                 return target
-            from pyogrio import read_dataframe, write_dataframe
+            from pyogrio import open_arrow, write_arrow
             DERIVED_DIR.mkdir(parents=True, exist_ok=True)
             # Unique per process: several API workers may warm up at once; the
             # atomic rename below makes whichever finishes first win cleanly.
+            # The name must end in ".fgb": with any other suffix GDAL writes a
+            # directory, the is_file() check above never matches, and the index
+            # is rebuilt in every process.
             import os
-            partial = target.with_name(f"{target.name}.{os.getpid()}.partial")
-            write_dataframe(read_dataframe(source), partial, driver="FlatGeobuf",
-                            layer_options={"SPATIAL_INDEX": "YES"})
-            partial.replace(target)
+            partial = target.with_name(f"{target.stem}.{os.getpid()}.partial.fgb")
+            try:
+                # Stream in batches: reading all 506,349 polygons at once peaks
+                # near 900 MB; streaming stays near 250 MB (fits a 512 MB host).
+                # The source mixes Polygon and MultiPolygon, hence "Unknown".
+                with open_arrow(source, batch_size=20_000) as (meta, reader):
+                    write_arrow(reader, partial, driver="FlatGeobuf", geometry_type="Unknown",
+                                geometry_name=meta.get("geometry_name") or "geometry",
+                                crs=meta["crs"], layer_options={"SPATIAL_INDEX": "YES"})
+                partial.replace(target)
+            finally:
+                partial.unlink(missing_ok=True)
             return target
     except Exception:  # read-only checkout, missing driver: stay correct, just slower
         return source

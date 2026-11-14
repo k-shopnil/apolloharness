@@ -91,12 +91,8 @@
   white-space: nowrap;
 }
 
-.header__status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--ok);
-  box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+.header__status-icon {
+  color: var(--ok);
 }
 
 .header__team {
