@@ -1,5 +1,8 @@
 import { lazy, Suspense, useCallback, useEffect, useState } from 'react'
 import { Gateway } from './gateway/Gateway'
+import { wakeEngine } from './data/api'
+import { loadMissions } from './data/missions'
+import { PleaseWait } from './components/PleaseWait'
 
 // "/" is the gateway (countdown lobby); "/app" is the mission interface.
 // Firebase rewrites every path to index.html, so /app deep-links and reloads work.
@@ -16,12 +19,21 @@ const loadApp = () =>
   })
 const LazyApp = lazy(loadApp)
 
+/** Everything the interface needs to appear at once: its code, the globe and the catalog. */
+const prepareInterface = () => Promise.all([loadApp(), import('./components/MoonGlobe'), loadMissions()])
+
 type View = 'gateway' | 'app'
 
 const viewFromLocation = (): View => (window.location.pathname.replace(/\/+$/, '') === APP_PATH ? 'app' : 'gateway')
 
 export function Root() {
   const [view, setView] = useState<View>(viewFromLocation)
+
+  // Wake the live engine as soon as anyone opens the site: a sleeping free-tier
+  // instance takes a while to boot, and visitors usually pause on the lobby first.
+  useEffect(() => {
+    void wakeEngine()
+  }, [])
 
   useEffect(() => {
     const sync = () => setView(viewFromLocation())
@@ -54,14 +66,16 @@ export function Root() {
     setView('app')
   }, [])
 
-  if (view === 'gateway') return <Gateway onEnter={enter} />
+  if (view === 'gateway') return <Gateway onEnter={enter} prepare={prepareInterface} />
 
   const App = appModule?.default ?? LazyApp
   return (
     <Suspense
       fallback={
         <div className="app">
-          <div className="globe globe--loading">Preparing mission interface…</div>
+          <div className="globe globe--loading">
+            <PleaseWait task="Preparing the mission interface" />
+          </div>
         </div>
       }
     >

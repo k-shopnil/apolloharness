@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { buildComparison, type CompareRow, type CompareSide } from '../data/compare'
 import { isLocated, type Mission } from '../data/missions'
 import { useTrack } from '../data/tracks'
+import { DateCompare } from './DateCompare'
 import { Icon } from './Icon'
 import './CompareView.css'
 
@@ -13,7 +14,31 @@ interface CompareViewProps {
   onBack: () => void
 }
 
-export function CompareView({ missions, aId, bId, onChange, onBack }: CompareViewProps) {
+export function CompareView(props: CompareViewProps) {
+  const [tab, setTab] = useState<'sites' | 'dates'>('sites')
+  return (
+    <div className="compare">
+      <div className="compare__inner">
+        <div className="compare__top">
+          <button type="button" className="compare__back" onClick={props.onBack}>
+            ← All missions
+          </button>
+          <div className="segmented compare__tabs" role="group" aria-label="What to compare">
+            <button type="button" aria-pressed={tab === 'sites'} onClick={() => setTab('sites')}>
+              Two sites
+            </button>
+            <button type="button" aria-pressed={tab === 'dates'} onClick={() => setTab('dates')}>
+              Two launch dates
+            </button>
+          </div>
+        </div>
+        {tab === 'sites' ? <SiteCompare {...props} /> : <DateCompare missions={props.missions} initialSiteId={props.aId} />}
+      </div>
+    </div>
+  )
+}
+
+function SiteCompare({ missions, aId, bId, onChange }: CompareViewProps) {
   const a0 = missions.find((m) => m.id === aId)!
   const b0 = missions.find((m) => m.id === bId)!
   const ta = useTrack(aId)
@@ -22,13 +47,8 @@ export function CompareView({ missions, aId, bId, onChange, onBack }: CompareVie
   const { a, b, rows, brief, citations } = comparison
 
   return (
-    <div className="compare">
-      <div className="compare__inner">
+    <>
         <div className="compare__bar">
-          <button type="button" className="compare__back" onClick={onBack}>
-            ← All missions
-          </button>
-
           <div className="compare__pickers">
             <Picker missions={missions} label="Site A" value={aId} other={bId} onChange={(id) => onChange(id, bId)} />
             <span className="compare__vs">vs</span>
@@ -66,8 +86,7 @@ export function CompareView({ missions, aId, bId, onChange, onBack }: CompareVie
             <span>{citations}</span>
           </footer>
         </section>
-      </div>
-    </div>
+    </>
   )
 }
 

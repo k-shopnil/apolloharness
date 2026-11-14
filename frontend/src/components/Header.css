@@ -91,8 +91,37 @@
   white-space: nowrap;
 }
 
+.header__status:disabled {
+  cursor: default;
+}
+
+.header__status[data-status='offline']:hover {
+  color: var(--text);
+}
+
 .header__status-icon {
+  color: var(--text-dim);
+}
+
+.header__status[data-tone='ok'] .header__status-icon {
   color: var(--ok);
+}
+
+.header__status[data-tone='warn'] .header__status-icon {
+  color: var(--amber);
+  animation: header-spin 1.4s linear infinite;
+}
+
+@keyframes header-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__status[data-tone='warn'] .header__status-icon {
+    animation: none;
+  }
 }
 
 .header__team {

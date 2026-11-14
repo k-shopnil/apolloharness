@@ -11,32 +11,69 @@ import './Gateway.css'
 // after it, it counts mission elapsed time (T+).
 const LAUNCH_UTC = Date.parse('2026-11-13T00:00:00Z')
 
-// Launch sequence timing (ms). The interface mounts at ENTER_AT.
+// Launch sequence timing (ms). The interface mounts at ENTER_AT at the earliest.
 const IGNITION_MS = 220
 const ENTER_AT = 1350
 const ENTER_AT_REDUCED = 260
+const ARRIVE_MS = 380
 
-type Phase = 'idle' | 'ignition' | 'ascent'
+// ignition -> ascent -> (cruise, only while the interface is still loading) -> arrive -> interface
+type Phase = 'idle' | 'ignition' | 'ascent' | 'cruise' | 'arrive'
 
-export function Gateway({ onEnter }: { onEnter: () => void }) {
+interface Props {
+  onEnter: () => void
+  /** Resolves when the interface can show immediately (code, globe, catalog). */
+  prepare: () => Promise<unknown>
+}
+
+export function Gateway({ onEnter, prepare }: Props) {
   const [phase, setPhase] = useState<Phase>('idle')
   const timers = useRef<number[]>([])
+  const ready = useRef(false)
+  const launched = useRef(false)
+  const cruised = useRef(false)
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
+  const later = (fn: () => void, ms: number) => timers.current.push(window.setTimeout(fn, ms))
+
+  // Called when the launch animation has played and again when loading finishes:
+  // enter only once both have happened, cruising in between.
+  const tryEnter = () => {
+    if (!launched.current) return
+    if (!ready.current) {
+      cruised.current = true
+      setPhase('cruise')
+      return
+    }
+    if (!cruised.current) return onEnter() // loaded during the launch: straight in, no extra wait
+    setPhase('arrive')
+    later(onEnter, ARRIVE_MS)
+  }
+
   const takeoff = () => {
     if (phase !== 'idle') return
+    prepare()
+      .catch(() => {}) // the interface shows its own error and Retry
+      .then(() => {
+        ready.current = true
+        tryEnter()
+      })
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
       setPhase('ascent')
-      timers.current.push(window.setTimeout(onEnter, ENTER_AT_REDUCED))
+      later(() => {
+        launched.current = true
+        tryEnter()
+      }, ENTER_AT_REDUCED)
       return
     }
     setPhase('ignition')
-    timers.current.push(
-      window.setTimeout(() => setPhase('ascent'), IGNITION_MS),
-      window.setTimeout(onEnter, ENTER_AT),
-    )
+    later(() => setPhase('ascent'), IGNITION_MS)
+    later(() => {
+      launched.current = true
+      tryEnter()
+    }, ENTER_AT)
   }
 
   return (
@@ -92,6 +129,36 @@ export function Gateway({ onEnter }: { onEnter: () => void }) {
       </div>
 
       <div className="gw-veil" aria-hidden="true" />
+
+      {(phase === 'cruise' || phase === 'arrive') && <Cruise />}
+    </div>
+  )
+}
+
+/** Shown after liftoff while the interface is still loading: the rocket keeps flying. */
+function Cruise() {
+  const [seconds, setSeconds] = useState(0)
+  useEffect(() => {
+    const started = Date.now()
+    const id = window.setInterval(() => setSeconds(Math.floor((Date.now() - started) / 1000)), 1000)
+    return () => clearInterval(id)
+  }, [])
+  return (
+    <div className="gw-cruise" role="status" aria-live="polite">
+      <div className="gw-cruise__stars" aria-hidden="true">
+        {Array.from({ length: 18 }, (_, i) => (
+          <i key={i} style={{ left: `${(i * 37) % 100}%`, animationDelay: `${-((i * 0.29) % 1.6)}s` }} />
+        ))}
+      </div>
+      <span className="gw-cruise__rocket" aria-hidden="true">
+        <RocketIcon />
+        <span className="gw-cruise__flame" />
+      </span>
+      <p className="gw-cruise__text">
+        Preparing the mission interface…
+        {seconds >= 2 && <span> {seconds}s</span>}
+      </p>
+      <p className="gw-cruise__sub">Loading the Moon and the mission catalog. Thanks for waiting.</p>
     </div>
   )
 }

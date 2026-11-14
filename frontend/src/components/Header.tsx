@@ -3,6 +3,7 @@ import brandMark from '../assets/apollo-harness-mark.png'
 import teamEmblem from '../gateway/assets/chhaya_spinning_logo.svg'
 import teamWordmark from '../gateway/assets/chhaya_type.svg'
 import { Icon } from './Icon'
+import { useEngineStatus, wakeEngine, type EngineStatus } from '../data/api'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
 import './Hud.css'
@@ -59,10 +60,7 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
           ))}
         </div>
 
-        <div className="header__status" title="Mission catalog and tracks are bundled with the app; no live server is used">
-          <Icon name="database" className="header__status-icon" />
-          <span className="header__status-text">Offline data</span>
-        </div>
+        <EngineBadge />
 
         <a
           className="header__team"
@@ -77,5 +75,51 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
         </a>
       </div>
     </header>
+  )
+}
+
+const ENGINE: Record<EngineStatus, { icon: 'server' | 'waking' | 'database'; tone: 'ok' | 'warn' | 'off'; text: string; title: string }> = {
+  live: {
+    icon: 'server',
+    tone: 'ok',
+    text: 'Live engine',
+    title: 'Connected to the live engine: clicked points and launch dates are computed from NASA SPICE and LOLA data on request. Mission tracks are bundled with the site.',
+  },
+  waking: {
+    icon: 'waking',
+    tone: 'warn',
+    text: 'Starting live engine…',
+    title: 'The live engine sleeps when nobody uses it and takes a moment to start. Everything bundled with the site already works.',
+  },
+  offline: {
+    icon: 'database',
+    tone: 'off',
+    text: 'Offline data',
+    title: 'The live engine is not reachable, so only bundled data is shown (mission catalog and precomputed tracks). Click to try again.',
+  },
+  disabled: {
+    icon: 'database',
+    tone: 'off',
+    text: 'Offline data',
+    title: 'Mission catalog and tracks are bundled with the site; this build has no live engine.',
+  },
+}
+
+function EngineBadge() {
+  const status = useEngineStatus()
+  const e = ENGINE[status]
+  return (
+    <button
+      type="button"
+      className="header__status"
+      data-tone={e.tone}
+      data-status={status}
+      title={e.title}
+      onClick={status === 'offline' ? () => void wakeEngine() : undefined}
+      disabled={status !== 'offline'}
+    >
+      <Icon name={e.icon} className="header__status-icon" />
+      <span className="header__status-text">{e.text}</span>
+    </button>
   )
 }

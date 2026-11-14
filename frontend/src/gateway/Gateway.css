@@ -393,6 +393,119 @@
   }
 }
 
+/* Keep the screen dark behind the cruise scene (and as it fades out), so the
+   lobby never flashes before the interface appears. */
+.gateway[data-phase='cruise'] .gw-veil,
+.gateway[data-phase='arrive'] .gw-veil {
+  opacity: 1;
+}
+
+/* Cruise: after liftoff, while the interface is still loading. The rocket keeps
+   flying (bobbing, flickering exhaust, stars streaming past) until it is ready. */
+.gw-cruise {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: #000;
+  animation: gw-fade-in 0.3s ease-out both;
+}
+
+.gateway[data-phase='arrive'] .gw-cruise {
+  animation: gw-fade-out 0.38s ease-in forwards;
+}
+
+.gw-cruise__stars {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.gw-cruise__stars i {
+  position: absolute;
+  top: -20%;
+  width: 1px;
+  height: 14vh;
+  background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.5));
+  animation: gw-stream 1.6s linear infinite;
+}
+
+.gw-cruise__rocket {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 26px;
+  animation: gw-bob 1.8s ease-in-out infinite;
+}
+
+.gw-cruise__rocket svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gw-cruise__flame {
+  position: absolute;
+  top: 86%;
+  left: 50%;
+  width: 6px;
+  height: 26px;
+  margin-left: -3px;
+  border-radius: 0 0 4px 4px;
+  background: linear-gradient(to bottom, #fff 0%, #ffd27a 22%, #ff4d00 55%, rgba(255, 77, 0, 0) 100%);
+  transform-origin: top center;
+  animation: gw-flicker 0.12s ease-in-out infinite alternate;
+}
+
+.gw-cruise__text {
+  position: relative;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.gw-cruise__text span {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.gw-cruise__sub {
+  position: relative;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+@keyframes gw-stream {
+  to {
+    transform: translateY(140vh);
+  }
+}
+
+@keyframes gw-bob {
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes gw-flicker {
+  from {
+    transform: scaleY(0.8);
+    opacity: 0.85;
+  }
+  to {
+    transform: scaleY(1.15);
+    opacity: 1;
+  }
+}
+
+@keyframes gw-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
 /* The interface fades in on arrival. */
 .app-enter {
   height: 100%;
@@ -423,6 +536,13 @@
   }
 
   .app-enter {
+    animation: none;
+  }
+
+  .gw-cruise,
+  .gw-cruise__rocket,
+  .gw-cruise__flame,
+  .gw-cruise__stars i {
     animation: none;
   }
 }

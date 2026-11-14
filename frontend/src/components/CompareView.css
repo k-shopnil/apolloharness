@@ -14,6 +14,18 @@
   gap: 28px;
 }
 
+.compare__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.compare__tabs {
+  align-self: auto;
+}
+
 .compare__bar {
   display: flex;
   align-items: center;

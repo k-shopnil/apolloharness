@@ -52,10 +52,15 @@
   white-space: pre;
 }
 
-.globe__compare {
+.globe__actions {
   position: absolute;
   top: 14px;
   right: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.globe__compare {
   padding: 7px 14px;
   background: var(--surface-control);
   border: 1px solid var(--border-strong);
@@ -81,14 +86,18 @@
   .globe__target {
     top: 10px;
     left: 12px;
-    right: 130px;
+    right: 230px;
     font-size: 13px;
   }
 
-  .globe__compare {
+  .globe__actions {
     top: 8px;
     right: 8px;
-    padding: 7px 11px;
+    gap: 6px;
+  }
+
+  .globe__compare {
+    padding: 7px 10px;
     font-size: 12px;
   }
 

@@ -6,7 +6,8 @@
 
 export type MissionFilter = 'all' | 'volatiles' | 'spectrometers' | 'rovers'
 export type PayloadCategory = 'volatiles' | 'spectrometers' | 'rovers' | 'other'
-export type MissionKind = 'clps' | 'reference_anchor'
+/** custom = a point chosen in the app (never part of the catalog or its lists). */
+export type MissionKind = 'clps' | 'reference_anchor' | 'custom'
 
 export interface Payload {
   name: string
@@ -56,6 +57,38 @@ export interface Mission {
 
 /** A mission that has a coordinate and can be drawn on the globe. */
 export type LocatedMission = Mission & { lat: number; lon: number }
+
+/**
+ * A point chosen in the app (click or typed coordinates), shaped like a mission
+ * so the globe, HUD and scrubber can show it. It carries no mission facts.
+ */
+export function customMission(lat: number, lon: number): LocatedMission {
+  return {
+    id: `custom:${lat.toFixed(4)},${lon.toFixed(4)}`,
+    name: 'Custom point',
+    kind: 'custom',
+    provider: '',
+    lander: '',
+    taskOrder: '',
+    targetSite: formatCoords(lat, lon),
+    region: '',
+    status: 'user_selected',
+    statusNote: null,
+    targetDate: null,
+    touchdownUtc: null,
+    baselineRole: null,
+    lat,
+    lon,
+    coordinateType: 'user_selected',
+    coordinateProvenance: 'Point chosen in the app; not a mission site.',
+    isLandingFix: false,
+    ellipseMajorKm: null,
+    ellipseMinorKm: null,
+    payloadSummary: '',
+    payloads: [],
+    sources: [],
+  }
+}
 
 export function isLocated(m: Mission): m is LocatedMission {
   return m.lat !== null && m.lon !== null
