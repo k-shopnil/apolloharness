@@ -28,7 +28,17 @@ export function MissionDrawer({ mission, onClose, onCompare, onOpenProvenance, o
     <aside className={`drawer${open ? ' drawer--open' : ''}`} aria-hidden={!open} aria-label="Mission detail">
       <div className="drawer__bar">
         <button type="button" className="drawer__close" onClick={onClose} tabIndex={open ? 0 : -1}>
-          ← All missions
+          <svg
+            viewBox="0 0 52 52"
+            width="12"
+            height="12"
+            fill="currentColor"
+            aria-hidden="true"
+            focusable="false"
+          >
+            <path d="M38 52a2 2 0 0 1-1.41-.59l-24-24a2 2 0 0 1 0-2.82l24-24a2 2 0 0 1 2.82 0 2 2 0 0 1 0 2.82L16.83 26 39.41 48.59A2 2 0 0 1 38 52Z" />
+          </svg>
+          All missions
         </button>
       </div>
       <div className="drawer__scroll">

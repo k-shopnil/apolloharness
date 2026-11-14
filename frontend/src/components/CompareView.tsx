@@ -21,7 +21,17 @@ export function CompareView(props: CompareViewProps) {
       <div className="compare__inner">
         <div className="compare__top">
           <button type="button" className="compare__back" onClick={props.onBack}>
-            ← All missions
+            <svg
+              viewBox="0 0 52 52"
+              width="12"
+              height="12"
+              fill="currentColor"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path d="M38 52a2 2 0 0 1-1.41-.59l-24-24a2 2 0 0 1 0-2.82l24-24a2 2 0 0 1 2.82 0 2 2 0 0 1 0 2.82L16.83 26 39.41 48.59A2 2 0 0 1 38 52Z" />
+            </svg>
+            All missions
           </button>
           <div className="segmented compare__tabs" role="group" aria-label="What to compare">
             <button type="button" aria-pressed={tab === 'sites'} onClick={() => setTab('sites')}>

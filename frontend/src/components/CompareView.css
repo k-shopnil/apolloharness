@@ -74,6 +74,9 @@
 }
 
 .compare__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   align-self: flex-start;
   font-size: 13px;
   font-weight: 500;
