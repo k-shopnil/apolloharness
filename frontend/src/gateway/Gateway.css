@@ -1,0 +1,550 @@
+/* Gateway: the lobby at "/" (countdown, brand, partners) and the takeoff
+   sequence into the mission interface. Ported from the original placeholder
+   page so the look is unchanged; the launch pill is now the entry button. */
+
+.gateway {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #000;
+  color: #fff;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 16px;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Backdrop: live black-hole simulation over a static fallback ---- */
+.gw-backdrop {
+  position: absolute;
+  inset: 0;
+  background: #000 url('./assets/space_bg.png') no-repeat 75% center;
+  background-size: cover;
+  z-index: 1;
+  transform-origin: 60% 50%;
+}
+
+.gw-backdrop__frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  background: transparent;
+}
+
+/* ---- Overlay layout ---- */
+.gw-layout {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: clamp(28px, 5.5vh, 72px) clamp(24px, 5vw, 80px);
+}
+
+.gw-top {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  pointer-events: auto;
+}
+
+/* ---- Takeoff button (the former "preparing for launch" pill) ---- */
+.gw-takeoff {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: clamp(34px, 4vh, 40px);
+  padding: 0 clamp(14px, 1.2vw, 20px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  color: #fff;
+  font-family: inherit;
+  font-size: clamp(13px, 1.05vw, 16px);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: clamp(20px, 3.2vh, 44px);
+  position: relative;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+/* Fading speed-line trailing the pill */
+.gw-takeoff::after {
+  content: '';
+  position: absolute;
+  left: 100%;
+  top: 50%;
+  width: clamp(40px, 5vw, 80px);
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.5), transparent);
+  pointer-events: none;
+  transition:
+    width 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
+}
+
+.gw-takeoff:hover,
+.gw-takeoff:focus-visible {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: #fff;
+}
+
+.gw-takeoff:hover::after,
+.gw-takeoff:focus-visible::after {
+  width: clamp(56px, 7vw, 112px);
+}
+
+.gw-takeoff:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+.gw-takeoff:disabled {
+  cursor: default;
+}
+
+.gw-takeoff__label {
+  transition: opacity 0.2s ease;
+}
+
+/* ---- Rocket ---- */
+.gw-rocket {
+  position: relative;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.gw-rocket svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.gw-takeoff:hover .gw-rocket,
+.gw-takeoff:focus-visible .gw-rocket {
+  transform: translateY(-2px);
+}
+
+/* Exhaust: a short flame on ignition that stretches into the ascent trail. */
+.gw-rocket__flame {
+  position: absolute;
+  top: 88%;
+  left: 50%;
+  width: 3px;
+  height: 0;
+  margin-left: -1.5px;
+  border-radius: 0 0 2px 2px;
+  background: linear-gradient(to bottom, #fff 0%, #ffd27a 18%, #ff4d00 45%, rgba(255, 77, 0, 0) 100%);
+  opacity: 0;
+}
+
+/* ---- Countdown ---- */
+.gw-countdown {
+  display: flex;
+  align-items: flex-start;
+  gap: clamp(4px, 1vh, 14px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.02;
+}
+
+.gw-countdown__t {
+  font-size: clamp(34px, 3.8vw, 56px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  margin-bottom: 2px;
+  min-width: 1.3em;
+}
+
+.gw-countdown__row {
+  display: flex;
+  align-items: baseline;
+}
+
+.gw-countdown__val,
+.gw-countdown__unit {
+  font-size: clamp(44px, 4.8vw, 76px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.gw-countdown__val {
+  min-width: clamp(60px, 6.5vw, 104px);
+}
+
+.gw-countdown__unit {
+  color: rgba(255, 255, 255, 0.33);
+}
+
+/* ---- Footer: brand + partner badges ---- */
+.gw-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 24px;
+  pointer-events: auto;
+}
+
+.gw-brand {
+  display: flex;
+  align-items: center;
+  gap: clamp(14px, 1.6vw, 24px);
+}
+
+.gw-brand__swirl {
+  width: clamp(68px, 6vw, 102px);
+  height: clamp(74px, 6.5vw, 110px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gw-brand__swirl img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  animation: gw-swirl 45s infinite linear;
+  filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.3));
+}
+
+@keyframes gw-swirl {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.gw-brand__type {
+  height: clamp(56px, 5.2vw, 86px);
+  display: flex;
+  align-items: center;
+}
+
+.gw-brand__type img {
+  height: 100%;
+  width: auto;
+  display: block;
+}
+
+.gw-badges {
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 2.4vw, 36px);
+}
+
+.gw-badges a {
+  display: inline-flex;
+  opacity: 0.92;
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
+}
+
+.gw-badges a:hover {
+  transform: translateY(-2px) scale(1.05);
+  opacity: 1;
+}
+
+.gw-badges img {
+  display: block;
+  object-fit: contain;
+}
+
+.gw-badges__apollo {
+  width: clamp(42px, 3.2vw, 56px);
+  height: clamp(42px, 3.2vw, 56px);
+}
+
+.gw-badges__nasa {
+  height: clamp(20px, 1.8vw, 28px);
+  width: auto;
+}
+
+.gw-badges__nsac {
+  height: clamp(40px, 3.4vw, 54px);
+  width: auto;
+}
+
+/* ---- Veil that hands over to the interface ---- */
+.gw-veil {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  background: #000;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* =====================================================================
+   Takeoff sequence: ignition (shake + flame) -> ascent (rocket climbs off
+   screen trailing exhaust, the lobby drops away, veil fades to black).
+   ===================================================================== */
+.gateway[data-phase='ignition'] .gw-rocket {
+  animation: gw-shake 70ms linear infinite;
+}
+
+.gateway[data-phase='ignition'] .gw-rocket__flame {
+  opacity: 1;
+  height: 9px;
+  transition:
+    height 0.18s ease-out,
+    opacity 0.1s ease;
+}
+
+.gateway[data-phase='ascent'] .gw-rocket {
+  animation: gw-ascent 0.95s cubic-bezier(0.55, 0, 0.9, 0.35) forwards;
+}
+
+.gateway[data-phase='ascent'] .gw-rocket__flame {
+  opacity: 1;
+  animation: gw-trail 0.95s cubic-bezier(0.55, 0, 0.9, 0.35) forwards;
+}
+
+.gateway:not([data-phase='idle']) .gw-takeoff {
+  background: transparent;
+  border-color: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.gateway:not([data-phase='idle']) .gw-takeoff::after {
+  opacity: 0;
+}
+
+.gateway[data-phase='ascent'] .gw-takeoff__label {
+  opacity: 0;
+}
+
+.gateway[data-phase='ascent'] .gw-countdown,
+.gateway[data-phase='ascent'] .gw-footer {
+  animation: gw-drop 0.8s cubic-bezier(0.5, 0, 0.75, 0) 0.08s forwards;
+}
+
+.gateway[data-phase='ascent'] .gw-backdrop {
+  animation: gw-recede 1.1s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+
+.gateway[data-phase='ascent'] .gw-veil {
+  animation: gw-fade-in 0.45s ease-in 0.6s forwards;
+}
+
+@keyframes gw-shake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-0.6px, 0.4px);
+  }
+  50% {
+    transform: translate(0.6px, -0.3px);
+  }
+  75% {
+    transform: translate(-0.4px, -0.4px);
+  }
+}
+
+@keyframes gw-ascent {
+  to {
+    transform: translateY(-110vh);
+  }
+}
+
+@keyframes gw-trail {
+  from {
+    height: 9px;
+  }
+  to {
+    height: 55vh;
+  }
+}
+
+@keyframes gw-drop {
+  to {
+    transform: translateY(7vh);
+    opacity: 0;
+  }
+}
+
+@keyframes gw-recede {
+  to {
+    transform: translateY(4vh) scale(1.04);
+    opacity: 0.35;
+  }
+}
+
+@keyframes gw-fade-in {
+  to {
+    opacity: 1;
+  }
+}
+
+/* The interface fades in on arrival. */
+.app-enter {
+  height: 100%;
+  animation: gw-app-in 0.5s ease-out both;
+}
+
+@keyframes gw-app-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gw-brand__swirl img {
+    animation: none;
+  }
+
+  .gateway[data-phase] .gw-rocket,
+  .gateway[data-phase] .gw-rocket__flame,
+  .gateway[data-phase] .gw-countdown,
+  .gateway[data-phase] .gw-footer,
+  .gateway[data-phase] .gw-backdrop {
+    animation: none;
+  }
+
+  .gateway[data-phase='ascent'] .gw-veil {
+    animation: gw-fade-in 0.2s linear forwards;
+  }
+
+  .app-enter {
+    animation: none;
+  }
+}
+
+/* ---- Tablet and phone (< 768px) ---- */
+@media (max-width: 768px) {
+  .gw-backdrop {
+    background-position: center center;
+  }
+
+  .gw-layout {
+    padding: 24px 20px 20px;
+  }
+
+  .gw-takeoff {
+    height: 36px;
+    font-size: 14px;
+    margin-bottom: 20px;
+    padding: 0 14px;
+  }
+
+  .gw-takeoff::after {
+    width: 36px;
+  }
+
+  .gw-countdown {
+    gap: 4px;
+  }
+
+  /* Scale with the viewport so T± DD HH MM SS always fits on one line. */
+  .gw-countdown__t {
+    font-size: min(40px, 7.4vw);
+  }
+
+  .gw-countdown__val,
+  .gw-countdown__unit {
+    font-size: min(48px, 9vw);
+  }
+
+  .gw-countdown__val {
+    min-width: 1.32em;
+  }
+
+  .gw-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .gw-brand {
+    gap: 16px;
+  }
+
+  .gw-brand__swirl {
+    width: 58px;
+    height: 62px;
+  }
+
+  .gw-brand__type {
+    height: 50px;
+  }
+
+  .gw-badges {
+    width: 100%;
+    gap: 22px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .gw-badges__apollo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .gw-badges__nasa {
+    height: 20px;
+  }
+
+  .gw-badges__nsac {
+    height: 38px;
+  }
+}
+
+/* ---- Small handsets (< 420px) ---- */
+@media (max-width: 420px) {
+  .gw-layout {
+    padding: 20px 18px 18px;
+  }
+
+  .gw-takeoff {
+    font-size: 13px;
+    height: 34px;
+    margin-bottom: 16px;
+    padding: 0 12px;
+  }
+
+  .gw-countdown {
+    gap: 3px;
+  }
+
+  .gw-brand__swirl {
+    width: 48px;
+    height: 52px;
+  }
+
+  .gw-brand__type {
+    height: 42px;
+  }
+
+  .gw-badges {
+    gap: 18px;
+  }
+
+  .gw-badges__apollo {
+    width: 34px;
+    height: 34px;
+  }
+
+  .gw-badges__nasa {
+    height: 16px;
+  }
+
+  .gw-badges__nsac {
+    height: 32px;
+  }
+}
