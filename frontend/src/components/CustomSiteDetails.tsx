@@ -97,7 +97,7 @@ function Readout({ p }: { p: CustomSitePayload }) {
       : psr.inside_psr
         ? 'Inside a PSR'
         : `${psr.distance_km.toFixed(2)} km${psr.nearest_psr_label ? ` · ${psr.nearest_psr_label}` : ''}`
-  const days = (p.track as { duration_days?: number }).duration_days ?? 29.5
+  const days = Math.round(((p.track as { duration_days?: number }).duration_days ?? 29.5) * 10) / 10
 
   return (
     <>
