@@ -69,31 +69,31 @@ const distFill = (v: number | null) => (v === null ? null : clamp(100 - (v / 10)
 function buildRows(a: Metrics, b: Metrics): CompareRow[] {
   return [
     {
-      eyebrow: '01 // ENERGY AVAILABILITY',
-      label: 'WINDOW SUNLIGHT',
-      a: { value: pct(a.windowSunlight), note: '(29.5-day window, terrain-aware)', fill: clamp(a.windowSunlight) },
-      b: { value: pct(b.windowSunlight), note: '(29.5-day window, terrain-aware)', fill: clamp(b.windowSunlight) },
+      eyebrow: 'Energy',
+      label: 'Sunlight over the window',
+      a: { value: pct(a.windowSunlight), note: 'terrain-aware', fill: clamp(a.windowSunlight) },
+      b: { value: pct(b.windowSunlight), note: 'terrain-aware', fill: clamp(b.windowSunlight) },
       winner: pick(true, a.windowSunlight, b.windowSunlight),
     },
     {
-      eyebrow: '02 // SOLAR DISC',
-      label: 'MEAN SUN DISC VISIBLE',
-      a: { value: pct(a.diskVisible), note: '(solar-power proxy)', fill: clamp(a.diskVisible) },
-      b: { value: pct(b.diskVisible), note: '(solar-power proxy)', fill: clamp(b.diskVisible) },
+      eyebrow: 'Solar power',
+      label: 'Average share of Sun visible',
+      a: { value: pct(a.diskVisible), note: 'power proxy', fill: clamp(a.diskVisible) },
+      b: { value: pct(b.diskVisible), note: 'power proxy', fill: clamp(b.diskVisible) },
       winner: pick(true, a.diskVisible, b.diskVisible),
     },
     {
-      eyebrow: '03 // TELEMETRY DIRECT LINK',
-      label: 'EARTH COMMS WINDOW',
-      a: { value: pct(a.earthLos), note: '(direct line of sight)', fill: clamp(a.earthLos) },
-      b: { value: pct(b.earthLos), note: '(direct line of sight)', fill: clamp(b.earthLos) },
+      eyebrow: 'Radio link',
+      label: 'Earth in view',
+      a: { value: pct(a.earthLos), note: 'line of sight', fill: clamp(a.earthLos) },
+      b: { value: pct(b.earthLos), note: 'line of sight', fill: clamp(b.earthLos) },
       winner: pick(true, a.earthLos, b.earthLos),
     },
     {
-      eyebrow: '04 // ISRU PROSPECTING',
-      label: 'COLD TRAP PROXIMITY',
-      a: { value: km(a.psrKm), note: '(to nearest PSR)', fill: distFill(a.psrKm) },
-      b: { value: km(b.psrKm), note: '(to nearest PSR)', fill: distFill(b.psrKm) },
+      eyebrow: 'Ice prospecting',
+      label: 'Distance to nearest cold trap',
+      a: { value: km(a.psrKm), note: 'nearest PSR', fill: distFill(a.psrKm) },
+      b: { value: km(b.psrKm), note: 'nearest PSR', fill: distFill(b.psrKm) },
       winner: pick(false, a.psrKm, b.psrKm),
     },
   ]
@@ -121,10 +121,10 @@ export function buildComparison(a: Mission, b: Mission, ta: TrackLookup, tb: Tra
     t.state === 'none' || t.state === 'error' ? t.reason : t.state === 'loading' ? 'Loading track…' : null
   const side = (m: Mission, label: string, wins: number, other: number, t: TrackLookup): CompareSide => ({
     mission: m,
-    eyebrow: `MISSION ${label} // ${m.provider.toUpperCase()}`,
+    eyebrow: `Site ${label} · ${m.provider}`,
     target: isLocated(m)
-      ? `TARGET: ${m.targetSite} [${formatCoords(m.lat, m.lon)}]`
-      : `TARGET: ${m.targetSite} [NO COORDINATE PUBLISHED]`,
+      ? `${m.targetSite} · ${formatCoords(m.lat, m.lon)}`
+      : `${m.targetSite} · No coordinate published`,
     badge: t.state !== 'ready' ? 'NO TRACK' : wins === other ? 'LEVEL' : wins > other ? 'LEADS' : 'TRAILS',
     trackNote: noteOf(t),
   })

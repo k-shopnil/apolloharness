@@ -59,10 +59,10 @@ export function TimelineScrubber({ track, hours, onChange }: Props) {
     <div className="scrub" role="group" aria-label="Timeline scrubber">
       <div className="scrub__top">
         <button type="button" className="scrub__play" onClick={() => setPlaying((p) => !p)} aria-pressed={playing}>
-          {playing ? '❚❚ PAUSE' : '▶ PLAY'}
+          {playing ? 'Pause' : 'Play'}
         </button>
         <span className="scrub__time">
-          DAY {(hours / 24).toFixed(1)} / {(total / 24).toFixed(1)} · {track.columns.utc[idx]}
+          Day {(hours / 24).toFixed(1)} of {(total / 24).toFixed(1)} · {track.columns.utc[idx].replace('T', ' ').replace(/:\d\d(\.\d+)?Z$/, ' UTC')}
         </span>
       </div>
       <input
@@ -78,8 +78,8 @@ export function TimelineScrubber({ track, hours, onChange }: Props) {
           onChange(Number(e.target.value))
         }}
       />
-      <Strip label="SUN" flags={track.columns.sun_lit} />
-      <Strip label="EARTH" flags={track.columns.earth_los} />
+      <Strip label="Sun" flags={track.columns.sun_lit} />
+      <Strip label="Earth" flags={track.columns.earth_los} />
     </div>
   )
 }

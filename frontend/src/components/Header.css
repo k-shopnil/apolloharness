@@ -3,80 +3,166 @@
   height: var(--header-h);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 24px 1px;
-  background: rgba(9, 9, 11, 0.75);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 32px;
+  padding: 0 24px;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border-subtle);
   position: relative;
   z-index: 10;
 }
 
 .header__brand {
+  flex: none;
   display: flex;
   align-items: center;
-  gap: 8px;
+  opacity: 0.96;
+  transition: opacity 0.15s ease;
 }
 
-.header__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 3px;
-  background: var(--accent);
+.header__brand:hover {
+  opacity: 1;
 }
 
-.header__name {
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: 0.65px;
-}
-
-.header__tag {
-  font-size: 11px;
-  color: var(--text-dim);
+.header__brand img {
+  display: block;
+  height: 28px;
+  width: auto;
 }
 
 .header__tabs {
   display: flex;
-  gap: 4px;
+  align-self: stretch;
+  gap: 24px;
 }
 
 .header__tab {
-  padding: 5px 12px;
-  border-radius: 2px;
-  font-size: 11px;
-  line-height: 16.5px;
-  color: var(--text-dim);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  transition: color 0.15s ease;
 }
 
 .header__tab:hover {
-  color: var(--text-secondary);
+  color: var(--text);
 }
 
 .header__tab--active {
+  color: var(--text);
+}
+
+.header__tab--active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
   background: #fff;
-  color: #000;
-  font-weight: 700;
+}
+
+.header__count {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.header__tab--active .header__count {
+  color: var(--text-muted);
+}
+
+.header__end {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .header__status {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 9px;
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 10px;
-  line-height: 15px;
-  color: var(--text-secondary);
+  gap: 7px;
+  font-size: 12px;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
 .header__status-dot {
   width: 6px;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 50%;
   background: var(--ok);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
+}
+
+.header__team {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+  text-decoration: none;
+  opacity: 0.85;
+  transition: opacity 0.15s ease;
+}
+
+.header__team:hover {
+  opacity: 1;
+}
+
+.header__team-label {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.header__team-emblem {
+  display: block;
+  height: 24px;
+  width: auto;
+  animation: header-swirl 45s linear infinite;
+}
+
+.header__team-type {
+  display: block;
+  height: 22px;
+  width: auto;
+}
+
+@keyframes header-swirl {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .header__team-emblem {
+    animation: none;
+  }
+}
+
+@media (max-width: 1280px) {
+  .header__team-label {
+    display: none;
+  }
+}
+
+@media (max-width: 1100px) {
+  .header {
+    gap: 20px;
+  }
+
+  .header__tabs {
+    gap: 16px;
+  }
+
+  .header__status-text {
+    display: none;
+  }
 }
 
 @media (max-width: 800px) {
@@ -86,26 +172,43 @@
     backdrop-filter: none;
     flex-wrap: wrap;
     height: auto;
-    padding: 8px 12px;
-    row-gap: 8px;
+    padding: 10px 14px 0;
+    row-gap: 6px;
+    column-gap: 12px;
   }
 
-  .header__tag,
-  .header__status-text {
+  .header__brand img {
+    height: 21px;
+  }
+
+  .header__end .mode-switch button {
+    padding: 4px 9px;
+    font-size: 11.5px;
+  }
+
+  .header__end {
+    gap: 10px;
+  }
+
+  .header__team {
+    padding-left: 10px;
+  }
+
+  .header__team-emblem {
+    height: 22px;
+  }
+
+  .header__team-type {
     display: none;
-  }
-
-  .header__status {
-    padding: 5px 7px;
   }
 
   /* Tabs drop to their own row and scroll sideways if they overflow. */
   .header__tabs {
     order: 3;
     width: 100%;
+    height: 38px;
     overflow-x: auto;
     scrollbar-width: none;
-    padding-bottom: 2px;
   }
 
   .header__tabs::-webkit-scrollbar {
@@ -114,7 +217,6 @@
 
   .header__tab {
     flex: none;
-    padding: 8px 12px;
-    white-space: nowrap;
+    font-size: 12.5px;
   }
 }

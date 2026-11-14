@@ -145,9 +145,9 @@ export async function loadMissions(): Promise<Mission[]> {
 export type MissionGroup = 'all' | 'fleet' | 'anchors'
 
 export const groupTabs: { id: MissionGroup; label: string }[] = [
-  { id: 'all', label: 'ALL' },
-  { id: 'fleet', label: 'FLEET' },
-  { id: 'anchors', label: 'ANCHORS' },
+  { id: 'all', label: 'All' },
+  { id: 'fleet', label: 'Fleet' },
+  { id: 'anchors', label: 'Anchors' },
 ]
 
 /** Fleet = CLPS missions; anchors = past real landings used as yardsticks. */
@@ -157,16 +157,16 @@ export function inGroup(mission: Mission, group: MissionGroup): boolean {
 
 export const filterTabs: { id: MissionFilter; label: string }[] = [
   { id: 'all', label: 'All' },
-  { id: 'volatiles', label: '★ Volatiles & Drills' },
+  { id: 'volatiles', label: 'Volatiles & drills' },
   { id: 'spectrometers', label: 'Spectrometers' },
-  { id: 'rovers', label: 'Rovers & Mobility' },
+  { id: 'rovers', label: 'Rovers & mobility' },
 ]
 
 export const categoryLabel: Record<PayloadCategory, string> = {
-  volatiles: 'VOLATILES & DRILLS',
-  spectrometers: 'SPECTROMETERS',
-  rovers: 'ROVERS',
-  other: 'INSTRUMENT',
+  volatiles: 'Volatiles & drills',
+  spectrometers: 'Spectrometer',
+  rovers: 'Mobility',
+  other: 'Instrument',
 }
 
 export function matchesFilter(mission: Mission, filter: MissionFilter): boolean {
@@ -177,17 +177,18 @@ export function missionsFor(missions: Mission[], filter: MissionFilter): Mission
   return missions.filter((m) => matchesFilter(m, filter))
 }
 
-/** "actual_landing" -> "ACTUAL LANDING". */
+/** "actual_landing" -> "Actual landing". */
 export function humanize(tag: string): string {
-  return tag.replace(/_/g, ' ').toUpperCase()
+  const text = tag.replace(/_/g, ' ').toLowerCase()
+  return text.charAt(0).toUpperCase() + text.slice(1)
 }
 
 /** Short badge text for how far a coordinate can be trusted. */
 export function coordinateBadge(m: Mission): string {
-  if (m.lat === null || m.lon === null) return 'NO COORDINATE PUBLISHED'
-  if (m.isLandingFix) return 'ACTUAL LANDING'
-  if (m.coordinateType === 'reported_landing_rounded') return 'REPORTED LANDING (ROUNDED)'
-  return 'TARGET / REFERENCE'
+  if (m.lat === null || m.lon === null) return 'No coordinate published'
+  if (m.isLandingFix) return 'Actual landing'
+  if (m.coordinateType === 'reported_landing_rounded') return 'Reported landing (rounded)'
+  return 'Target / reference'
 }
 
 export function missionYear(m: Mission): string {

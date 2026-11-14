@@ -82,9 +82,13 @@ class VectorizedPhysicsTests(unittest.TestCase):
                                spacing_m=500, duration_days=2)
         columns = screen["columns"]
         self.assertTrue(all(len(v) == screen["count"] for v in columns.values()))
-        self.assertEqual(screen["psr"]["status"], "complete")
-        reference = nearest_psr_within(columns["latitude_deg"][0], columns["longitude_deg"][0])
-        self.assertAlmostEqual(columns["psr_distance_m"][0], reference["distance_m"], delta=0.1)
+        from src.compute.datafiles import is_installed
+        if is_installed("data/psr/LPSR_80S_20MPP_ADJ.SHP"):
+            self.assertEqual(screen["psr"]["status"], "complete")
+            reference = nearest_psr_within(columns["latitude_deg"][0], columns["longitude_deg"][0])
+            self.assertAlmostEqual(columns["psr_distance_m"][0], reference["distance_m"], delta=0.1)
+        else:
+            self.assertEqual(screen["psr"]["status"], "outside_product_coverage_or_not_installed")
 
 
 @unittest.skipUnless(Path("data/illumination/AVGVISIB_85S_060M_201608.TIF").exists() and

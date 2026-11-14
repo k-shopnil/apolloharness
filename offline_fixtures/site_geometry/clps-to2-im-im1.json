@@ -93,6 +93,8 @@
  "horizon_model": "lola_terrain_mask",
  "terrain": {
   "elevation_m": 2591.9477552567105,
+  "regional_slope_deg": 11.74,
+  "regional_slope_baseline_m": 160.0,
   "dem_product": "LOLA LDEM_80S_80MPP_ADJ (PGDA product 90) + LOLA GDR LDEM_64 (edge fill)",
   "dem_resolution_m": 80.0,
   "horizon_model": "lola_terrain_mask",

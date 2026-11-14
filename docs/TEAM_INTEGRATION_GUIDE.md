@@ -220,6 +220,8 @@ def geometry(site_id: str | None = None, lat: float | None = Query(None, ge=-90,
             raise ValueError("give site_id, or lat and lon")
         utc = utc or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         return site_geometry(lat, lon, utc)    # ~0.2-0.35 s warm, PSR included
+        # /sites/custom: site_geometry(lat, lon, utc, include_track=True)
+        # adds "track" + "track_summary" (~+0.05 s); same readout shape.
     except ValueError as exc:
         raise HTTPException(422, str(exc))
     except LookupError as exc:                 # unknown id, or no coordinate/date (Griffin)
@@ -235,6 +237,13 @@ Payload (`schema: "apolloharness.site_geometry.v1"`):
 - `psr`: `distance_m`, `inside_psr`, `nearest_psr_id`, `nearest_psr_area_km2`,
   and `nearest_psr_host` / `nearest_psr_label` (see
   [PSR names](#psr-names-what-the-ui-may-say) below).
+- `terrain`: `elevation_m`, `dem_product`, `dem_resolution_m`,
+  `horizon_model`, and `regional_slope_deg` with `regional_slope_baseline_m`
+  (see [Slope](#slope-what-the-ui-may-say) below).
+- `track`, `track_summary`: only with `include_track=True`. `track` has the
+  same columns as a precomputed mission track, so the scrubber code is
+  shared. This makes `/sites/custom` the same shape as `/sites/geometry`
+  (one readout parser, Issue #8 §8.1).
 - `source`: `"engine"` or `"precomputed_track"`, so the UI can show which.
 - No `tactical_pct`, `solar_power_status` or `uptime_pct` fields, because the
   #7 example invented them. Use `sun.fraction_of_window_up`,
@@ -314,6 +323,46 @@ UI rules:
 Rebuild with `python -m src.acquire.artemis_regions`, which reads the pinned
 USGS gazetteer. Re-check NASA's list on event day (see
 [EVENT_DAY_PLAN.md](EVENT_DAY_PLAN.md)).
+
+### Slope: what the UI may say
+
+`terrain.regional_slope_deg` is the terrain slope from central differences
+one DEM pixel either side. `regional_slope_baseline_m` gives the
+baseline: **160 m** on the 80 m polar DEM, **~950 m** on a global LDEM_64
+tile. It matches `regional.screen_region`'s `slope_deg` exactly.
+
+It describes the landscape, not the ground under the lander's feet. Footing
+safety needs metre-scale data, and local slopes are usually steeper. For
+that reason (decision on Issue #8 §8.4):
+
+- Show it as a plain value with its basis: "Terrain slope: 2.0° (over
+  160 m)".
+- **Never** turn it into a verdict. No "Lander Footing: SAFE", no green
+  tick, no 8°/12° traffic light on a single site. The "Lander Footing"
+  badge stays hidden.
+- `null` means the point is outside every available DEM. Show
+  "Unavailable".
+
+Values at the catalog sites (in the tracks and fixtures): IM-2 2.0° and
+IM-1 11.7° over 160 m; SLIM 7.2° and Apollo 17 1.1° over ~950 m.
+
+### Optional, after the core routes: `GET /api/v1/space-weather?site_id=`
+
+`api_payloads.mission_space_weather(site_id)` returns the NASA DONKI solar
+energetic particle (SEP) events and CMEs catalogued during that mission's
+29.5-day analysis window, read from the committed
+`data/space_weather/donki_mission_windows.json`. It needs no API key at
+request time and works offline. `LookupError` (404) for a mission without a
+track.
+
+UI rules:
+
+- Say "3 solar particle events were catalogued during this window", with the
+  DONKI link per event. Never "the site received a dose". Show `caveat`.
+- `status: "before_donki_coverage"` (Apollo) means unknown: show
+  "Unavailable (DONKI begins 2010)", never 0.
+- Flares are `unavailable` (portal endpoint returned 404). Do not show a
+  flare count.
 
 ### PSR names: what the UI may say
 

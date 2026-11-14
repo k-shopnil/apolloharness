@@ -18,15 +18,15 @@ export const SiteTelemetryCard = forwardRef<HTMLDivElement, Props>(function Site
   const commsTone = t.comms === 'LINK ACTIVE' ? 'ok' : t.comms === 'MARGINAL' || t.comms === 'UNKNOWN' ? 'warn' : 'bad'
   return (
     <div ref={ref} className="site-card" style={{ visibility: 'hidden' }}>
-      <div className="site-card__title">{mission.targetSite.toUpperCase()}</div>
+      <div className="site-card__title">{mission.targetSite}</div>
       <div className="site-card__row">
-        <span>SUN ELEV</span>
+        <span>Sun</span>
         <b>
           {fmt(t.sunElevDeg)} <i data-tone={sunTone}>{t.power}</i>
         </b>
       </div>
       <div className="site-card__row">
-        <span>EARTH ELEV</span>
+        <span>Earth</span>
         <b>
           {fmt(t.earthElevDeg)} <i data-tone={commsTone}>{t.comms}</i>
         </b>

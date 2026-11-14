@@ -24,48 +24,52 @@
   right: 0;
   text-align: right;
   background: transparent;
-  font-family: var(--font-ui);
-  font-size: 9px;
-  opacity: 0.7;
+  font-size: 10px;
+  opacity: 0.55;
 }
 
 .globe__target,
 .globe__readout {
   position: absolute;
-  left: 16px;
+  left: 20px;
   margin: 0;
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 0.4px;
   pointer-events: none;
 }
 
 .globe__target {
-  top: 16px;
-  color: var(--text-secondary);
+  top: 18px;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.8);
 }
 
 .globe__readout {
-  bottom: 16px;
-  color: var(--text-dim);
+  bottom: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
   white-space: pre;
 }
 
 .globe__compare {
   position: absolute;
-  top: 12px;
-  right: 12px;
-  padding: 7px 13px;
+  top: 14px;
+  right: 14px;
+  padding: 7px 14px;
   background: var(--surface-control);
-  border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 11px;
-  line-height: 16.5px;
-  letter-spacing: 0.44px;
+  border: 1px solid var(--border-strong);
+  backdrop-filter: blur(14px);
+  font-size: 13px;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .globe__compare:hover {
-  border-color: var(--border-strong);
+  background: #fff;
+  color: #000;
 }
 
 @media (max-width: 800px) {
@@ -75,25 +79,24 @@
   }
 
   .globe__target {
-    top: 8px;
+    top: 10px;
     left: 12px;
-    right: 120px;
-    font-size: 9px;
-    line-height: 13px;
+    right: 130px;
+    font-size: 13px;
   }
 
   .globe__compare {
-    top: 6px;
+    top: 8px;
     right: 8px;
-    padding: 8px 10px;
-    font-size: 10px;
+    padding: 7px 11px;
+    font-size: 12px;
   }
 
   .globe__readout {
     bottom: 172px;
     left: 12px;
     right: 12px;
-    font-size: 9px;
+    font-size: 11px;
     white-space: normal;
   }
 
@@ -107,7 +110,7 @@
   .globe__viewer .cesium-viewer-bottom,
   .globe__viewer .cesium-credit-textContainer,
   .globe__viewer .cesium-credit-expand-link {
-    font-size: 8px;
+    font-size: 9px;
     line-height: 12px;
   }
 }
@@ -115,17 +118,16 @@
 /* Layer toggles */
 .globe__layers {
   position: absolute;
-  top: 52px;
-  right: 12px;
+  top: 58px;
+  right: 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 8px 10px;
+  gap: 8px;
+  padding: 10px 12px;
   background: var(--surface-control);
   border: 1px solid var(--border);
-  border-radius: 2px;
-  font-size: 10px;
-  letter-spacing: 0.4px;
+  backdrop-filter: blur(14px);
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
@@ -138,7 +140,7 @@
 }
 
 .globe__layers input {
-  accent-color: var(--cyan);
+  accent-color: #fff;
   margin: 0;
 }
 
@@ -147,25 +149,23 @@
   position: absolute;
   top: 0;
   left: 0;
-  min-width: 190px;
-  padding: 8px 10px;
-  background: rgba(9, 9, 11, 0.88);
-  border: 1px solid var(--border-strong);
-  border-left: 2px solid var(--accent);
-  border-radius: 2px;
-  font-family: var(--font-data);
-  font-size: 10px;
-  line-height: 15px;
-  letter-spacing: 0.3px;
-  color: var(--text-secondary);
+  min-width: 200px;
+  padding: 10px 12px;
+  background: rgba(8, 8, 10, 0.86);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  font-size: 12px;
+  line-height: 19px;
+  color: var(--text-muted);
   pointer-events: none;
   will-change: transform;
 }
 
 .site-card__title {
   margin-bottom: 4px;
-  color: var(--accent);
-  font-weight: 700;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .site-card__row {
@@ -180,8 +180,11 @@
 }
 
 .site-card__row i {
+  margin-left: 6px;
   font-style: normal;
-  font-size: 9px;
+  font-size: var(--label-size);
+  font-weight: 600;
+  letter-spacing: var(--label-track);
 }
 
 .site-card i[data-tone='ok'] { color: var(--signal); }
@@ -190,7 +193,7 @@
 
 @media (max-width: 800px) {
   .globe__layers { top: 44px; right: 8px; }
-  .site-card { min-width: 160px; font-size: 9px; }
+  .site-card { min-width: 168px; font-size: 11px; line-height: 17px; }
 }
 
 /* Leader line tying the card to its pin (64px = CARD_GAP in MoonGlobe.tsx). */
@@ -200,7 +203,7 @@
   left: 50%;
   width: 1px;
   height: 64px;
-  background: linear-gradient(var(--accent), transparent);
+  background: linear-gradient(rgba(255, 255, 255, 0.5), transparent);
 }
 
 .site-card[data-flip='up']::after {

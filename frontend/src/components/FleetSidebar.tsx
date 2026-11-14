@@ -12,13 +12,13 @@ interface FleetSidebarProps {
 }
 
 const filterTitle: Record<Exclude<MissionFilter, 'all'>, string> = {
-  volatiles: '01 // VOLATILES & DRILLS PAYLOADS',
-  spectrometers: '01 // SPECTROMETER PAYLOADS',
-  rovers: '01 // ROVERS & MOBILITY PAYLOADS',
+  volatiles: 'Volatiles & drills',
+  spectrometers: 'Spectrometers',
+  rovers: 'Rovers & mobility',
 }
 
 export function FleetSidebar({ filter, missions, group, onGroupChange, activeId, onSelect }: FleetSidebarProps) {
-  const title = filter === 'all' ? '01 // MISSION MANIFEST' : filterTitle[filter]
+  const title = filter === 'all' ? 'Missions' : filterTitle[filter]
   // Phones: the manifest is a bottom sheet that peeks over the globe and expands on demand.
   const [expanded, setExpanded] = useState(false)
 
@@ -31,47 +31,39 @@ export function FleetSidebar({ filter, missions, group, onGroupChange, activeId,
         onClick={() => setExpanded((v) => !v)}
       >
         <span className="fleet__grip" />
-        <span>{expanded ? 'HIDE MANIFEST' : 'SHOW MANIFEST'}</span>
+        <span>{expanded ? 'Hide missions' : 'Show missions'}</span>
       </button>
       <div className="fleet__header">
-        <div className="fleet__header-row">
-          <p className="section-title">{title}</p>
-          {filter !== 'all' && <span className="badge">FILTER ACTIVE</span>}
+        <div className="fleet__title-row">
+          <h2 className="fleet__title">{title}</h2>
+          <span className="fleet__count">{missions.length}</span>
         </div>
-        <div className="fleet__groups" role="group" aria-label="Mission group">
+        <div className="segmented" role="group" aria-label="Mission group">
           {groupTabs.map((g) => (
             <button key={g.id} type="button" aria-pressed={group === g.id} onClick={() => onGroupChange(g.id)}>
               {g.label}
             </button>
           ))}
         </div>
-        <p className="fleet__subtitle">{`${missions.length} MISSIONS DISPLAYED`}</p>
       </div>
 
       <ul className="fleet__list">
-        {missions.map((mission, i) => (
-          <MissionCard
-            key={mission.id}
-            mission={mission}
-            position={String(i + 1).padStart(2, '0')}
-            active={mission.id === activeId}
-            onSelect={onSelect}
-          />
+        {missions.map((mission) => (
+          <MissionCard key={mission.id} mission={mission} active={mission.id === activeId} onSelect={onSelect} />
         ))}
       </ul>
-
     </aside>
   )
 }
 
 interface CardProps {
   mission: Mission
-  position: string
   active: boolean
   onSelect: (id: string) => void
 }
 
-function MissionCard({ mission, position, active, onSelect }: CardProps) {
+function MissionCard({ mission, active, onSelect }: CardProps) {
+  const located = mission.lat !== null && mission.lon !== null
   return (
     <li>
       <button
@@ -80,28 +72,15 @@ function MissionCard({ mission, position, active, onSelect }: CardProps) {
         onClick={() => onSelect(mission.id)}
         aria-current={active}
       >
-        <div className="card__head">
-          <span className="card__index">{position}</span>
+        <span className="card__top">
           <span className="card__name">{mission.name}</span>
-          {active && <span className="badge card__badge">ACTIVE</span>}
-        </div>
-        <dl className="card__rows">
-          <Row label="PROVIDER" value={mission.provider} bright />
-          <Row label="SITE" value={mission.targetSite} bright />
-          <Row label="PAYLOAD" value={mission.payloadSummary} />
-          <Row label="YEAR" value={missionYear(mission)} bright />
-          <Row label="COORD" value={coordinateBadge(mission)} />
-        </dl>
+          <span className="card__year">{missionYear(mission)}</span>
+        </span>
+        <span className="card__meta">
+          {mission.provider} · {mission.targetSite}
+        </span>
+        <span className={`card__coord${located ? '' : ' card__coord--none'}`}>{coordinateBadge(mission)}</span>
       </button>
     </li>
-  )
-}
-
-function Row({ label, value, bright, accent }: { label: string; value: string; bright?: boolean; accent?: boolean }) {
-  return (
-    <div className="card__row">
-      <dt>{label}</dt>
-      <dd className={accent ? 'fleet__accent' : bright ? 'card__bright' : undefined}>{value}</dd>
-    </div>
   )
 }

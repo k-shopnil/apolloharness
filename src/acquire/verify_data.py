@@ -104,7 +104,7 @@ MANIFEST: tuple[DataFile, ...] = (
 # Committed as plain Git text (no LFS): checked for presence and parseability only.
 TEXT_FILES = ("data/missions.json", "data/lola/tiles/index.json", "data/psr/iau_south_polar_craters.csv",
               "data/precomputed/tracks/index.json", "offline_fixtures/missions.json",
-              "data/artemis_iii_regions.json")
+              "data/artemis_iii_regions.json", "data/space_weather/donki_mission_windows.json")
 CATALOG = "data/missions.json"
 OFFLINE_CATALOG_CANDIDATES = ("offline_fixtures/missions.json", "demo_fixtures/missions.json")
 

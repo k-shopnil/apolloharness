@@ -25,10 +25,10 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
   const track = data?.track ?? null
 
   const bars = [
-    { label: '01. WINDOW SUNLIGHT', value: fmtPct(track?.sunlit_percent), fill: track?.sunlit_percent ?? null },
-    { label: '02. EARTH COMMS LINE-OF-SIGHT', value: fmtPct(track?.earth_los_percent), fill: track?.earth_los_percent ?? null },
+    { label: 'Sunlight over the window', value: fmtPct(track?.sunlit_percent), fill: track?.sunlit_percent ?? null },
+    { label: 'Earth in view (radio contact)', value: fmtPct(track?.earth_los_percent), fill: track?.earth_los_percent ?? null },
     {
-      label: '03. MEAN SUN DISC VISIBLE',
+      label: 'Average share of Sun visible',
       value: fmtPct(track && track.mean_sun_disk_visible_fraction !== null ? track.mean_sun_disk_visible_fraction * 100 : null),
       fill: track && track.mean_sun_disk_visible_fraction !== null ? track.mean_sun_disk_visible_fraction * 100 : null,
     },
@@ -52,7 +52,7 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
   return (
     <div className="details">
       <div className="details__block details__head">
-        <p className="details__eyebrow">{mission.kind === 'reference_anchor' ? 'REFERENCE ANCHOR' : 'SELECTED SITE'}</p>
+        <p className="details__eyebrow">{mission.kind === 'reference_anchor' ? 'Reference landing' : 'CLPS mission'}</p>
         <h2 className="details__title">{mission.name}</h2>
         <p className="details__sub">
           {mission.provider} · {mission.targetSite}
@@ -60,31 +60,31 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
       </div>
 
       <section className="details__block">
-        <p className="section-title">01 // MISSION PROFILE</p>
+        <h3 className="section-title">Mission</h3>
         <dl className="details__meta">
           <div>
-            <dt>PROVIDER</dt>
+            <dt>Provider</dt>
             <dd>{mission.provider}</dd>
           </div>
           <div>
-            <dt>LANDER</dt>
+            <dt>Lander</dt>
             <dd>{mission.lander}</dd>
           </div>
           <div>
-            <dt>TARGET DATE</dt>
+            <dt>Target date</dt>
             <dd>{mission.targetDate ?? 'TBD'}</dd>
           </div>
           <div>
-            <dt>STATUS</dt>
+            <dt>Status</dt>
             <dd>{humanize(mission.status)}</dd>
           </div>
         </dl>
         {mission.touchdownUtc && (
-          <p className="details__note">TOUCHDOWN (UTC): {mission.touchdownUtc.replace('T', ' ').replace('Z', '')}</p>
+          <p className="details__note">Touchdown {mission.touchdownUtc.replace('T', ' ').replace('Z', '')} UTC</p>
         )}
         {mission.baselineRole && (
           <p className="details__note">
-            BASELINE · {humanize(mission.baselineRole.tag.replace(/_baseline$/, ''))}: {mission.baselineRole.text}
+            {humanize(mission.baselineRole.tag.replace(/_baseline$/, ''))} baseline: {mission.baselineRole.text}
           </p>
         )}
         {mission.statusNote && <p className="details__note">{mission.statusNote}</p>}
@@ -92,16 +92,16 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
 
       <section className="details__block">
         <div className="details__row">
-          <p className="section-title">02 // ILLUMINATION &amp; COMMS (29.5-DAY WINDOW)</p>
+          <h3 className="section-title">Light &amp; contact · 29.5 days</h3>
           {track && (
             <span className="badge" title="Whether terrain was modelled for the horizon">
-              {horizonLabel(track.horizon_model).toUpperCase()}
+              {horizonLabel(track.horizon_model)}
             </span>
           )}
         </div>
-        {lookup.state === 'loading' && <p className="details__note">LOADING TRACK…</p>}
+        {lookup.state === 'loading' && <p className="details__note">Loading track…</p>}
         {(lookup.state === 'none' || lookup.state === 'error') && (
-          <p className="details__note">UNAVAILABLE · {lookup.reason}</p>
+          <p className="details__note">Unavailable: {lookup.reason}</p>
         )}
         <div className="details__bars">
           {bars.map((bar) => (
@@ -119,19 +119,19 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
       </section>
 
       <section className="details__block">
-        <p className="section-title">03 // SITE GEOMETRY</p>
+        <h3 className="section-title">Site</h3>
         <div className="details__grid">
-          <Stat label="LANDING ELLIPSE" value={ellipse} />
+          <Stat label="Landing ellipse" value={ellipse} />
           <Stat
-            label="ELEVATION"
+            label="Elevation"
             value={
               data?.terrain.elevation_m == null
                 ? UNAVAILABLE
                 : `${data.terrain.elevation_m >= 0 ? '+' : '−'}${Math.abs(Math.round(data.terrain.elevation_m)).toLocaleString('en-US')}m`
             }
           />
-          <Stat label="NEAREST PSR" value={psrText} />
-          <Stat label="LAT / LON" value={isLocated(mission) ? formatCoords(mission.lat, mission.lon) : 'No coordinate published'} />
+          <Stat label="Nearest shadowed crater" value={psrText} />
+          <Stat label="Coordinates" value={isLocated(mission) ? formatCoords(mission.lat, mission.lon) : 'No coordinate published'} />
         </div>
         <p className="details__note" title={mission.coordinateProvenance}>
           {coordinateBadge(mission)} · {humanize(mission.coordinateType)}
@@ -140,7 +140,7 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
       </section>
 
       <section className="details__block">
-        <p className="section-title">04 // PAYLOAD MANIFEST</p>
+        <h3 className="section-title">Payloads</h3>
         <div className="details__payloads">
           {mission.payloads.map((p) => (
             <div className="payload" key={p.name}>
@@ -155,9 +155,9 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
       </section>
 
       <section className="details__block details__block--provenance">
-        <p className="section-title">05 // SOURCES</p>
+        <h3 className="section-title">Sources</h3>
         <div className="details__prov">
-          {data?.terrain.dem_product && <p>TERRAIN: {data.terrain.dem_product}</p>}
+          {data?.terrain.dem_product && <p>Terrain: {data.terrain.dem_product}</p>}
           {mission.sources.map((s) => (
             <p key={s.url}>
               <a href={s.url} target="_blank" rel="noreferrer">
@@ -167,18 +167,18 @@ export function MissionDetails({ mission, onCompare, onOpenProvenance, onOpenIns
           ))}
         </div>
         <button type="button" className="details__link" onClick={onOpenProvenance}>
-          [ View Data Provenance ↗ ]
+          View data provenance →
         </button>
       </section>
 
       <div className="details__cta">
         {onOpenInspector && (
           <button type="button" className="details__cta-secondary" onClick={onOpenInspector}>
-            [ OPEN SITE INSPECTOR ]
+            Open site inspector
           </button>
         )}
         <button type="button" onClick={onCompare}>
-          [ COMPARE SITES ]
+          Compare sites
         </button>
       </div>
     </div>

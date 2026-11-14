@@ -1,8 +1,8 @@
 .globe__dock {
   position: absolute;
-  left: 16px;
-  right: 16px;
-  bottom: 44px;
+  left: 20px;
+  right: 20px;
+  bottom: 40px;
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
@@ -14,71 +14,86 @@
   pointer-events: auto;
 }
 
+/* Floating glass panels over the globe. */
 .hud,
 .scrub {
   background: var(--surface-control);
   border: 1px solid var(--border);
-  border-radius: 2px;
-  padding: 10px 12px;
-  font-size: 11px;
-  line-height: 16px;
-  backdrop-filter: blur(6px);
+  padding: 14px 16px;
+  font-size: 12px;
+  line-height: 18px;
+  backdrop-filter: blur(14px) saturate(1.2);
 }
 
 .hud[data-mode='simple'] {
   display: flex;
-  gap: 20px;
+  gap: 28px;
   flex-wrap: wrap;
 }
 
 .hud__cell {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  max-width: 280px;
+  gap: 5px;
+  max-width: 260px;
 }
 
 .hud__label {
+  font-size: var(--label-size);
+  font-weight: 600;
+  letter-spacing: var(--label-track);
+  text-transform: uppercase;
   color: var(--text-dim);
-  font-size: 10px;
-  letter-spacing: 0.8px;
 }
 
 .hud__big {
-  font-size: 13px;
-  line-height: 18px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 23px;
+  letter-spacing: -0.015em;
 }
 
 .hud__sub {
+  color: var(--text-muted);
+}
+
+/* Status: coloured dot + text. */
+.hud__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  align-self: flex-start;
+  font-size: 12px;
   color: var(--text-secondary);
 }
 
-.hud__badge {
-  align-self: flex-start;
-  padding: 1px 6px;
-  border: 1px solid currentColor;
-  border-radius: 2px;
-  font-size: 10px;
-  letter-spacing: 0.4px;
+.hud__badge::before {
+  content: '';
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
-.hud__badge[data-tone='ok'] {
-  color: var(--ok);
+.hud__badge[data-tone='ok']::before {
+  background: var(--ok);
 }
 
-.hud__badge[data-tone='warn'] {
-  color: #d4a017;
+.hud__badge[data-tone='warn']::before {
+  background: var(--amber);
 }
 
-.hud__badge[data-tone='bad'] {
-  color: #ff5d5d;
+.hud__badge[data-tone='bad']::before {
+  background: var(--bad);
 }
 
 .hud--sci {
   display: grid;
   grid-template-columns: auto auto;
-  column-gap: 16px;
-  max-width: 440px;
+  column-gap: 24px;
+  row-gap: 2px;
+  max-width: 460px;
 }
 
 .hud__row {
@@ -99,56 +114,120 @@
   max-width: 420px;
 }
 
+/* Timeline scrubber */
 .scrub {
-  flex: 1 1 320px;
+  flex: 1 1 340px;
   min-width: 260px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 10px;
 }
 
 .scrub__top {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 12px;
 }
 
 .scrub__play {
-  padding: 3px 10px;
-  border: 1px solid var(--border-strong, var(--border));
-  border-radius: 2px;
-  font-size: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 10px;
+  border: 1px solid var(--border-strong);
+  font-size: 12px;
+  font-weight: 500;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.scrub__play::before {
+  content: '';
+  width: 0;
+  height: 0;
+  border-left: 7px solid currentColor;
+  border-top: 4.5px solid transparent;
+  border-bottom: 4.5px solid transparent;
+}
+
+.scrub__play[aria-pressed='true']::before {
+  width: 7px;
+  height: 9px;
+  border: 0;
+  border-left: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+}
+
+.scrub__play:hover {
+  background: #fff;
+  color: #000;
 }
 
 .scrub__time {
-  color: var(--text-secondary);
-  font-size: 10px;
+  color: var(--text-muted);
+  font-size: 12px;
 }
 
+/* Thin custom range: hairline track, white thumb. */
 .scrub__range {
+  -webkit-appearance: none;
+  appearance: none;
   width: 100%;
-  accent-color: var(--accent);
+  height: 16px;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.scrub__range::-webkit-slider-runnable-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.scrub__range::-moz-range-track {
+  height: 2px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.scrub__range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  margin-top: -5px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
+}
+
+.scrub__range::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.12);
 }
 
 .scrub__strip {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .scrub__strip-label {
-  width: 44px;
+  width: 40px;
   color: var(--text-dim);
-  font-size: 9px;
-  letter-spacing: 0.6px;
+  font-size: 11px;
+  font-weight: 500;
 }
 
 .scrub__strip-bar {
   position: relative;
   flex: 1;
-  height: 6px;
-  background: #222;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
 }
 
 .scrub__strip-bar i {
@@ -162,30 +241,35 @@
 }
 
 .scrub__strip-bar i[data-state='off'] {
-  background: #3a3a3f;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .scrub__strip-bar i[data-state='unknown'] {
-  background: repeating-linear-gradient(45deg, #777 0 2px, #222 2px 4px);
+  background: repeating-linear-gradient(45deg, #777 0 2px, transparent 2px 4px);
 }
 
 /* Simple / Scientific switch in the header */
 .mode-switch {
   display: flex;
+  padding: 2px;
   border: 1px solid var(--border);
-  border-radius: 2px;
 }
 
 .mode-switch button {
-  padding: 4px 10px;
-  font-size: 10px;
-  color: var(--text-dim);
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.mode-switch button:hover {
+  color: var(--text);
 }
 
 .mode-switch button[aria-pressed='true'] {
   background: #fff;
   color: #000;
-  font-weight: 700;
 }
 
 @media (max-width: 800px) {
@@ -199,38 +283,38 @@
 
   .hud,
   .scrub {
-    padding: 6px 8px;
-    font-size: 10px;
-    line-height: 14px;
+    padding: 8px 10px;
+    font-size: 11px;
+    line-height: 15px;
   }
 
   .hud[data-mode='simple'] {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
   }
 
   .hud__cell {
-    gap: 2px;
+    gap: 3px;
     max-width: none;
   }
 
   .hud__big {
-    font-size: 11px;
-    line-height: 14px;
+    font-size: 13px;
+    line-height: 17px;
   }
 
   .hud__badge {
-    font-size: 9px;
-    line-height: 13px;
+    font-size: 11px;
+    line-height: 14px;
   }
 
   .hud--sci {
     max-width: none;
     width: 100%;
-    font-size: 9px;
-    line-height: 13px;
+    font-size: 11px;
+    line-height: 14px;
     column-gap: 10px;
     /* Scroll inside the panel rather than covering the Moon. */
     max-height: 26vh;
@@ -240,7 +324,7 @@
   .scrub {
     flex: 1 1 100%;
     min-width: 0;
-    gap: 3px;
+    gap: 5px;
   }
 
   .scrub__strip-label {

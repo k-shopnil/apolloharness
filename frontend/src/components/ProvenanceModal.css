@@ -7,7 +7,6 @@
   justify-content: center;
   padding: 32px;
   background: rgba(0, 0, 0, 0.85);
-  font-family: var(--font-data);
 }
 
 .modal__dialog {
@@ -34,9 +33,9 @@
 
 .modal__eyebrow {
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
   color: var(--text-dim);
 }
 
@@ -49,13 +48,12 @@
 }
 
 .modal__close {
-  padding: 5px 13px;
-  border: 1px solid var(--border);
-  font-weight: 700;
-  font-size: 10px;
-  line-height: 12px;
-  letter-spacing: 1.2px;
-  color: var(--text-dim);
+  padding: 6px 14px;
+  border: 1px solid var(--border-strong);
+  font-weight: 500;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-secondary);
 }
 
 .modal__close:hover {
@@ -83,15 +81,14 @@
 .ids__head h3 {
   margin: 0;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
 }
 
 .panel > p {
   margin: 0 0 8px;
-  font-family: var(--font-sans);
-  font-size: 11px;
+  font-size: 13px;
   line-height: 16px;
   letter-spacing: 0.11px;
   color: var(--text-secondary);
@@ -126,12 +123,12 @@
   gap: 6px;
   padding: 3px 9px;
   background: var(--surface);
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border-strong);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
-  color: var(--accent);
+  letter-spacing: var(--label-track);
+  color: var(--text-secondary);
   white-space: nowrap;
 }
 
@@ -149,9 +146,9 @@
 .chart__label {
   position: absolute;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
   color: var(--text-secondary);
 }
 
@@ -163,7 +160,7 @@
 .chart__label--bl {
   left: 8px;
   bottom: 10px;
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 .chart__label--br {
@@ -176,9 +173,9 @@
   justify-content: space-between;
   padding-top: 8px;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
   color: var(--text-secondary);
 }
 
@@ -201,9 +198,9 @@
 
 .ids__head span {
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
   color: var(--text-dim);
 }
 
@@ -220,17 +217,17 @@
 .ids__row strong {
   flex: none;
   width: 128px;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 0.5px;
-  color: var(--accent);
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
 }
 
 .ids__row span {
   font-weight: 500;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 14px;
-  letter-spacing: 0.55px;
+  letter-spacing: 0.02em;
   text-align: right;
   overflow-wrap: anywhere;
 }
@@ -250,23 +247,23 @@
   place-items: center;
   width: 32px;
   height: 32px;
-  border: 1px solid var(--accent);
+  border: 1px solid var(--border-strong);
   border-radius: 50%;
   background: var(--surface);
 }
 
 .verify strong {
   display: block;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 14px;
   letter-spacing: -0.275px;
 }
 
 .verify p {
   font-weight: 500;
-  font-size: 11px;
+  font-size: 13px;
   line-height: 15px;
-  letter-spacing: 0.55px;
+  letter-spacing: 0.02em;
   color: var(--text-dim);
 }
 
@@ -278,14 +275,14 @@
   background: #000;
   border-top: 1px solid var(--border);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11.5px;
   line-height: 12px;
-  letter-spacing: 1.2px;
+  letter-spacing: var(--label-track);
   color: var(--text-dim);
 }
 
 .modal__status {
-  color: var(--accent);
+  color: var(--text-secondary);
 }
 
 @media (max-width: 800px) {
@@ -326,7 +323,7 @@
 
   .ids__row span {
     text-align: left;
-    font-size: 10px;
+    font-size: 11.5px;
   }
 
   .ids__head {
@@ -341,13 +338,13 @@
   }
 
   .chart__tag {
-    font-size: 8px;
-    letter-spacing: 0.6px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
   }
 
   .chart__label {
-    font-size: 8px;
-    letter-spacing: 0.6px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
   }
 
   .modal__footer {

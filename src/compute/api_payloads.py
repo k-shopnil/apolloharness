@@ -11,6 +11,7 @@ rasters or the nested catalog schema:
     GET /api/v1/sites/geometry?site_id=     -> mission_geometry(site_id)
     GET /api/v1/sites/sensitivity?lat&lon&utc -> site_sensitivity(lat, lon, utc)
     GET /api/v1/artemis-regions             -> artemis_regions()
+    GET /api/v1/space-weather?site_id=      -> mission_space_weather(site_id)   (optional)
 
 Errors: ``ValueError`` for bad input (map to HTTP 422), ``LookupError`` for an
 unknown site or a site without a published coordinate/date (map to 404).
@@ -29,8 +30,10 @@ from .terrain import DATA_DIR
 
 CATALOG = DATA_DIR / "missions.json"
 ARTEMIS_REGIONS = DATA_DIR / "artemis_iii_regions.json"
+SPACE_WEATHER = DATA_DIR / "space_weather" / "donki_mission_windows.json"
 TRACK_DIR = DATA_DIR / "precomputed" / "tracks"
 SCHEMA = "apolloharness.site_geometry.v1"
+TRACK_SUMMARY_KEYS = ("sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction")
 
 
 def _full_date(value: str | None) -> str | None:
@@ -86,6 +89,22 @@ def artemis_regions(path: str | Path = ARTEMIS_REGIONS) -> dict[str, Any]:
     return json.loads(Path(path).read_text(encoding="utf-8"))
 
 
+def mission_space_weather(site_id: str, *, path: str | Path = SPACE_WEATHER) -> dict[str, Any]:
+    """NASA DONKI space-weather events in a tracked mission's analysis window.
+
+    Static, committed data (``python -m src.acquire.space_weather`` rebuilds
+    it with ``NASA_API_KEY``), so it works offline and needs no key at
+    request time. Context only: catalogued SEP/CME events, not a dose at the
+    site (see ``caveat``). ``LookupError`` (404) for a site without a track.
+    """
+    data = json.loads(Path(path).read_text(encoding="utf-8"))
+    record = next((m for m in data["missions"] if m["mission_id"] == site_id), None)
+    if record is None:
+        raise LookupError(f"no space-weather window for {site_id!r} (no precomputed track)")
+    return {"schema": data["schema"], "source": data["source"], "caveat": data["caveat"],
+            "flares": data["flares"], "generated_utc": data["generated_utc"], **record}
+
+
 def _clean(value: Any) -> Any:
     """Recursively replace NaN/inf (invalid JSON) with None."""
     if isinstance(value, float):
@@ -98,17 +117,30 @@ def _clean(value: Any) -> Any:
 
 
 def _terrain_summary(terrain: dict[str, Any]) -> dict[str, Any]:
-    keys = ("elevation_m", "dem_product", "dem_resolution_m", "horizon_model",
+    keys = ("elevation_m", "regional_slope_deg", "regional_slope_baseline_m",
+            "dem_product", "dem_resolution_m", "horizon_model",
             "horizon_incomplete_azimuths", "horizon_azimuths_filled_from_global", "status")
     return {k: terrain.get(k) for k in keys}
 
 
 def site_geometry(latitude_deg: float, longitude_deg: float, utc: str, *,
-                  include_psr: bool = True, duration_days: float = 29.530589) -> dict[str, Any]:
-    """Instantaneous Sun/Earth geometry, countdowns, DTE and PSR context for any point."""
+                  include_psr: bool = True, include_track: bool = False,
+                  duration_days: float = 29.530589) -> dict[str, Any]:
+    """Instantaneous Sun/Earth geometry, countdowns, DTE and PSR context for any point.
+
+    ``include_track=True`` adds ``track`` (the scrubber's column arrays over
+    ``duration_days``, same shape as a precomputed mission track) and
+    ``track_summary`` (same keys as ``mission_geometry``). The readout fields
+    are identical either way, so ``/sites/custom`` and ``/sites/geometry``
+    can share one parser.
+    """
     from .site_evaluation import evaluate_custom_site
     result = evaluate_custom_site(latitude_deg, longitude_deg, utc, duration_days=duration_days,
-                                  include_psr=include_psr, include_track=False)
+                                  include_psr=include_psr, include_track=include_track)
+    extra: dict[str, Any] = {}
+    if include_track:
+        track = result["track"]
+        extra = {"track": track, "track_summary": {k: track.get(k) for k in TRACK_SUMMARY_KEYS}}
     return _clean({
         "schema": SCHEMA,
         "source": "engine",
@@ -121,6 +153,7 @@ def site_geometry(latitude_deg: float, longitude_deg: float, utc: str, *,
         "psr": result["psr"],
         "horizon_model": result["horizon_model"],
         "terrain": _terrain_summary(result["terrain"]),
+        **extra,
     })
 
 
@@ -158,8 +191,7 @@ def mission_geometry(site_id: str, *, track_dir: str | Path = TRACK_DIR) -> dict
         "psr": track.get("psr") or {"status": "not_in_track"},
         "horizon_model": track["track"]["horizon_model"],
         "terrain": _terrain_summary(track.get("terrain") or {}),
-        "track_summary": {k: track["track"][k] for k in (
-            "sunlit_percent", "earth_los_percent", "mean_sun_disk_visible_fraction")},
+        "track_summary": {k: track["track"][k] for k in TRACK_SUMMARY_KEYS},
     })
 
 
