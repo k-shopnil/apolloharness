@@ -1,4 +1,4 @@
-# HarnessApollo frontend
+# Apollo Harness: frontend
 
 React + TypeScript + Vite + CesiumJS. It reads the engine's static data, so it runs without a backend.
 

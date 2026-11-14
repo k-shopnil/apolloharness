@@ -1,286 +1,230 @@
 <div align="center">
 
-<img src="./harness_mark_white_affiliation.png" alt="HarnessApollo Header" width="700" />
+<img src="./harness_mark_white_affiliation.png" alt="Apollo Harness" width="700" />
 
-  <br /><br />
+<br /><br />
 
-  <a href="https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/">
-    <img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" />
-  </a>
+<a href="https://apolloharness.web.app"><img src="https://img.shields.io/badge/Live_app-apolloharness.web.app-0B3D91?style=flat-square&logo=firebase&logoColor=white" alt="Live app" /></a>
+<a href="https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/"><img src="https://img.shields.io/badge/NASA_Space_Apps-2026-0B3D91?style=flat-square&logo=nasa&logoColor=white" alt="NASA Space Apps 2026" /></a>
+<a href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/"><img src="https://img.shields.io/badge/Team-Chhayanautical-18181B?style=flat-square" alt="Team Chhayanautical" /></a>
+<a href="https://youtu.be/aGuu1ngPULE"><img src="https://img.shields.io/badge/Pitch-Watch-FF0000?style=flat-square&logo=youtube&logoColor=white" alt="Pitch video" /></a>
+<a href="./LICENSE"><img src="https://img.shields.io/badge/License-MIT-3F3F46?style=flat-square" alt="MIT License" /></a>
 
+<br /><br />
 
-  <a href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/">
-    <img src="https://img.shields.io/badge/Team-Chhayanautical-18181B?style=flat-square&logo=target&logoColor=white" alt="Team Chhayanautical" />
-  </a>
-
-  <a href="https://chhayanautical.web.app">
-    <img src="https://img.shields.io/badge/Website-chhayanautical.web.app-2563EB?style=flat-square&logo=googlechrome&logoColor=white" alt="Website" />
-  </a>
-
-  <a href="https://youtu.be/aGuu1ngPULE?si=Tqs-8-tjcWd688sj">
-    <img src="https://img.shields.io/badge/NASA%20Challenge%20Pitch-Watch%20Now-FF0000?style=flat-square&logo=youtube&logoColor=" alt="Official Pitch" />
-  </a>
-
-  <a href="mailto:chhayanautical@gmail.com">
-    <img src="https://img.shields.io/badge/Contact-Email-EA4335?style=flat-square&logo=gmail&logoColor=white" alt="Email" />
-  </a>
-    <img src="https://img.shields.io/badge/License-MIT-22C55E?style=flat-square" alt="MIT License" />
-  </a>
-
-  <br /><br />
-
-  <p align="center">
-    <strong>Next-Generation Lunar Mission Intelligence & Environmental Analysis</strong><br>
-    <em>Engineered by <strong>Team Chhayanautical</strong> for NASA Space Apps Challenge 2026</em>
-  </p>
+<strong>Know your light before you land.</strong><br />
+<em>Sunlight, Earth contact and terrain for any landing site on the Moon, computed from NASA data.</em><br />
+<sub>Built by <strong>Team Chhayanautical</strong> for the NASA Space Apps Challenge 2026: <a href="https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/">Lunar Landing Site Navigator</a></sub>
 
 </div>
 
 ---
 
-## The Mission
+## Overview
 
-**HarnessApollo** is an environmental intelligence initiative developed for the **NASA Space Apps Challenge 2026** (*[Lunar Landing Site Navigator](https://www.spaceappschallenge.org/2026/challenges/lunar-landing-site-navigator/)*).
+A lander on the Moon depends on two things: **sunlight** for power and a **line of sight to Earth** for communication. Near the poles the Sun skims the horizon, so a ridge a few kilometres away can decide whether a site is lit. A launch that slips by a few days can move arrival into darkness.
 
-As commercial missions venture into uncharted lunar territories, navigating extreme polar environments demands transforming raw planetary science into intuitive, high-fidelity mission intelligence.
+**Apollo Harness** turns NASA's planetary data into answers you can read at a glance:
 
-HarnessApollo bridges planetary data archives with next-generation mission planning interfaces to evaluate lunar surface viability and environmental dynamics.
+- How long until sunset and Earthset at a site?
+- How much sunlight does it get over the next lunar day?
+- What does a three-day launch slip cost?
 
----
+It works for the current CLPS fleet, for past landings used as reference points, and for **any point you click** on the Moon.
 
-## Official NASA Space Apps Pitch
+It is built for two audiences. **Simple mode** gives plain-language countdowns for classrooms and the public. **Scientific mode** gives the full geometry for mission planners.
 
-Experience our official preliminary project presentation submitted for the **NASA Space Apps Challenge 2026**.
+**Live:** https://apolloharness.web.app
 
+## Features
 
-<div align="center">
+| | |
+|---|---|
+| **3D Moon with the mission fleet** | 15 missions from a primary-sourced catalog: 10 CLPS missions plus 5 landed reference missions (Apollo 11 and 17, Chandrayaan-3, Chang'e 4, SLIM). Pins show only coordinates that were actually published. |
+| **Earth and Sun in the sky** | Earth and the Sun are placed along their true directions from each site. The Earth link beam turns red when Earth is hidden behind terrain. |
+| **Operational countdowns** | Time to sunset or sunrise and to Earthset or Earthrise, measured against the real LOLA terrain horizon, plus the round-trip light time to Earth. |
+| **29.5-day timeline** | Scrub or play through one lunar day; the Sun, Earth, beam and readouts update as you move. |
+| **Analyse any point** | Click anywhere on the Moon, or type coordinates. The live engine returns countdowns, upcoming rise and set events, elevation, regional slope and the nearest permanently shadowed region (PSR). |
+| **Compare** | Two sites side by side, or **two launch dates** at the same site, to see how a slip changes sunlight and Earth contact. |
+| **Simple and Scientific modes** | The same data at two levels of detail. |
+| **Data provenance** | Every value cites its NASA product, and missing data is shown as "Unavailable", never as zero. |
+| **Works offline** | The catalog, mission tracks, fonts and coarse Moon imagery are bundled. Only clicked points and date comparisons need the live engine. |
 
-  <a
-    href="https://www.youtube.com/watch?v=aGuu1ngPULE"
-    target="_blank"
-    style="position: relative; display: inline-block; width: 700px; max-width: 100%;" >
-    <img
-      src="https://i.ibb.co/zhgHb7yk/ytthumbrepo.png"
-      alt="HarnessApollo NASA Space Apps Pitch"
-      width="700"
-      style="width: 100%; display: block;"
-    />
-  </a>
+## Data and science
 
-</div>
+All values come from NASA and JPL products. Nothing is estimated or filled in by hand.
 
----
+| Data | Product | Used for |
+|---|---|---|
+| Ephemeris | NASA/JPL NAIF SPICE kernels (DE430, Moon PA DE421) | Sun and Earth positions seen from the site |
+| South polar terrain | NASA GSFC PGDA product 90: LOLA DEM, 80 m/pixel, 80–90°S | Terrain horizon, elevation, slope |
+| Global terrain | NASA PDS LOLA GDR `LDEM_64` (~474 m/pixel) | Terrain horizon everywhere else |
+| Shadowed regions | NASA PGDA product 90 PSR map (506,349 polygons, 80–90°S) | Distance to the nearest cold trap |
+| Illumination maps | NASA PGDA product 69 | Validation |
+| Mission catalog | NASA, LROC, ISRO, CNSA, JAXA and provider sources | `data/missions.json`, with a source for every record |
 
+### Validation
 
-## Status & Disclosure
+| Check | Result | Details |
+|---|---|---|
+| Sky positions vs JPL Horizons (DE441) | Sun direction within **0.006°** at 13 sites; 100% agreement on above or below the horizon | `data/validation/horizons_crosscheck.json` |
+| Sunlight vs NASA PGDA product 69 | Held-out test on 305 points: **R² 0.951**, mean error **1.45 percentage points** | `data/validation/annual_illumination_validation.json` |
+| Earth visibility vs NASA PGDA product 69 | **R² 0.953**, mean error **1.40 percentage points** | `data/validation/earth_visibility_validation.json` |
 
-> **Under Active Development**
+Method and limits: [docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md), [docs/SCIENTIFIC_BASIS.md](docs/SCIENTIFIC_BASIS.md).
 
-## Planetary data pipeline
+### Data rules
 
-Python compute modules live in `src/compute/`; the mission catalog is
-`data/missions.json`, and the offline mission catalog is
-`offline_fixtures/missions.json`. The current catalog contains sixteen sourced
-records: eleven CLPS missions (`category: "clps"`) and five historical and
-international reference anchors (`category: "reference_anchor"`: Apollo 11,
-Apollo 17, Chandrayaan-3, Chang'e 4, SLIM). Coordinates are references with an explicit `coordinate_type`; a
-target or region center must not be interpreted as an achieved landing point.
-Dates containing only a year are target years, not exact dates.
+- **Unknown is never zero.** A missing value is shown as "Unavailable", with the reason.
+- **Coordinates are labelled honestly.** Only `actual_landing` coordinates are presented as landing points; targets and regions are labelled as such.
+- **The terrain model is always shown.** Results say whether real LOLA terrain was used.
+- **Countdowns never extrapolate** beyond the computed window.
+- **Earth contact is geometric line of sight only**, with no link budget or Deep Space Network scheduling. The slope shown is regional terrain, not lander footing safety.
 
-### Sources, datasets, and coordinate assumptions
+## Architecture
 
-The required SPICE kernels are `data/spice/naif0012.tls` (UTC/leap seconds),
-`pck00010.tpc` (body constants), `moon_080317.tf` (lunar frame definitions),
-`moon_pa_de421_1900-2050.bpc` (Moon PA orientation), and `de430.bsp` (solar
-system ephemerides). All five are in the repository (the two binary kernels via
-Git LFS) and are byte-identical to NAIF's generic kernels; every external file,
-its source, size, SHA-256 and location is listed in
-[docs/DATA_SETUP.md](docs/DATA_SETUP.md), and `python -m src.acquire.verify_data`
-checks them all.
-The complete source inventory and citation audit is in
-[docs/DATA_SOURCES.md](docs/DATA_SOURCES.md), with structured provenance in
-[`data/validation/data_provenance.json`](data/validation/data_provenance.json).
-SPICE calculations use `MOON_PA`, east-positive
-longitude, planetocentric latitude converted through the Moon radii, and
-geometric (no aberration correction) line of sight. Sun and Earth visibility
-are tested against the LOLA terrain horizon at the site (`horizon_model:
-"lola_terrain_mask"`), falling back to a spherical horizon only where no terrain
-is installed, and saying so in the output. They do not include lander antenna
-constraints or relay availability.
-
-Terrain analysis uses NASA GSFC PGDA product 90's 80–90°S LOLA DEM at 80 m/pixel,
-which covers the Mons Mouton and Shackleton benchmark coordinates.
-Outside 80–90°S, terrain comes from the global LOLA GDR `LDEM_64` (~474
-m/pixel) through small committed per-site tiles in `data/lola/tiles/`. To
-evaluate arbitrary coordinates outside 80–90°S, install the optional 531 MB
-global DEM with `python -m src.acquire.nasa_products lola_gdr_global_64ppd`
-(manual `curl` and checksum steps:
-[docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md#downloading-the-global-lola-dem-ldem_64)). The registry
-`data/lola/LDEM_80S_80MPP_ADJ.TIF` is in the repository via Git LFS; without
-LFS, `python -m src.acquire.verify_data --fetch` downloads it from NASA PGDA into
-`cache/nasa/pgda/` and links it there. Product 90
-uses south-polar stereographic coordinates in meters referenced to the
-MOON_ME/DE421 realization and a 1,737,400 m reference sphere. Product 81 is a
-finer 5 m/pixel mosaic covering only 87–90°S, so it does not cover Mons Mouton.
-The acquired product-90 TIFF's WKT uses an IAU Moon-2015 ocentric CRS label;
-see [SCIENTIFIC_BASIS.md](docs/SCIENTIFIC_BASIS.md) for the metadata discrepancy
-and its effect on interpretation.
-The horizon output depends on observer height, radial step, and DEM resolution;
-incomplete rays remain unavailable rather than implying open sky.
-
-Annual illumination is a distinct strategic product. The registry downloads
-NASA PGDA product 69's 85–90°S, 60 m/pixel and 75–90°S, 120 m/pixel GeoTIFFs to
-`data/illumination/`. NASA describes these maps as average solar illumination
-over hourly samples spanning about one 18.6-year lunar nutation cycle. The
-TIFF's scale metadata (0.00004) converts stored int16 values to fraction of
-time illuminated; the API converts that to percent. These are average products,
-not mission-window predictions. Use the broader 75–90°S product for Mons
-Mouton's annual figure comes from the 60 m product too: its square raster
-footprint reaches north of 85°S. The 120 m product is used where only it covers
-a point.
-
-PSR proximity uses NASA PGDA product 90's full south-polar PSR shapefile. The
-four shapefile components are in `data/psr/` via Git LFS (or fetched from NASA
-PGDA with `verify_data --fetch`). Distances are calculated in meters
-after projection to a south-polar stereographic CRS using the ME reference
-sphere, not from latitude/longitude differences.
-The acquired NASA vector contains 506,349 polygons, including ten invalid
-source geometries. The legacy strict `calculate_psr_distance` rejects the full
-source; the interactive `nearest_psr_within` (used by the API) reads only the
-polygons near the site, reports `inside_psr`, the PSR ID, area, the nearest
-PSR of at least 1 km², and the IAU-named host crater where one exists.
-
-### Offline operation and reproducibility
-
-`src/acquire/safe.py` implements online → `cache/` → committed fixture fallback
-for JSON and file downloads. The committed mission JSON fixture keeps the
-mission catalog available offline; compute modules that depend on binary
-ephemerides still require the local SPICE kernels. NASA science rasters and PSR
-vectors are not replaced by fixture values. Fixture outputs are for software
-and offline testing and are NOT scientific results. Analysis output includes
-its analysis type and source path. For
-reproducibility, record the exact source product/version, kernel filenames,
-observer coordinate convention, DEM sampling parameters, and mission start and
-duration with each result.
-
-Install pinned dependencies with `python -m pip install -r requirements.txt`.
-For tests, install `requirements-dev.txt` (adds pytest) and run `python -m pytest -q tests`.
-The engine is validated against NASA's independent illumination map (held-out
-test R² 0.951, MAE 1.45 pp), NASA's Earth visibility map (R² 0.953, MAE 1.40 pp)
-and JPL Horizons sky positions (≤ 0.006°): see [docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md).
-Run an offline geometry example from the repository root with:
-
-```sh
-python -m src.compute.spice_engine
+```
+NASA / JPL data (SPICE, LOLA, PSR)
+        │
+        ▼
+Compute engine (Python, src/compute)
+        │
+        ├──► Precomputed 29.5-day mission tracks ──► bundled with the website
+        │
+        └──► Live API (FastAPI, backend/), hosted on Render
+                    ▲
+                    │  clicked points, launch-date comparisons
+                    │
+Web app (React + TypeScript + CesiumJS, frontend/), hosted on Firebase
 ```
 
-LOLA tactical illumination can be called from Python using
-`extract_horizon_mask(...)` and `calculate_mission_illumination(...)`;
-annual illumination and PSR distance are exposed as
-`calculate_annual_illumination(...)` and `calculate_psr_distance(...)`.
-Earlier aliases remain available. The compute API raises a
-clear `FileNotFoundError` when its scientific input product is not installed.
-Run the included checks with `.venv/bin/python -m unittest discover -s tests -v`
-and use `.venv/bin/python -m compileall src` for a syntax check. No benchmark
-datasets are committed. The scientific basis document records an attempted
-real raster sample and its discrepancy with the brief's reference value;
-benchmark values must not be claimed until all matching products and time
-windows are identified and run.
+- **Website:** https://apolloharness.web.app. Deploys from `main` through GitHub Actions to Firebase Hosting.
+- **Live API:** https://apolloharness-api.onrender.com (docs at `/docs`). Deploys from `main` as a Docker image on Render. The free instance sleeps after 15 idle minutes; the website wakes it and shows a wait message.
 
-For downstream API and frontend field mappings, public function signatures,
-units, examples, dataset paths, and validation limitations, see
-[docs/DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md). For the Issue #8
-temporal features (custom coordinates, Sun/Earth countdowns, timeline-scrubber
-tracks, launch-slip comparison) with per-team instructions, see
-[docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md).
-Current-epoch SPICE geometry is a kernel-based prediction, not a live lunar
-measurement. Registered NASA products expose local cache/integrity status and
-verification timestamps; these timestamps do not claim that NASA updated the
-underlying historical product. The pipeline does not consume live CLPS
-telemetry.
+## Repository layout
 
----
+```
+frontend/            Web app: React, TypeScript, Vite, CesiumJS
+backend/             FastAPI service exposing the engine
+src/compute/         Engine: SPICE geometry, terrain horizons, PSR distance, tracks
+src/acquire/         Data download and verification (NASA, NAIF, USGS)
+src/ml/              Validation against NASA and JPL references
+data/                Mission catalog, precomputed tracks, NASA products (Git LFS)
+offline_fixtures/    Offline copies of API payloads for tests and fallback
+tests/               Python test suite
+docs/                Data setup, sources, science basis and validation reports
+Dockerfile           API image used by Render
+```
 
-## Phase 2 Active Integration Sprint (Issue #8)
+## Getting started
 
-> [!IMPORTANT]
-> **STALENESS & LIFECYCLE MARKER:**
-> * **Anchor Merge Commit:** [`7cb8a02`](https://github.com/k-shopnil/apolloharness/commit/7cb8a02) (*Merge pull request #9: Issue #8 data pipeline*)
-> * **Milestone Baseline:** Issue #8 Challenge-Alignment Foundation (NASA-Validated Engine & Grounded Fleet)
-> * **Last Updated:** `2026-11-02`
-> * **Sprint Status:** **ACTIVE INTEGRATION (Awaiting Backend & Frontend PRs)**
-> 
-> *Notice for team members: If `git log -n 1 --oneline` shows a commit newer than `7cb8a02` on `main` (such as a merged backend or frontend PR), the checklist and instructions below may be **PARTIALLY OR FULLY STALE**. Check recent PRs before executing pending tasks.*
+### Prerequisites
 
-### What Has Been Accomplished & Merged (at `7cb8a02`)
+- [Git LFS](https://git-lfs.com). Terrain, shadowed-region and SPICE files are LFS objects.
+- Python 3.12
+- Node.js 20 or newer
 
-* **Horizon Event Root-Finder & Operational Countdowns:** `src/compute/spice_engine.py` calculates Sun and Earth rise/set to within 1 s against the 360° LOLA skyline (`find_horizon_events`), producing dynamic hours and `"4d 18h"` countdowns. Added finite disc visible fractions (`disk_visible_fraction`) and CSPICE thread-safety locks.
-* **Multi-Day Precomputations:** 29.5-day precomputed hourly tracks generated for 9 missions in `data/precomputed/tracks/` to power the 60 FPS scrubber without runtime backend latency.
-* **Arbitrary Coordinates & Global Lunar Terrain:** Bilinear interpolation on polar DEM (`LDEM_80S_80MPP_ADJ.TIF`) with automatic fallback to global LOLA `LDEM_64`. Pre-cut per-site tiles committed via Git LFS. Custom coordinates evaluate in 0.12–0.30 s warm; regional screening runs at ~13 ms/point. PSR proximity inside cold traps fixed (`nearest_psr_within`).
-* **Manifest Grounding (Zero Invented Data):** Fictional mock missions (`ls-1`, `PRIME-2`) purged. Added 5 primary-source reference anchors (Apollo 11, Apollo 17, Chandrayaan-3, Chang'e 4, SLIM) and 11 verified CLPS missions with payload summaries in `data/missions.json`. Draper CP-12 marked `terminated`.
-* **NASA PGDA Product 69 Validation:** Spatial dev/test validation achieved held-out test $R^2 = 0.951$, MAE = 1.45 pp, resolving the Shackleton crater illumination discrepancy ([docs/ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md)).
-* **Regression Suite:** 78 passing unit and physics tests in `tests/`.
+### 1. Clone and fetch the data
 
----
-
-### Team Execution Guide (How to Carry From Here)
-
-#### 1. Baseline Synchronization (All Teams)
-Before writing or running code, fetch the merged LFS assets and engine modules:
 ```sh
-git checkout <your-branch>
-git pull origin main
+git clone https://github.com/k-shopnil/apolloharness.git
+cd apolloharness
 git lfs pull
 ```
-*(Crucial: Terrain GeoTIFF tiles, PSR vectors, and SPICE kernels are Git LFS objects.)*
-Then run `python -m src.acquire.verify_data`; it must end with `all required data
-present and verified`. Full file list, sources and the no-LFS fallback:
-[docs/DATA_SETUP.md](docs/DATA_SETUP.md).
 
-Event days (13–15 November): follow [docs/EVENT_DAY_PLAN.md](docs/EVENT_DAY_PLAN.md).
-On day one, check the newly released resources against our data with
-`python -m src.acquire.identify_resources <download folder>`.
+### 2. Engine and tests (Python)
 
-#### 2. Backend Team (`feature/backend-systems`) — `@ariful305`, `@Eetherr77`
-* [ ] **Wire Custom Coordinate Route:** Add `GET /api/v1/sites/custom?lat=...&lon=...&utc=...` calling `src.compute.site_evaluation.evaluate_custom_site`.
-* [ ] **Wire Launch-Slip Route:** Add `GET /api/v1/sites/compare-dates?site_id=...&date_a=...&date_b=...` calling `src.compute.site_evaluation.compare_launch_dates`.
-* [ ] **Expand Geometry Schema:** Update `/api/v1/sites/geometry` to return the new operational countdown fields (`time_to_sunset_hours`, `time_to_sunset_formatted`, etc.).
-* [ ] **Wire Sensitivity Route:** Add `GET /api/v1/sites/sensitivity?lat=...&lon=...&utc=...` calling `src.compute.api_payloads.site_sensitivity` (cache responses; ~3–5 s; 422 north of ~83.5°S).
-* [ ] **Wire Artemis III Regions Route:** Add `GET /api/v1/artemis-regions` returning `src.compute.api_payloads.artemis_regions()` (static; regions, not landing points).
-* [ ] **Ingest Nested Mission Models:** Adapt backend `Mission` schema to ingest the nested structure in `data/missions.json` (see [docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md#backend-endpoint-wiring)).
-* [ ] **Regression & PR:** Verify `pytest tests/` passes, push to `feature/backend-systems`, and open a PR targeting `main`. In your PR description, tag `@ASMFahim71` with the finalized response payloads.
+```sh
+python -m venv .venv
+# Windows: .venv\Scripts\activate    macOS/Linux: source .venv/bin/activate
+pip install -r requirements-dev.txt
 
-#### 3. Frontend Team (`feature/frontend-systems`) — `@ASMFahim71`
-* [ ] **Manifest Alignment:** Update `src/data/missions.ts` to match `data/missions.json` (remove `ls-1`/`PRIME-2`, adopt the 5 anchor missions, hide terminated Draper CP-12).
-* [ ] **Dual-Mode Header:** Add the Simple Mode vs Scientific Mode switcher in `src/components/Header.tsx`.
-* [ ] **Survival Countdown HUD:** Build large countdown indicators ("4d 18h Sunlight Remaining", "Earth Link: Active") in Simple Mode.
-* [ ] **29.5-Day Scrubber:** Feed `data/precomputed/tracks/` into `TimelineScrubber.tsx` for 60 FPS orbital playback.
-* [ ] **Cesium Click-to-Pin:** In `MoonGlobe.tsx`, add left-click raycasting to grab lat/lon and query `/api/v1/sites/custom`.
-* [ ] **Date A vs Date B View:** Add the launch rescheduling comparison tab in `src/components/CompareView.tsx`.
-* [ ] **PR:** Once Backend PR merges into `main`, pull `main`, verify end-to-end, and open Frontend PR.
+python -m src.acquire.verify_data     # must end with: all required data present and verified
+python -m pytest -q tests
+```
 
-#### 4. Scientific Review (`feature/research`) — `@Thirtha17`
-* [ ] **JPL Horizons Ephemeris Spot-Check:** Cross-check SPICE Sun and Earth elevations for Apollo 11, Chandrayaan-3, and IM-2 against NASA JPL Horizons (target Δ < 0.1°).
-* [ ] **Documentation Sign-off:** Complete review in `docs/SCIENTIFIC_VALIDATION_REPORT.md`.
+If Git LFS is unavailable, `python -m src.acquire.verify_data --fetch` downloads the files from the original publishers (NASA PGDA, NAIF, USGS) and checks their SHA-256. Every file, with its source, size and checksum, is listed in [docs/DATA_SETUP.md](docs/DATA_SETUP.md).
 
-#### 5. Deployment / CI Notice
-* Automatic CD deployment to live Firebase Hosting is temporarily halted (`workflow 379013184` disabled manually) until the backend and frontend PRs are integrated and full builds pass cleanly.
+**Optional:** real terrain away from the south pole needs the global LOLA map (531 MB):
 
+```sh
+python -m src.acquire.nasa_products lola_gdr_global_64ppd
+```
 
----
+### 3. Run the API locally
 
-## Team & Contacts
+```sh
+uvicorn backend.main:app --reload --port 8000
+# http://localhost:8000/docs   ·   http://localhost:8000/api/v1/health
+```
 
-**HarnessApollo** is engineered and maintained by **Team Chhayanautical**.
+Or with Docker (includes the global terrain map):
 
-| Channel | Link / Address | Description |
-|----------|----------|----------|
-|  **Official Website** | [chhayanautical.web.app](https://chhayanautical.web.app) | Mission portal & live web deployment |
-| **NASA Space Apps Team Finder** | [Chhayanautical @ NSAC Finder](https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/) | Official team registration & participant roster |
-| **Contact** | [chhayanautical@gmail.com](mailto:chhayanautical@gmail.com) | Official team contact & inquiries |
+```sh
+docker build -t apolloharness-api .
+docker run -p 8000:8000 apolloharness-api
+```
 
----
+### 4. Run the web app
+
+```sh
+cd frontend
+npm ci
+npm run dev      # http://localhost:5173
+```
+
+By default the app uses the hosted API. To use a local one, run `VITE_API_URL=http://localhost:8000 npm run dev`. Set `VITE_API_URL=` (empty) to build an offline-only site. More details: [frontend/README.md](frontend/README.md).
+
+## API
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/v1/health` | Service status, SPICE kernels loaded, engine warm-up |
+| `GET /api/v1/missions` | The mission catalog |
+| `GET /api/v1/sites/geometry?site_id=` | Sun and Earth geometry and countdowns for a catalog site |
+| `GET /api/v1/sites/custom?lat=&lon=&utc=` | Full readout for any point; `include_track=true` adds the 29.5-day track |
+| `GET /api/v1/sites/compare-dates?site_id=&date_a=&date_b=` | The same site from two start dates, with the differences |
+| `GET /api/v1/sites/sensitivity?lat=&lon=&utc=` | How small changes in position, date and mast height affect results |
+| `GET /api/v1/artemis-regions` | NASA's Artemis III candidate regions |
+
+Response shapes and field meanings: [docs/TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md).
+
+## Contributing
+
+`main` deploys to production. Changes go through a pull request, and four checks must pass: Python tests, frontend build, data guard, and the change filter. The data guard blocks known mock missions and invented default values.
+
+## Documentation
+
+| Document | Contents |
+|---|---|
+| [DATA_SETUP.md](docs/DATA_SETUP.md) | Every external file: source, size, checksum, installation |
+| [DATA_SOURCES.md](docs/DATA_SOURCES.md) | Source inventory and citation audit |
+| [SCIENTIFIC_BASIS.md](docs/SCIENTIFIC_BASIS.md) | Frames, conventions, assumptions, known discrepancies |
+| [ML_VALIDATION_REPORT.md](docs/ML_VALIDATION_REPORT.md) | Validation method and results |
+| [DATA_PIPELINE_USAGE.md](docs/DATA_PIPELINE_USAGE.md) | Engine functions, units and examples |
+| [TEAM_INTEGRATION_GUIDE.md](docs/TEAM_INTEGRATION_GUIDE.md) | API payloads and how the frontend uses them |
+| [EVENT_DAY_PLAN.md](docs/EVENT_DAY_PLAN.md) | Hackathon event-day checklist |
+
+## Pitch
+
+<div align="center">
+<a href="https://www.youtube.com/watch?v=aGuu1ngPULE"><img src="https://i.ibb.co/zhgHb7yk/ytthumbrepo.png" alt="Apollo Harness: NASA Space Apps pitch" width="640" /></a>
+</div>
+
+## Team
+
+**Apollo Harness** is built and maintained by **Team Chhayanautical** for the NASA Space Apps Challenge 2026.
+
+| | |
+|---|---|
+| **Team website** | [chhayanautical.web.app](https://chhayanautical.web.app) |
+| **Space Apps team page** | [Chhayanautical on Space Apps](https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/) |
+| **Contact** | [chhayanautical@gmail.com](mailto:chhayanautical@gmail.com) |
+
+## Acknowledgements
+
+This project uses data from NASA's Lunar Reconnaissance Orbiter (LOLA, LROC), NASA GSFC's Planetary Geology, Geophysics and Geochemistry Lab (PGDA), the NASA Planetary Data System, JPL's Navigation and Ancillary Information Facility (SPICE) and JPL Horizons, and the NASA Moon Trek imagery service. Apollo Harness is an independent project built on NASA data; it is not an official NASA product.
 
 ## License
 
-This project is licensed under the LICENSE © 2026 Team Chhayanautical.
+[MIT](LICENSE) © 2026 Team Chhayanautical

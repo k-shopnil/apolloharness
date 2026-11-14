@@ -33,7 +33,7 @@ export function CustomSiteDetails({ request, lookup, onRetry, onChangeUtc }: Pro
           Custom point
         </p>
         <h2 className="details__title">{formatCoords(request.lat, request.lon)}</h2>
-        <p className="details__sub">Computed live by the ApolloHarness engine from NASA SPICE and LOLA data.</p>
+        <p className="details__sub">Computed live by the Apollo Harness engine from NASA SPICE and LOLA data.</p>
         <form
           className="details__time"
           onSubmit={(e) => {

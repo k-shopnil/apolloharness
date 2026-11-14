@@ -117,7 +117,7 @@ export function ProvenanceModal({ mission, onClose }: ProvenanceModalProps) {
           </section>
 
           <p className="details__note">
-            Derived output computed by the HarnessApollo engine. Human scientific review is pending; this is not an
+            Derived output computed by the Apollo Harness engine. Human scientific review is pending; this is not an
             official NASA product.
           </p>
         </div>
