@@ -29,6 +29,7 @@ import type { LocatedMission } from '../data/missions'
 import { COMPACT_QUERY } from '../hooks/useMediaQuery'
 import { ephemerisFrom, siteTelemetry } from '../data/ephemeris'
 import type { TrackSample } from '../data/timeline'
+import { GlobeControls } from './GlobeControls'
 import { SiteTelemetryCard } from './SiteTelemetryCard'
 import './MoonGlobe.css'
 
@@ -300,6 +301,8 @@ export function MoonGlobe({
     if (scene.moon) scene.moon.show = false
     scene.screenSpaceCameraController.minimumZoomDistance = 1_500
     scene.screenSpaceCameraController.maximumZoomDistance = 12_000_000
+    // Free rotation: by default Cesium pins drags to the spin axis, which feels locked at a pole view.
+    viewer.camera.constrainedAxis = undefined
 
     viewer.camera.setView(poleView(containerAspect(viewer)))
 
@@ -625,6 +628,16 @@ export function MoonGlobe({
           <span>Sun direction</span>
         </label>
       </div>
+      <GlobeControls
+        viewerRef={viewerRef}
+        onReset={() => {
+          const viewer = viewerRef.current
+          if (!viewer) return
+          const active = missions.find((m) => m.id === activeId)
+          if (drawerOpen && active) flyToSite(viewer, active)
+          else flyToOverview(viewer)
+        }}
+      />
       {children && <div className="globe__dock">{children}</div>}
       <button type="button" className="globe__compare" onClick={onCompare}>
         Compare sites

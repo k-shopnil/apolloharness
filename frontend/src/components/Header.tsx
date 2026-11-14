@@ -1,5 +1,7 @@
 import type { UIMode } from './SiteHud'
 import brandMark from '../assets/apollo-harness-mark.png'
+import teamEmblem from '../gateway/assets/chhaya_spinning_logo.svg'
+import teamWordmark from '../gateway/assets/chhaya_type.svg'
 import { filterTabs, missionsFor, type Mission, type MissionFilter } from '../data/missions'
 import './Header.css'
 import './Hud.css'
@@ -60,6 +62,18 @@ export function Header({ mode, onModeChange, missions, filter, onFilterChange }:
           <span className="header__status-dot" />
           <span className="header__status-text">Offline data</span>
         </div>
+
+        <a
+          className="header__team"
+          href="https://www.spaceappschallenge.org/2026/find-a-team/chhayanautical/"
+          target="_blank"
+          rel="noopener noreferrer"
+          title="Developed by Team Chhayanautical for the NASA Space Apps Challenge 2026"
+        >
+          <span className="header__team-label">Developed by</span>
+          <img className="header__team-emblem" src={teamEmblem} alt="" width={22} height={24} />
+          <img className="header__team-type" src={teamWordmark} alt="Team Chhayanautical" width={60} height={22} />
+        </a>
       </div>
     </header>
   )

@@ -4,8 +4,7 @@ import { Gateway } from './gateway/Gateway'
 // "/" is the gateway (countdown lobby); "/app" is the mission interface.
 // Firebase rewrites every path to index.html, so /app deep-links and reloads work.
 const APP_PATH = '/app'
-const GATEWAY_TITLE = 'ApolloHarness by Team Chhayanautical | NASA Space Apps Challenge 2026'
-const APP_TITLE = 'HarnessApollo · Lunar Mission Interface'
+const SITE_TITLE = 'ApolloHarness by Team Chhayanautical | NASA Space Apps Challenge 2026'
 
 // Once the prefetch has resolved, render the module directly: going through
 // lazy() again would still suspend for a tick and flash the fallback.
@@ -31,7 +30,7 @@ export function Root() {
   }, [])
 
   useEffect(() => {
-    document.title = view === 'app' ? APP_TITLE : GATEWAY_TITLE
+    document.title = SITE_TITLE
   }, [view])
 
   // While the lobby is up, fetch the interface (and the Cesium globe chunk) in
