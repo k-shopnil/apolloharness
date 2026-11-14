@@ -14,10 +14,12 @@
   --text-muted: #8a8a93;
   --text-dim: #6b6b74;
   --accent: #ff4d00;
-  --ok: #34d399;
+  /* Earth blue (the Earth label colour on the globe) is the "good / available" cue. */
+  --earth: #7db8ff;
+  --ok: var(--earth);
   --cyan: #38bdf8;
   --amber: #fbbf24;
-  --signal: #34d399;
+  --signal: var(--earth);
   --bad: #f87171;
 
   --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
