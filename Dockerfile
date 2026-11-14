@@ -11,12 +11,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
+ENV PYTHONPATH=/app
+
+# Global LOLA terrain (NASA PDS LDEM_64, 531 MB, SHA-256 checked). It gives every
+# point on the Moon a real terrain horizon instead of a smooth sphere. Only the
+# downloader is copied first, so this layer stays in the build cache until the
+# downloader itself changes; ordinary code changes don't re-download it.
+COPY src/acquire/ /app/src/acquire/
+RUN python -m src.acquire.nasa_products lola_gdr_global_64ppd
+
 COPY src/ /app/src/
 COPY backend/ /app/backend/
 COPY data/ /app/data/
 COPY offline_fixtures/ /app/offline_fixtures/
-
-ENV PYTHONPATH=/app
 
 # If the build context came from a clone without Git LFS (some hosts don't pull
 # LFS objects), data/ holds pointer files. Download those from the original
@@ -24,7 +31,8 @@ ENV PYTHONPATH=/app
 # file is present and valid, so the API never starts on placeholder data.
 RUN python -m src.acquire.verify_data --quick > /dev/null \
     || python -m src.acquire.verify_data --fetch \
-    && python -m src.acquire.verify_data --quick
+    && python -m src.acquire.verify_data --quick \
+    && test -f cache/nasa/pds/ldem_64.img
 
 # Build the derived caches into the image (cache/derived): the PSR search index
 # (FlatGeobuf, ~210 MB on disk, ~250 MB peak RAM to build) and the coarse DEM

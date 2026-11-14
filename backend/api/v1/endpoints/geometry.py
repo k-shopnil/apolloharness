@@ -6,6 +6,7 @@ from typing import Any, Optional
 from cachetools import TTLCache
 from fastapi import APIRouter, HTTPException, Query, Response
 from backend.core.config import settings
+from backend.core.engine_gate import ENGINE_GATE
 
 router = APIRouter()
 
@@ -28,7 +29,8 @@ def cached_site_geometry(lat: float, lon: float, utc: str) -> tuple[dict[str, An
         return deepcopy(cached), True
 
     from src.compute.api_payloads import site_geometry
-    payload = site_geometry(lat, lon, utc)
+    with ENGINE_GATE:
+        payload = site_geometry(lat, lon, utc)
 
     with _GEOMETRY_CACHE_LOCK:
         _GEOMETRY_CACHE[key] = deepcopy(payload)
