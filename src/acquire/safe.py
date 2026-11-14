@@ -6,6 +6,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Any
+from .tls import context as _tls_context
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -81,7 +82,7 @@ def fetch_json(
             },
         )
 
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout, context=_tls_context()) as response:
             raw_data = response.read()
 
         data = json.loads(raw_data.decode("utf-8"))
@@ -148,7 +149,7 @@ def fetch_file(
             },
         )
 
-        with urllib.request.urlopen(request, timeout=timeout) as response:
+        with urllib.request.urlopen(request, timeout=timeout, context=_tls_context()) as response:
             cache_path.parent.mkdir(parents=True, exist_ok=True)
             temporary_path = cache_path.with_suffix(cache_path.suffix + ".tmp")
             try:
