@@ -106,6 +106,47 @@ disc geometry, spherical distance calculations, spatial joins, and statistical
 comparison. See [`docs/SCIENTIFIC_BASIS.md`](SCIENTIFIC_BASIS.md) and each
 module's docstring for assumptions.
 
+## 9. NASA API portal (api.nasa.gov) and the API key
+
+The [NASA API portal](https://api.nasa.gov) is a catalogue and key service for
+public NASA APIs. **The core engine needs no key**: PGDA, NAIF, PDS, USGS and
+JPL Horizons are open downloads or keyless APIs. A personal key (free, from
+the [Generate API Key form](https://api.nasa.gov/#signUp); 1,000 requests/hour)
+goes in the git-ignored `.env` as `NASA_API_KEY` (template:
+[`.env.example`](../.env.example)) and is read only by
+[`src/acquire/nasa_api.py`](../src/acquire/nasa_api.py), which never prints,
+logs or stores it. Without a key, scripts fall back to `DEMO_KEY`.
+
+**Adopted: DONKI space weather.** [`src/acquire/space_weather.py`](../src/acquire/space_weather.py)
+summarises NASA CCMC [DONKI](https://kauai.ccmc.gsfc.nasa.gov/DONKI/) solar
+energetic particle (SEP) events and coronal mass ejections (CME) inside each
+tracked mission's analysis window, in
+[`data/space_weather/donki_mission_windows.json`](../data/space_weather/donki_mission_windows.json),
+served by `api_payloads.mission_space_weather(site_id)`. It is context, not a
+dose at the site: events come from near-Earth and heliospheric spacecraft,
+and the Moon spends part of each month inside Earth's magnetotail. DONKI's
+catalogue begins in April 2010, so Apollo windows are `before_donki_coverage`
+(null, never 0). Flares (`DONKI/FLR`) returned HTTP 404 through the portal on
+2026-11-13 and are recorded as unavailable.
+
+Every API listed on the portal (checked 2026-11-13), and why it is or is not used:
+
+| API | Decision | Reason |
+|---|---|---|
+| DONKI (space weather) | **Adopted** (SEP, CME) | Radiation-relevant context for surface windows; real catalogued events with links |
+| Vesta/Moon/Mars Trek WMTS | **Already used**, no key | The frontend globe's LRO WAC mosaic comes from Moon Trek tiles (`frontend/scripts/fetch-tiles.mjs`) |
+| NASA Image and Video Library | Candidate, no key | Mission imagery with NASA IDs and credits for the mission drawer; UI work, not data |
+| SSD/CNEOS | Already covered | JPL Horizons (same JPL SSD family) is the ephemeris reference; CNEOS is near-Earth objects |
+| Satellite Situation Center | Not used | Geocentric spacecraft regions; does not cover lunar surface sites |
+| Techport, TechTransfer | Not used | Technology project records; no site or mission-geometry data |
+| APOD, NeoWs, EONET, EPIC, GIBS, Exoplanet, InSight, Open Science Data Repository, TLE | Not relevant | Earth, asteroid, exoplanet, Mars or biology data; nothing for the lunar south pole |
+| Earth API, Mars Rover API | Archived by NASA | Replaced by GIBS / archived (portal notice) |
+
+[Earthdata](https://earthdata.nasa.gov) uses an Earthdata login, not this key,
+and serves Earth-observation data; [data.nasa.gov](https://data.nasa.gov) is a
+dataset catalogue. Neither adds lunar south-pole products beyond the PGDA,
+PDS and USGS sources above.
+
 ## Audit status
 
 | Data item | Local file(s) | Source | Version/date | Citation present | Human review required | Status |
@@ -119,6 +160,7 @@ module's docstring for assumptions.
 | Illumination rasters | `data/illumination/*` | NASA PGDA product 69 | 201608 release | Yes | Yes | Validation truth separated |
 | SPICE kernels | `data/spice/*` | NASA/JPL NAIF | Kernel-specific | Yes | Yes | SHA manifest |
 | Horizons responses | `data/validation/horizons/*` | NASA/JPL Horizons API | Query-specific | Yes | Yes | Automated comparison pending review |
+| Space-weather windows | `data/space_weather/donki_mission_windows.json` | NASA CCMC DONKI via api.nasa.gov | Retrieved 2026-11-13; catalogue from 2010-04 | Yes | Yes | Context only, not site dose; flares unavailable |
 | Derived tracks/validation | `data/precomputed/*`, `data/validation/*.json` | Local processing of cited inputs | Artifact-specific | Yes, as derived | Yes | Not source data |
 
 No important scientific dataset is intentionally marked citation-absent.

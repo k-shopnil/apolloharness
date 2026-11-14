@@ -346,6 +346,24 @@ that reason (decision on Issue #8 §8.4):
 Values at the catalog sites (in the tracks and fixtures): IM-2 2.0° and
 IM-1 11.7° over 160 m; SLIM 7.2° and Apollo 17 1.1° over ~950 m.
 
+### Optional, after the core routes: `GET /api/v1/space-weather?site_id=`
+
+`api_payloads.mission_space_weather(site_id)` returns the NASA DONKI solar
+energetic particle (SEP) events and CMEs catalogued during that mission's
+29.5-day analysis window, read from the committed
+`data/space_weather/donki_mission_windows.json`. It needs no API key at
+request time and works offline. `LookupError` (404) for a mission without a
+track.
+
+UI rules:
+
+- Say "3 solar particle events were catalogued during this window", with the
+  DONKI link per event. Never "the site received a dose". Show `caveat`.
+- `status: "before_donki_coverage"` (Apollo) means unknown: show
+  "Unavailable (DONKI begins 2010)", never 0.
+- Flares are `unavailable` (portal endpoint returned 404). Do not show a
+  flare count.
+
 ### PSR names: what the UI may say
 
 PSRs have no official names; the IAU names craters, not shadows. NASA's

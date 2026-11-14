@@ -249,6 +249,29 @@
       "human_review_status": "pending"
     },
     {
+      "dataset": "NASA DONKI space-weather events in mission analysis windows",
+      "description": "Solar energetic particle (SEP) events and coronal mass ejections (CME) catalogued by NASA CCMC DONKI inside each tracked mission's 29.5-day analysis window. Context only, not a dose or flux at the landing site.",
+      "source": {
+        "organization": "NASA Community Coordinated Modeling Center (CCMC)",
+        "title": "DONKI: Space Weather Database Of Notifications, Knowledge, Information",
+        "url": "https://kauai.ccmc.gsfc.nasa.gov/DONKI/",
+        "version_or_date": "Live database; retrieval timestamp in generated_utc. Catalogue begins April 2010."
+      },
+      "local_files": [
+        "data/space_weather/donki_mission_windows.json"
+      ],
+      "retrieval": {
+        "date": "2026-11-13 (generated_utc in the file)",
+        "method": "NASA API portal https://api.nasa.gov endpoints DONKI/SEP and DONKI/CME with a personal API key (src/acquire/space_weather.py via src/acquire/nasa_api.py). Request URLs are stored without the key. DONKI/FLR returned HTTP 404 through api.nasa.gov and is recorded as unavailable."
+      },
+      "processing": {
+        "method": "Events filtered to [window_start_utc, window_start_utc + duration_days]; SEP fields transcribed (id, time, instruments, linked events, DONKI link); CME speed and half-angle taken from DONKI's most-accurate analysis. Windows ending before April 2010 are reported as before_donki_coverage (null, not zero)."
+      },
+      "citation_required": true,
+      "citation_status": "present",
+      "human_review_status": "pending"
+    },
+    {
       "dataset": "Derived SPICE tracks, geometry and validation outputs",
       "description": "Locally generated tracks, horizons, countdowns, illumination comparisons and API fixtures.",
       "source": {

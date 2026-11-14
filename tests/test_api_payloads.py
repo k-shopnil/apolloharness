@@ -244,3 +244,67 @@ class SiteGeometryTrackAndSlopeTests(unittest.TestCase):
         self.assertEqual(result["dem_product"], "LOLA GDR LDEM_64")
         self.assertEqual(result["horizon_model"], "lola_terrain_mask")
         self.assertIsNotNone(result["regional_slope_deg"])
+
+
+class SpaceWeatherTests(unittest.TestCase):
+    def test_committed_windows_are_context_not_dose(self) -> None:
+        from src.compute.api_payloads import mission_space_weather
+        im1 = mission_space_weather("clps-to2-im-im1")
+        self.assertEqual(im1["schema"], "apolloharness.space_weather_windows.v1")
+        self.assertIn("not a measured dose", im1["caveat"])
+        self.assertEqual(im1["status"], "complete")
+        self.assertEqual(im1["sep"]["count"], len(im1["sep"]["events"]))
+        from datetime import datetime
+
+        def when(stamp: str) -> datetime:
+            return datetime.fromisoformat(stamp.replace("Z", "+00:00"))
+        start, end = when(im1["window_start_utc"]), when(im1["window_end_utc"])
+        for event in im1["sep"]["events"]:
+            self.assertTrue(start <= when(event["time_utc"]) <= end, event["id"])
+            self.assertTrue(event["link"].startswith("https://"))
+        apollo = mission_space_weather("anchor-apollo-17")
+        self.assertEqual(apollo["status"], "before_donki_coverage")
+        self.assertIsNone(apollo["sep"])  # unknown, never 0
+        with self.assertRaises(LookupError):
+            mission_space_weather("clps-to20a-griffin-1")
+
+    def test_requests_are_recorded_without_the_key(self) -> None:
+        text = Path("data/space_weather/donki_mission_windows.json").read_text(encoding="utf-8")
+        self.assertNotIn("api_key", text)
+
+
+class NasaApiClientTests(unittest.TestCase):
+    def test_key_precedence_and_redaction(self) -> None:
+        import os
+        import tempfile
+        from unittest import mock
+        from src.acquire import nasa_api
+        with tempfile.TemporaryDirectory() as tmp:
+            env = Path(tmp) / ".env"
+            env.write_text("# comment\nNASA_API_KEY= file-key-123 \n", encoding="utf-8")
+            with mock.patch.dict(os.environ, {"NASA_API_KEY": ""}):
+                self.assertEqual(nasa_api.api_key(env), ("file-key-123", ".env"))
+            with mock.patch.dict(os.environ, {"NASA_API_KEY": "env-key-456"}):
+                self.assertEqual(nasa_api.api_key(env), ("env-key-456", "environment"))
+            with mock.patch.dict(os.environ, {"NASA_API_KEY": ""}):
+                self.assertEqual(nasa_api.api_key(Path(tmp) / "missing"), ("DEMO_KEY", "DEMO_KEY"))
+            self.assertEqual(nasa_api.redact("x file-key-123 y", "file-key-123"), "x *** y")
+
+    def test_http_errors_never_contain_the_key(self) -> None:
+        import io
+        import os
+        import tempfile
+        import urllib.error
+        from unittest import mock
+        from src.acquire import nasa_api
+        secret = "SECRET-KEY-789"
+        error = urllib.error.HTTPError(f"https://api.nasa.gov/DONKI/FLR?api_key={secret}", 404,
+                                       "Not Found", {}, io.BytesIO(b""))
+        with tempfile.TemporaryDirectory() as tmp, \
+                mock.patch.dict(os.environ, {"NASA_API_KEY": secret}), \
+                mock.patch("urllib.request.urlopen", side_effect=error):
+            with self.assertRaises(nasa_api.NasaApiError) as caught:
+                nasa_api.get_json("DONKI/FLR", env_file=Path(tmp) / ".env", startDate="2024-01-01")
+        self.assertEqual(caught.exception.status, 404)
+        self.assertNotIn(secret, str(caught.exception))
+        self.assertIn("DONKI/FLR?startDate=2024-01-01", str(caught.exception))
