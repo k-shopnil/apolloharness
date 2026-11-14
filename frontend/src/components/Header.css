@@ -161,8 +161,8 @@
 .header__github {
   display: grid;
   place-items: center;
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   margin-left: -6px;
   color: var(--text-muted);
   transition: color 0.15s ease;
@@ -284,7 +284,13 @@
   }
 
   .header__github {
-    width: 26px;
+    width: 28px;
+    height: 28px;
     margin-left: -4px;
+  }
+
+  .header__github svg {
+    width: 20px;
+    height: 20px;
   }
 }
